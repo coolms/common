@@ -12,11 +12,17 @@ namespace CmsCommon\Form\View\Helper;
 
 use Zend\Form\ElementInterface,
     Zend\Form\LabelAwareInterface,
-    Zend\Form\View\Helper\FormRow as ZendFormRow;
-use Zend\I18n\Translator\TranslatorAwareInterface;
+    Zend\Form\View\Helper\FormRow as ZendFormRow,
+    Zend\I18n\Translator\TranslatorAwareInterface,
+    CmsCommon\View\Helper\Decorator,
+    CmsCommon\Form\View\Helper\Traits\FormProviderTrait;
+use Zend\Form\FormInterface;
+use CmsCommon\View\Helper\DecoratorProviderInterface;
 
 class FormRow extends ZendFormRow
 {
+    use FormProviderTrait;
+
     const RENDER_ALL     = 'all';
     const RENDER_STATIC  = 'static';
     const RENDER_DYNAMIC = 'dynamic';
@@ -25,6 +31,16 @@ class FormRow extends ZendFormRow
      * @var string
      */
     protected $renderMode = self::RENDER_ALL;
+
+    /**
+     * @var Decorator
+     */
+    protected $decoratorHelper;
+
+    /**
+     * @var string
+     */
+    protected $decoratorNamespace = Decorator::OPTION_KEY;
 
     /**
      * {@inheritDoc}
@@ -38,20 +54,6 @@ class FormRow extends ZendFormRow
             return $this;
         }
 
-        if (null === $labelPosition && $element instanceof LabelAwareInterface) {
-            if (!$element->getLabelOption('position')) {
-            	switch ($element->getAttribute('type')) {
-            		case 'radio':
-            		case 'checkbox':
-            			$labelPosition = static::LABEL_APPEND;
-            			break;
-            		default:
-            		    $labelPosition = static::LABEL_PREPEND;
-            	}
-            }
-            $this->setLabelPosition($element->getLabelOption('position') ?: self::LABEL_PREPEND);
-        }
-
         if (null !== $renderMode) {
             $this->setRenderMode($renderMode);
         }
@@ -62,7 +64,7 @@ class FormRow extends ZendFormRow
     /**
      * {@inheritDoc}
      */
-    public function render(ElementInterface $element)
+    public function render(ElementInterface $element, FormInterface $form = null)
     {
         if ($element->getOption('__rendered__')
             || ($element->getAttribute('type') === 'static'
@@ -72,27 +74,9 @@ class FormRow extends ZendFormRow
             return '';
         }
 
-        if ($element instanceof LabelAwareInterface) {
-    		switch ($element->getAttribute('type')) {
-    			case 'radio':
-    			case 'checkbox':
-    			    if ($element->getLabelOption('always_wrap') !== false) {
-    			        $element->setLabelOption('always_wrap', true);
-    			    }
-    			    if (!$element->getLabelOption('position')) {
-    				    $labelPosition = static::LABEL_APPEND;
-    			    }
-    				break;
-    			case 'static':
-    			    if ($element->getLabelOption('always_wrap') !== false) {
-    			    	$element->setLabelOption('always_wrap', true);
-    			    }
-    			default:
-    			    if (!$element->getLabelOption('position')) {
-    				    $labelPosition = static::LABEL_PREPEND;
-    			    }
-    		}
-        	$this->setLabelPosition($element->getLabelOption('position') ?: $labelPosition);
+        if ($decorators = $this->getDecorators($element)) {
+            $decoratorHelper = $this->getDecoratorHelper();
+            return $decoratorHelper($element, $decorators, $element, $form ?: $this->getForm());
         }
 
         return parent::render($element);
@@ -107,7 +91,7 @@ class FormRow extends ZendFormRow
         if ($this->getRenderMode() === static::RENDER_STATIC
             && method_exists($renderer, 'plugin')
         ) {
-            $elementHelper = $renderer->plugin('formstatic');
+            $elementHelper = $renderer->plugin('form_static');
         } else {
             $elementHelper = parent::getElementHelper();
         }
@@ -120,13 +104,48 @@ class FormRow extends ZendFormRow
     }
 
     /**
+     * @return Decorator
+     */
+    protected function getDecoratorHelper()
+    {
+        if ($this->decoratorHelper) {
+            return $this->decoratorHelper;
+        }
+
+        if (method_exists($this->view, 'plugin')) {
+            $this->decoratorHelper = $this->view->plugin('decorator');
+        }
+
+        if (!$this->decoratorHelper instanceof Decorator) {
+            $this->decoratorHelper = new Decorator();
+        }
+
+        return $this->decoratorHelper;
+    }
+
+    /**
+     * @param ElementInterface $element
+     * @return array
+     */
+    protected function getDecorators(ElementInterface $element)
+    {
+        $decorators = (array) $element->getOption($this->decoratorNamespace);
+
+        $helper = $this->getElementHelper();
+        if ($helper instanceof DecoratorProviderInterface) {
+            return array_replace_recursive($helper->getDecoratorSpecification($element), $decorators);
+        }
+
+        return $decorators;
+    }
+
+    /**
      * @param string $mode
      * @return self
      */
     public function setRenderMode($mode)
     {
         $this->renderMode = $mode;
-
         return $this;
     }
 

@@ -17,7 +17,8 @@ class Decorator extends AbstractHelper
 {
     const PLACEMENT_APPEND  = 'append';
     const PLACEMENT_PREPEND = 'prepend';
-    const OPTION_KEY        = 'decorators';
+
+    const OPTION_KEY = 'decorators';
 
     /**
      * @param string $markup
@@ -29,7 +30,7 @@ class Decorator extends AbstractHelper
             return $this;
         }
 
-        return $this->render($markup, $decorators);
+        return call_user_func_array([$this, 'render'], func_get_args());
     }
 
     /**
@@ -45,8 +46,14 @@ class Decorator extends AbstractHelper
             return $markup;
         }
 
+        $param_arr = func_get_args();
+
         foreach ($decorators as $decorator => $options)
         {
+            if ($options === false) {
+                continue;
+            }
+
             if (!is_string($decorator)) {
                 $decorator  = $options;
                 $options    = [];
@@ -54,6 +61,7 @@ class Decorator extends AbstractHelper
 
             if (!empty($options['type'])) {
                 $decorator = $options['type'];
+                unset($options['type']);
             }
 
             if (!(($plugin = $renderer->plugin($decorator))
@@ -63,38 +71,49 @@ class Decorator extends AbstractHelper
             }
 
             if (isset($options['content'])) {
-                $content = $options['content'];
+                if ($options['content'] === false) {
+                    continue;
+                }
+                $param_arr[0] = $options['content'];
                 unset($options['content']);
             } else {
-                $content = '';
+                $param_arr[0] = '';
             }
 
             if (isset($options['attributes'])) {
-                $attributes = (array) $options['attributes'];
+                $param_arr[1] = (array) $options['attributes'];
                 unset($options['attributes']);
             } else {
-                $attributes = $options;
+                $param_arr[1] = $options;
+                unset($param_arr[1]['placement'], $param_arr[1][self::OPTION_KEY]);
             }
 
             if (isset($options['placement'])) {
 
-                unset($attributes['placement'], $attributes[self::OPTION_KEY]);
-                $content = $plugin($content, $attributes);
+                $param_arr[0] = call_user_func_array($plugin, $param_arr);
                 if (!empty($options[self::OPTION_KEY])) {
-                    $content = $this->render($content, $options[self::OPTION_KEY]);
+                    $param_arr[1] = $options[self::OPTION_KEY];
+                    $param_arr[0] = call_user_func_array([$this, 'render'], $param_arr);
                 }
 
                 switch ($options['placement']) {
                     case self::PLACEMENT_APPEND:
-                        $markup .= $content;
+                        $markup .= $param_arr[0];
                         break;
                     case self::PLACEMENT_PREPEND:
-                        $markup = $content . $markup;
+                        $markup  = $param_arr[0] . $markup;
                         break;
                 }
 
             } else {
-                $markup = $plugin($markup, $attributes);
+                $param_arr[0] = $markup;
+                if (!empty($options[self::OPTION_KEY])) {
+                    $param_arr[0] = call_user_func_array($plugin, $param_arr);
+                    $param_arr[1] = $options[self::OPTION_KEY];
+                    $markup = call_user_func_array([$this, 'render'], $param_arr);
+                } else {
+                    $markup = call_user_func_array($plugin, $param_arr);
+                }
             }
         }
 

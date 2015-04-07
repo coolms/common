@@ -27,7 +27,7 @@ use CmsCommon\Form\View\Helper\Traits\TranslatorTextDomainTrait;
 class FormCollection extends ZendFormCollection
 {
     use Traits\FormProviderTrait,
-        TranslatorTextDomainTrait;
+        Traits\TranslatorTextDomainTrait;
 
     /**
      * @var string
@@ -79,7 +79,7 @@ class FormCollection extends ZendFormCollection
         ) {
             $headScript = $this->getView()->plugin('headScript');
             $basePath   = $this->getView()->plugin('basePath');
-            $headScript()->appendFile($basePath('assets/cms-base/js/form/collection.js'));
+            $headScript()->appendFile($basePath('assets/common/js/form/collection.js'));
         }
 
         $this->setShouldWrap($wrap);
@@ -336,11 +336,11 @@ class FormCollection extends ZendFormCollection
 
         if ($element instanceof Collection && $element->allowAdd()) {
             $control = ' <button type="button" class="btn btn-success btn-xs" '
-                     . 'onclick="return CmsBase.Form.Collection.addFieldset(this);">'
+                     . 'onclick="return CmsCommon.Form.Collection.addFieldset(this);">'
                      . '<span class="glyphicon glyphicon-plus"></span></button>';
         } elseif ($element instanceof FieldsetInterface && $element->getOption('allow_remove')) {
             $control = ' <button type="button" class="btn btn-danger btn-xs" '
-                     . 'onclick="return CmsBase.Form.Collection.removeFieldset(this);">'
+                     . 'onclick="return CmsCommon.Form.Collection.removeFieldset(this);">'
                      . '<span class="glyphicon glyphicon-minus"></span></button>';
         }
 

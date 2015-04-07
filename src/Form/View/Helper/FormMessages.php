@@ -72,8 +72,8 @@ class FormMessages extends FormElementErrors
                     }
 
                     if ($flashMessenger->hasCurrentMessages() &&
-                        $messages = $flashMessenger->getCurrentMessagesFromNamespace("$formName-$namespace")) {
-
+                        ($messages = $flashMessenger->getCurrentMessagesFromNamespace("$formName-$namespace"))
+                    ) {
                         $element->setMessages(array_merge(
                             $element->getMessages(),
                             $this->translateMessages($messages)

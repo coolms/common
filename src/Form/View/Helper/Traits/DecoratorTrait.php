@@ -11,67 +11,15 @@
 namespace CmsCommon\Form\View\Helper\Traits;
 
 use Zend\Form\ElementInterface,
-    Zend\Form\FormInterface;
+    Zend\Form\FormInterface,
+    CmsCommon\View\Helper\Decorator;
 
 /**
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait DecoratorTrait
 {
-    use ElementOptionsTrait;
-
-    /**
-     * @var int
-     */
-    protected $counter = 0;
-
-    /**
-     * @param string $markup
-     * @param ElementInterface $element
-     * @param FormInterface $form
-     * @return string
-     */
-    protected function decorate($markup, ElementInterface $element, FormInterface $form)
-    {
-        $this->resetCounter();
-
-        if ($element->getAttribute('type') === 'hidden') {
-        	return $markup;
-        }
-
-        if ($markup !== '') {
-            foreach ($this->getDecorators($element) as $decorator => $attribs) {
-                if ($attribs === false) {
-                    continue;
-                }
-                if (is_int($decorator)) {
-                    $decorator = $attribs;
-                    $attribs = [];
-                }
-                if (!in_array($decorator, $this->getAllowedDecorators())) {
-                    continue;
-                }
-                $markup = $this->renderDecorator($markup, $decorator, $attribs, $element, $form);
-                $this->counter++;
-            }
-        }
-
-        return $markup;
-    }
-
-    /**
-     * @param string $markup
-     * @param string $decorator
-     * @param array $attribs
-     * @param ElementInterface $element
-     * @param FormInterface $form
-     * @return string
-     */
-    protected function renderDecorator($markup, $decorator, array $attribs, ElementInterface $element, FormInterface $form)
-    {
-        $plugin = $this->getView()->plugin($decorator);
-        return $plugin((string) $markup, $attribs, $element, $form);
-    }
+    use OptionsTrait;
 
     /**
      * @param ElementInterface $element
@@ -79,7 +27,7 @@ trait DecoratorTrait
      */
     public function getDecorators(ElementInterface $element)
     {
-        return (array) $this->getOption('decorators', $element);
+        return (array) $this->getOption(Decorator::OPTION_KEY, $element);
     }
 
     /**
@@ -96,46 +44,5 @@ trait DecoratorTrait
         if (in_array($decorator, $decorators)) {
             return [];
         }
-    }
-
-    /**
-     * @param array $decorators
-     * @return self
-     */
-    public function setAllowedDecorators(array $decorators)
-    {
-        if (property_exists($this, 'allowedDecorators')) {
-            $this->allowedDecorators = $decorators;
-        }
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAllowedDecorators()
-    {
-        if (property_exists($this, 'allowedDecorators')) {
-            return (array) $this->allowedDecorators;
-        }
-
-        return [];
-    }
-
-    /**
-     * @return self
-     */
-    protected function resetCounter()
-    {
-        $this->counter = 0;
-        return $this;
-    }
-
-    /**
-     * @return number
-     */
-    protected function getCounter()
-    {
-        return (int) $this->counter;
     }
 }
