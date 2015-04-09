@@ -11,13 +11,13 @@
 namespace CmsCommon\Form\View\Helper;
 
 use Zend\Form\ElementInterface,
+    Zend\Form\FormInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormRow as ZendFormRow,
     Zend\I18n\Translator\TranslatorAwareInterface,
-    CmsCommon\View\Helper\Decorator,
-    CmsCommon\Form\View\Helper\Traits\FormProviderTrait;
-use Zend\Form\FormInterface;
-use CmsCommon\View\Helper\DecoratorProviderInterface;
+    CmsCommon\Form\View\Helper\Traits\FormProviderTrait,
+    CmsCommon\View\Helper\Decorator\Decorator,
+    CmsCommon\View\Helper\Decorator\DecoratorProviderInterface;
 
 class FormRow extends ZendFormRow
 {
@@ -118,6 +118,7 @@ class FormRow extends ZendFormRow
 
         if (!$this->decoratorHelper instanceof Decorator) {
             $this->decoratorHelper = new Decorator();
+            $this->decoratorHelper->setView($this->getView());
         }
 
         return $this->decoratorHelper;
@@ -129,7 +130,7 @@ class FormRow extends ZendFormRow
      */
     protected function getDecorators(ElementInterface $element)
     {
-        $decorators = (array) $element->getOption($this->decoratorNamespace);
+        $decorators = (array) $element->getOption($this->getDecoratorNamespace());
 
         $helper = $this->getElementHelper();
         if ($helper instanceof DecoratorProviderInterface) {
@@ -137,6 +138,14 @@ class FormRow extends ZendFormRow
         }
 
         return $decorators;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDecoratorNamespace()
+    {
+        return $this->decoratorNamespace;
     }
 
     /**

@@ -104,19 +104,18 @@ abstract class AbstractHtmlContainer extends HtmlContainer
      *
      * @param ElementInterface $element
      * @param FieldsetInterface $fieldset
-     * @return array|\Traversable|null
+     * @return array|\Traversable
      */
     protected function getFieldsetElements(ElementInterface $element, FieldsetInterface $fieldset)
     {
-        if (($elements = $fieldset->getElements()) && in_array($element, $elements, true)) {
-            return $elements;
-        }
-
-        if ($fieldset instanceof Collection
-            && ($templateElement = $fieldset->getTemplateElement())
-            && ($elements = $templateElement->getElements())
-            && in_array($element, $elements, true)
-        ) {
+        if ($fieldset instanceof Element\Collection) {
+            if (($templateElement = $fieldset->getTemplateElement())
+                && ($elements = $templateElement->getElements())
+                && in_array($element, $elements, true)
+            ) {
+                return $elements;
+            }
+        } elseif (($elements = $fieldset->getElements()) && in_array($element, $elements, true)) {
             return $elements;
         }
 
@@ -125,6 +124,8 @@ abstract class AbstractHtmlContainer extends HtmlContainer
                 return $elements;
             }
         }
+
+        return [];
     }
 
     /**

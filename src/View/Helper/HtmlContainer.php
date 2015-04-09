@@ -10,7 +10,8 @@
 
 namespace CmsCommon\View\Helper;
 
-use Zend\View\Helper\AbstractHtmlElement;
+use Zend\View\Helper\AbstractHtmlElement,
+    Zend\View\Helper\EscapeHtml;
 
 class HtmlContainer extends AbstractHtmlElement
 {
@@ -38,6 +39,11 @@ class HtmlContainer extends AbstractHtmlElement
      * @var string
      */
     protected $closeTag = '</%s>';
+
+    /**
+     * @var EscapeHtml
+     */
+    protected $escapeHtmlHelper;
 
     /**
      * Invoke helper as functor
@@ -192,5 +198,28 @@ class HtmlContainer extends AbstractHtmlElement
         }
 
         return array_replace_recursive($this->getAttributes(), $attribs);
+    }
+
+    /**
+     * Retrieve the escapeHtml helper
+     *
+     * @return EscapeHtml
+     */
+    protected function getEscapeHtmlHelper()
+    {
+        if ($this->escapeHtmlHelper) {
+            return $this->escapeHtmlHelper;
+        }
+
+        if (method_exists($this->view, 'plugin')) {
+            $this->escapeHtmlHelper = $this->view->plugin('escapehtml');
+        }
+
+        if (!$this->escapeHtmlHelper instanceof EscapeHtml) {
+            $this->escapeHtmlHelper = new EscapeHtml();
+            $this->escapeHtmlHelper->setView($this->getView());
+        }
+
+        return $this->escapeHtmlHelper;
     }
 }

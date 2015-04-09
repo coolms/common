@@ -8,7 +8,7 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\View\Helper;
+namespace CmsCommon\View\Helper\Decorator;
 
 use Zend\View\Helper\AbstractHelper,
     CmsCommon\View\Helper\HtmlContainer;
@@ -19,6 +19,11 @@ class Decorator extends AbstractHelper
     const PLACEMENT_PREPEND = 'prepend';
 
     const OPTION_KEY = 'decorators';
+
+    /**
+     * @var int
+     */
+    protected $orderStep = 10;
 
     /**
      * @param string $markup
@@ -48,34 +53,30 @@ class Decorator extends AbstractHelper
 
         $param_arr = func_get_args();
 
+        $decorators = $this->sort($decorators);
         foreach ($decorators as $decorator => $options)
         {
-            if ($options === false) {
-                continue;
-            }
-
             if (!is_string($decorator)) {
                 $decorator  = $options;
                 $options    = [];
             }
 
-            if (!empty($options['type'])) {
-                $decorator = $options['type'];
-                unset($options['type']);
-            }
-
-            if (!(($plugin = $renderer->plugin($decorator))
-                && $plugin instanceof HtmlContainer)
-            ) {
+            if (!is_array($options)) {
                 continue;
             }
 
+            if (isset($options['placement']) && $options['placement'] === false) {
+                continue;
+            }
+
+            if (!empty($options['type'])) {
+                $decorator = $options['type'];
+            }
+
+            $plugin = $this->getDecoratorHelper($decorator);
+
             if (isset($options['content'])) {
-                if ($options['content'] === false) {
-                    continue;
-                }
                 $param_arr[0] = $options['content'];
-                unset($options['content']);
             } else {
                 $param_arr[0] = '';
             }
@@ -85,11 +86,20 @@ class Decorator extends AbstractHelper
                 unset($options['attributes']);
             } else {
                 $param_arr[1] = $options;
-                unset($param_arr[1]['placement'], $param_arr[1][self::OPTION_KEY]);
+                unset(
+                    $param_arr[1]['content'],
+                    $param_arr[1][self::OPTION_KEY],
+                    $param_arr[1]['order'],
+                    $param_arr[1]['placement'],
+                    $param_arr[1]['type']
+                );
+            }
+
+            if (!array_key_exists('placement', $options) && $plugin instanceof PlacedDecoratorInterface) {
+                $options['placement'] = $plugin->getPlacement();
             }
 
             if (isset($options['placement'])) {
-
                 $param_arr[0] = call_user_func_array($plugin, $param_arr);
                 if (!empty($options[self::OPTION_KEY])) {
                     $param_arr[1] = $options[self::OPTION_KEY];
@@ -104,7 +114,6 @@ class Decorator extends AbstractHelper
                         $markup  = $param_arr[0] . $markup;
                         break;
                 }
-
             } else {
                 $param_arr[0] = $markup;
                 if (!empty($options[self::OPTION_KEY])) {
@@ -118,5 +127,67 @@ class Decorator extends AbstractHelper
         }
 
         return $markup;
+    }
+
+    /**
+     * Sorts decorators according to 'order' option
+     *
+     * @param array $decorators
+     * @return array
+     */
+    protected function sort(array $decorators)
+    {
+        $order   = 0;
+        $sortAux = [];
+
+        foreach ($decorators as $decorator => $options) {
+            if (!is_string($decorator)) {
+                $decorator  = $options;
+                $options    = [];
+            }
+
+            if (!is_array($options)) {
+                continue;
+            }
+
+            if (!empty($options['type'])) {
+                $decorator = $options['type'];
+            }
+
+            if (!isset($options['order'])) {
+                $plugin = $this->getDecoratorHelper($decorator);
+                if ($plugin instanceof OrderedDecoratorInterface) {
+                    $order = $plugin->getOrder();
+                }
+                $options['order'] = $order;
+            } else {
+                $order = (int) $options['order'];
+            }
+
+            $sortAux[] = $options['order'];
+            $order += $this->orderStep;
+        }
+
+        array_multisort($sortAux, SORT_ASC, SORT_NUMERIC, $decorators);
+
+        return $decorators;
+    }
+
+    /**
+     * @param string $name
+     * @throws \RuntimeException
+     * @return HtmlContainer
+     */
+    protected function getDecoratorHelper($name)
+    {
+        $plugin = $this->getView()->plugin($name);
+        if (!$plugin instanceof HtmlContainer) {
+            throw new \RuntimeException(sprintf(
+                'Decorator plugin must be of type CmsCommon\View\Helper\HtmlContainer; %s given',
+                is_object($plugin) ? get_class($plugin) : gettype($plugin)
+            ));
+        }
+
+        return $plugin;
     }
 }

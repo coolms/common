@@ -10,7 +10,8 @@
 
 namespace CmsCommon\Form\View\Helper\Decorator;
 
-use Zend\Form\ElementInterface,
+use Zend\Form\Element as ZendElement,
+    Zend\Form\ElementInterface,
     Zend\Form\FormInterface,
     Zend\Form\View\Helper\FormElement,
     CmsCommon\View\Helper\IdNormalizer;
@@ -33,7 +34,7 @@ class Element extends AbstractHtmlContainer
     protected $idNormalizer;
 
     /**
-     * @param  string $content
+     * @param  string|ElementInterface $content
      * @param  array $attribs
      * @param  ElementInterface $element
      * @param  FormInterface $form
@@ -52,6 +53,7 @@ class Element extends AbstractHtmlContainer
                 $idNormalizer = $this->getIdNormalizer();
                 $content->setAttribute('id', $idNormalizer($content->getName()));
             }
+
             $rendered = $this->renderHelper($content, $form);
             $content->setOption('__rendered__', true);
             $content = $rendered;
@@ -75,6 +77,7 @@ class Element extends AbstractHtmlContainer
 
         if (!$this->elementHelper instanceof FormElement) {
             $this->elementHelper = new FormElement();
+            $this->elementHelper->setView($this->getView());
         }
 
         return $this->elementHelper;

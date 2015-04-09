@@ -74,6 +74,7 @@ class ElementLabel extends HtmlContainer
 
         if (!$this->labelHelper instanceof FormLabel) {
             $this->labelHelper = new FormLabel();
+            $this->labelHelper->setView($this->getView());
         }
 
         return $this->labelHelper;

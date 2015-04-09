@@ -15,7 +15,7 @@ use Zend\Form\ElementInterface,
     Zend\Form\View\Helper\FormInput,
     Zend\I18n\Translator\TranslatorAwareInterface,
     Zend\I18n\Translator\TranslatorAwareTrait,
-    CmsCommon\View\Helper\DecoratorProviderInterface;
+    CmsCommon\View\Helper\Decorator\DecoratorProviderInterface;
 
 class FormElement extends ZendFormElement implements
         DecoratorProviderInterface,

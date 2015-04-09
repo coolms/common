@@ -8,15 +8,14 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\View\Helper;
+namespace CmsCommon\View\Helper\Decorator;
 
-interface DecoratorProviderInterface
+interface PlacedDecoratorInterface
 {
     /**
-     * Should return an array specification compatible with
-     * {@link CmsCommon\View\Helper\Decorator::render()}.
+     * Should return an integer value
      *
-     * @return array
+     * @return int
      */
-    public function getDecoratorSpecification();
+    public function getPlacement();
 }
