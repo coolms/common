@@ -64,7 +64,7 @@ class Hierarchy extends AbstractHelper implements MapperProviderInterface
         $options = [],
         $includeNode = null
     ) {
-        if (!$node) {
+        if (0 === func_num_args()) {
             return $this;
         }
 
@@ -83,9 +83,9 @@ class Hierarchy extends AbstractHelper implements MapperProviderInterface
     public function render(HierarchyInterface $node = null, $direct = null, $options = [], $includeNode = null)
     {
         return $this->getMapper()->childrenHierarchy(
-            $node,                                      /* if node is null starting from root nodes */
-            null === $direct ? $this->direct() : $direct, /* true: load all children, false: only direct */
-            $options ?: $this->getOptions(),
+            $node, // if node is null starting from root nodes
+            null === $direct ? $this->direct() : $direct, // true: load all children, false: only direct
+            array_replace_recursive($this->getOptions(), $options),
             null === $includeNode ? $this->includeNode() : $includeNode
         );
     }
