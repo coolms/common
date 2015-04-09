@@ -174,6 +174,7 @@ return [
             'elementLabel'       => 'CmsCommon\Form\View\Helper\Decorator\ElementLabel',
             'fieldset'           => 'CmsCommon\Form\View\Helper\Decorator\Fieldset',
             'form'               => 'CmsCommon\Form\View\Helper\Form',
+            'formCaptcha'        => 'CmsCommon\Form\View\Helper\FormCaptcha',
             'formCollection'     => 'CmsCommon\Form\View\Helper\FormCollection',
             'formDateSelect'     => 'CmsCommon\Form\View\Helper\FormDateSelect',
             'formElement'        => 'CmsCommon\Form\View\Helper\FormElement',

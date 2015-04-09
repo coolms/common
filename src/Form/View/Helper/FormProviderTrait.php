@@ -8,7 +8,7 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form\View\Helper\Traits;
+namespace CmsCommon\Form\View\Helper;
 
 use Zend\Form\FormInterface,
     Zend\View\Renderer\RendererInterface;

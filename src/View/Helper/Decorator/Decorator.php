@@ -11,10 +11,14 @@
 namespace CmsCommon\View\Helper\Decorator;
 
 use Zend\View\Helper\AbstractHelper,
+    Zend\EventManager\EventManagerAwareInterface,
+    Zend\EventManager\EventManagerAwareTrait,
     CmsCommon\View\Helper\HtmlContainer;
 
-class Decorator extends AbstractHelper
+class Decorator extends AbstractHelper implements EventManagerAwareInterface
 {
+    use EventManagerAwareTrait;
+
     const PLACEMENT_APPEND  = 'append';
     const PLACEMENT_PREPEND = 'prepend';
 

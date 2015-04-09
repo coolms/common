@@ -64,3 +64,6 @@ msgstr "Проверено"
 
 msgid "Updated at"
 msgstr "Дата обновления"
+
+msgid "Verify you are human"
+msgstr "Подтвердите, что Вы человек"

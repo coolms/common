@@ -15,7 +15,6 @@ use Zend\Form\ElementInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormRow as ZendFormRow,
     Zend\I18n\Translator\TranslatorAwareInterface,
-    CmsCommon\Form\View\Helper\Traits\FormProviderTrait,
     CmsCommon\View\Helper\Decorator\Decorator,
     CmsCommon\View\Helper\Decorator\DecoratorProviderInterface;
 
@@ -64,7 +63,7 @@ class FormRow extends ZendFormRow
     /**
      * {@inheritDoc}
      */
-    public function render(ElementInterface $element, FormInterface $form = null)
+    public function render(ElementInterface $element)
     {
         if ($element->getOption('__rendered__')
             || ($element->getAttribute('type') === 'static'
@@ -74,12 +73,23 @@ class FormRow extends ZendFormRow
             return '';
         }
 
-        if ($decorators = $this->getDecorators($element)) {
-            $decoratorHelper = $this->getDecoratorHelper();
-            return $decoratorHelper($element, $decorators, $element, $form ?: $this->getForm());
+        if ($textDomain = $element->getOption('text_domain')) {
+            $rollbackTextDomain = $this->getTranslatorTextDomain();
+            $this->setTranslatorTextDomain($textDomain);
         }
 
-        return parent::render($element);
+        if ($decorators = $this->getDecorators($element)) {
+            $decoratorHelper = $this->getDecoratorHelper();
+            $markup = $decoratorHelper($element, $decorators, $element, $this->getForm());
+        } else {
+            $markup = parent::render($element);
+        }
+
+        if ($textDomain) {
+            $this->setTranslatorTextDomain($rollbackTextDomain);
+        }
+
+        return $markup;
     }
 
     /**

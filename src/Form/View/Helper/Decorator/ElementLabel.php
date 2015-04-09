@@ -13,6 +13,7 @@ namespace CmsCommon\Form\View\Helper\Decorator;
 use Zend\Form\ElementInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormLabel,
+    Zend\I18n\Translator\TranslatorAwareInterface,
     CmsCommon\View\Helper\HtmlContainer;
 
 class ElementLabel extends HtmlContainer
@@ -56,7 +57,21 @@ class ElementLabel extends HtmlContainer
         $element->setLabelAttributes($this->mergeAttributes($attribs));
 
         $labelHelper = $this->getLabelHelper();
-        return $labelHelper($element, $content ?: null, $this->getLabelPosition($element));
+
+        if ($labelHelper instanceof TranslatorAwareInterface
+            && ($textDomain = $element->getOption('text_domain'))
+        ) {
+            $rollbackTextDomain = $labelHelper->getTranslatorTextDomain();
+            $labelHelper->setTranslatorTextDomain($textDomain);
+        }
+
+        $markup = $labelHelper($element, $content ?: null, $this->getLabelPosition($element));
+
+        if ($textDomain) {
+            $labelHelper->setTranslatorTextDomain($rollbackTextDomain);
+        }
+
+        return $markup;
     }
 
     /**

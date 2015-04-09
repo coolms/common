@@ -21,7 +21,7 @@ class Element extends AbstractHtmlContainer
     /**
      * @var string
      */
-    protected $tagName = null;
+    protected $tagName = 'input';
 
     /**
      * @var AbstractHelper
@@ -56,7 +56,7 @@ class Element extends AbstractHtmlContainer
 
             $rendered = $this->renderHelper($content, $form);
             $content->setOption('__rendered__', true);
-            $content = $rendered;
+            return $rendered;
         }
 
         return parent::render($content, $attribs, $element, $form);

@@ -68,6 +68,7 @@ class Form extends ZendForm
         if (null === $renderMode) {
             $renderMode = $form->getOption('render_mode');
         }
+
         $rollbackRenderMode = null;
         if ($renderMode && $fieldsetHelper instanceof FormCollection) {
             $elementHelper = $this->view->plugin($fieldsetHelper->getDefaultElementHelper());
@@ -97,7 +98,6 @@ class Form extends ZendForm
     public function setFieldsetHelper(AbstractHelper $fieldsetHelper)
     {
     	$this->fieldsetHelper = $fieldsetHelper;
-
     	return $this;
     }
 

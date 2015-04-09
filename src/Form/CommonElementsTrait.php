@@ -173,6 +173,7 @@ trait CommonElementsTrait
                 'options' => [
                     'captcha' => $this->getCaptchaOptions(),
                     'label' => 'Verify you are human',
+                    'text_domain' => 'default',
                 ],
             ],
             ['priority' => -970]

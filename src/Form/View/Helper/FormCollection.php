@@ -26,8 +26,7 @@ use CmsCommon\Form\View\Helper\Traits\TranslatorTextDomainTrait;
  */
 class FormCollection extends ZendFormCollection
 {
-    use Traits\FormProviderTrait,
-        Traits\TranslatorTextDomainTrait;
+    use FormProviderTrait;
 
     /**
      * @var string
@@ -336,12 +335,12 @@ class FormCollection extends ZendFormCollection
 
         if ($element instanceof Collection && $element->allowAdd()) {
             $control = ' <button type="button" class="btn btn-success btn-xs" '
-                     . 'onclick="return CmsCommon.Form.Collection.addFieldset(this);">'
-                     . '<span class="glyphicon glyphicon-plus"></span></button>';
+                     . 'onclick="return CmsCommon.Form.Collection.addFieldset(this, \'prepend\');">'
+                     . '+</button>';
         } elseif ($element instanceof FieldsetInterface && $element->getOption('allow_remove')) {
             $control = ' <button type="button" class="btn btn-danger btn-xs" '
                      . 'onclick="return CmsCommon.Form.Collection.removeFieldset(this);">'
-                     . '<span class="glyphicon glyphicon-minus"></span></button>';
+                     . '-</button>';
         }
 
         return $control;
