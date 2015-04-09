@@ -12,9 +12,9 @@ namespace CmsCommon\View\Helper;
 
 use Zend\View\Helper\AbstractHelper,
     CmsCommon\Mapping\Hierarchy\HierarchyInterface,
-    CmsCommon\Persistence\Mapper\HierarchyMapperInterface,
-    CmsCommon\Persistence\Mapper\MapperProviderTrait,
-    CmsCommon\Persistence\Mapper\MapperProviderInterface;
+    CmsCommon\Persistence\HierarchyMapperInterface,
+    CmsCommon\Persistence\MapperProviderTrait,
+    CmsCommon\Persistence\MapperProviderInterface;
 
 /**
  * View helper for rendering objects hierarchy
