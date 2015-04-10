@@ -63,7 +63,7 @@ class FormRow extends ZendFormRow
     /**
      * {@inheritDoc}
      */
-    public function render(ElementInterface $element)
+    public function render(ElementInterface $element, $labelPosition = null)
     {
         if ($element->getOption('__rendered__')
             || ($element->getAttribute('type') === 'static'
