@@ -74,6 +74,18 @@ return [
             ],
         ],
     ],
+    'controller_plugins' => [
+        'aliases' => [
+            'translate'         => 'CmsCommon\Mvc\Controller\Plugin\Translate',
+            'translatePlural'   => 'CmsCommon\Mvc\Controller\Plugin\TranslatePlural',
+        ],
+        'factories' => [
+            'CmsCommon\Mvc\Controller\Plugin\Translate'
+                => 'CmsCommon\Factory\TranslateControllerPluginFactory',
+            'CmsCommon\Mvc\Controller\Plugin\TranslatePlural'
+                => 'CmsCommon\Factory\TranslatePluralControllerPluginFactory',
+        ],
+    ],
     'controllers' => [
         'abstract_factories' => [
             'CmsCommon\Mvc\Controller\CrudController'
