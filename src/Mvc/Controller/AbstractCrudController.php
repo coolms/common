@@ -3,7 +3,7 @@
  * CoolMS2 Common Module (http://www.coolms.com/)
  *
  * @link      http://github.com/coolms/common for the canonical source repository
- * @copyright Copyright (c) 2006-2014 Altgraphic, ALC (http://www.altgraphic.com)
+ * @copyright Copyright (c) 2006-2015 Altgraphic, ALC (http://www.altgraphic.com)
  * @license   http://www.coolms.com/license/new-bsd New BSD License
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
@@ -73,8 +73,8 @@ abstract class AbstractCrudController extends AbstractActionController implement
 
             if (null === $id) {
                 $this->flashMessenger()->addWarningMessage(sprintf(
-                    'An identifier must be provided to %s an object',
-                    $action
+                    $this->translate('An identifier must be provided to %s an object'),
+                    $this->translate($action)
                 ));
 
                 return $this->redirectToBaseRoute();
@@ -82,7 +82,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
 
             $object = $this->getDomainService()->getMapper()->find($id);
             if (!$object) {
-                $this->flashMessenger()->addWarningMessage('An object cannot be found');
+                $this->flashMessenger()->addWarningMessage($this->translate('An object cannot be found'));
 
                 return $this->redirectToBaseRoute();
             }
@@ -174,7 +174,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
             }
 
             $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_SUCCESS)
-               ->addMessage('An object has been successfully created');
+               ->addMessage($this->translate('An object has been successfully created'));
         }
 
         return $viewModel;
@@ -237,7 +237,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
             }
 
             $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_SUCCESS)
-               ->addMessage('An object has been successfully updated');
+               ->addMessage($this->translate('An object has been successfully updated'));
         }
 
         return $viewModel;
@@ -271,7 +271,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
             return $this->redirectToBaseRoute();
         }
 
-        $fm->addSuccessMessage('An object has been successfully removed');
+        $fm->addSuccessMessage($this->translate('An object has been successfully removed'));
         return $this->redirectToBaseRoute();
     }
 

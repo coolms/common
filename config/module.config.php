@@ -174,6 +174,11 @@ return [
                 'pattern'       => '%s.mo',
                 'text_domain'   => 'default',
             ],
+            [
+                'type'          => 'phpArray',
+                'base_dir'      => __DIR__ . '/../language',
+                'pattern'       => '%s.php',
+            ],
         ],
     ],
     'view_helpers' => [
