@@ -78,7 +78,7 @@ class FormCollection extends ZendFormCollection
         ) {
             $headScript = $this->getView()->plugin('headScript');
             $basePath   = $this->getView()->plugin('basePath');
-            $headScript()->appendFile($basePath('assets/common/js/form/collection.js'));
+            $headScript()->appendFile($basePath('assets/cms-common/js/form/collection.js'));
         }
 
         $this->setShouldWrap($wrap);
