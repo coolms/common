@@ -10,11 +10,11 @@
 
 namespace CmsCommon\Form\Element;
 
-use Zend\Form\Element\Collection as BaseCollection,
+use Zend\Form\Element\Collection as ZendCollection,
     Zend\Form\FieldsetInterface,
     Zend\Form\Exception;
 
-class Collection extends BaseCollection
+class Collection extends ZendCollection
 {
     /**
      * {@inheritDoc}
@@ -28,12 +28,12 @@ class Collection extends BaseCollection
                 (is_object($data) ? get_class($data) : gettype($data))
             ));
         }
-        
+
         // Can't do anything with empty data
         if (empty($data) && $this->getOption('count') != 0) {
             return;
         }
-        
+
         if (!$this->allowRemove && count($data) < $this->count) {
             throw new Exception\DomainException(sprintf(
                 'There are fewer elements than specified in the collection (%s). Either set the allow_remove option '
@@ -41,23 +41,23 @@ class Collection extends BaseCollection
                 get_class($this)
             ));
         }
-        
+
         // Check to see if elements have been replaced or removed
-        foreach ($this->byName as $name => $elementOrFieldset) {
+        foreach ($this->iterator as $name => $elementOrFieldset) {
             if (isset($data[$name])) {
                 continue;
             }
-        
+
             if (!$this->allowRemove) {
                 throw new Exception\DomainException(sprintf(
                     'Elements have been removed from the collection (%s) but the allow_remove option is not true.',
                     get_class($this)
                 ));
             }
-        
+
             $this->remove($name);
         }
-        
+
         foreach ($data as $key => $value) {
             if ($this->has($key)) {
                 $elementOrFieldset = $this->get($key);
@@ -68,14 +68,14 @@ class Collection extends BaseCollection
                     $this->lastChildIndex = $key;
                 }
             }
-        
+
             if ($elementOrFieldset instanceof FieldsetInterface) {
                 $elementOrFieldset->populateValues($value);
             } else {
                 $elementOrFieldset->setAttribute('value', $value);
             }
         }
-        
+
         if (!$this->createNewObjects()) {
             $this->replaceTemplateObjects();
         }

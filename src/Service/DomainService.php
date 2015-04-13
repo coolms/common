@@ -12,6 +12,7 @@ namespace CmsCommon\Service;
 
 use Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerAwareTrait,
+    Zend\Form\FormInterface,
     Zend\ServiceManager\ServiceLocatorAwareTrait,
     Zend\ServiceManager\ServiceManager,
     Zend\Stdlib\ArrayUtils,
@@ -194,7 +195,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
     /**
      * {@inheritDoc}
      */
-    public function hydrate($data, $object = null)
+    public function hydrate($data, FormInterface $form = null, $object = null)
     {
         if ($data instanceof \Traversable) {
             $data = ArrayUtils::iteratorToArray($data);
@@ -203,9 +204,16 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
             return $data;
         }
 
-        $form = $this->getForm();
+        if (!$form) {
+            $form = $this->getForm();
+        }
+
         if (null !== $object) {
             $form->setObject($object);
+        }
+
+        if ($form->hasValidated()) {
+            return $form->getObject();
         }
 
         if ($form->setData($data)->isValid()) {

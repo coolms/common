@@ -132,6 +132,14 @@ return [
         'Options',
         'Options\ModuleOptions',
     ],
+    'navigation_helpers' => [
+        'aliases' => [
+            'menu' => 'CmsCommon\View\Helper\Navigation\Menu',
+        ],
+        'invokables' => [
+            'CmsCommon\View\Helper\Navigation\Menu' => 'CmsCommon\View\Helper\Navigation\Menu',
+        ],
+    ],
     'router' => [
         'routes' => [
             'api' => [
@@ -159,6 +167,9 @@ return [
             'DomainServiceManager'                  => 'CmsCommon\Factory\DomainServicePluginManagerFactory',
             'MapperManager'                         => 'CmsCommon\Factory\MapperPluginManagerFactory',
             'SessionContainerManager'               => 'CmsCommon\Factory\SessionContainerPluginManagerFactory',
+        ],
+        'initializers' => [
+            'CmsCommon\Initializer\MvcTranslatorInitializer'  => 'CmsCommon\Initializer\MvcTranslatorInitializer',
         ],
         'invokables' => [
             'CmsCommon\Crypt\PasswordGeneratorInterface'      => 'CmsCommon\Crypt\PasswordGenerator',

@@ -10,7 +10,8 @@
 
 namespace CmsCommon\Service;
 
-use CmsCommon\Form\FormProviderInterface,
+use Zend\Form\FormInterface,
+    CmsCommon\Form\FormProviderInterface,
     CmsCommon\Persistence\MapperProviderInterface,
     CmsCommon\Session\ContainerProviderInterface;
 
@@ -34,8 +35,9 @@ interface DomainServiceInterface extends
 
     /**
      * @param array|\Traversable $data
+     * @param FormInterface $form
      * @param object $object
      * @return self
      */
-    public function hydrate($data, $object = null);
+    public function hydrate($data, FormInterface $form = null, $object = null);
 }
