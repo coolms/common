@@ -83,7 +83,6 @@ class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implemen
     public function setCreationOptions(array $options)
     {
         $this->creationOptions = $options;
-
         return $this;
     }
 

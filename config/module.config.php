@@ -88,21 +88,26 @@ return [
     ],
     'controllers' => [
         'abstract_factories' => [
-            'CmsCommon\Mvc\Controller\CrudController'
+            'CmsCommon\Mvc\Service\CrudControllerAbstractServiceFactory'
                 => 'CmsCommon\Mvc\Service\CrudControllerAbstractServiceFactory',
-            'CmsCommon\Mvc\Controller\RestfulController'
+            'CmsCommon\Mvc\Service\RestfulControllerAbstractServiceFactory'
                 => 'CmsCommon\Mvc\Service\RestfulControllerAbstractServiceFactory',
         ],
     ],
     'domain_services' => [
         'abstract_factories' => [
-            'CmsCommon\Persistence\Service\ServiceInterface'
+            'CmsCommon\Service\DomainServiceAbstractServiceFactory'
                 => 'CmsCommon\Service\DomainServiceAbstractServiceFactory',
+        ],
+        'initializers' => [
+            'CmsCommon\Initializer\MvcTranslatorInitializer'
+                => 'CmsCommon\Initializer\MvcTranslatorInitializer',
         ],
     ],
     'form_elements' => [
         'abstract_factories' => [
-            'CmsCommon\AnnotationForm' => 'CmsCommon\Form\Annotation\FormAbstractServiceFactory',
+            'CmsCommon\Form\Annotation\FormAbstractServiceFactory'
+                => 'CmsCommon\Form\Annotation\FormAbstractServiceFactory',
         ],
         'aliases' => [
             'Collection'        => 'CmsCommon\Form\Element\Collection',
@@ -114,13 +119,13 @@ return [
             'StaticElement'     => 'CmsCommon\Form\Element\StaticElement',
         ],
         'invokables' => [
-            'CmsCommon\Form\Element\DateSelect'       => 'CmsCommon\Form\Element\DateSelect',
-            'CmsCommon\Form\Element\DateTimeSelect'   => 'CmsCommon\Form\Element\DateTimeSelect',
-            'CmsCommon\Form\Element\MonthSelect'      => 'CmsCommon\Form\Element\MonthSelect',
-            'CmsCommon\Form\Element\Number'           => 'CmsCommon\Form\Element\Number',
-            'CmsCommon\Form\Element\StaticElement'    => 'CmsCommon\Form\Element\StaticElement',
             'Zend\Form\Element\Collection'          => 'CmsCommon\Form\Element\Collection',
             'Zend\Form\Form'                        => 'CmsCommon\Form\Form',
+            'CmsCommon\Form\Element\DateSelect'     => 'CmsCommon\Form\Element\DateSelect',
+            'CmsCommon\Form\Element\DateTimeSelect' => 'CmsCommon\Form\Element\DateTimeSelect',
+            'CmsCommon\Form\Element\MonthSelect'    => 'CmsCommon\Form\Element\MonthSelect',
+            'CmsCommon\Form\Element\Number'         => 'CmsCommon\Form\Element\Number',
+            'CmsCommon\Form\Element\StaticElement'  => 'CmsCommon\Form\Element\StaticElement',
         ],
     ],
     'listeners' => [
@@ -159,7 +164,8 @@ return [
     ],
     'service_manager' => [
         'abstract_factories' => [
-            'Zend\Cache\Storage\StorageInterface'   => 'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
+            'Zend\Cache\Service\StorageCacheAbstractServiceFactory'
+                => 'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
         ],
         'factories' => [
             'Zend\Cache\Storage\StorageInterface'   => 'Zend\Cache\Service\StorageCacheFactory',
@@ -169,7 +175,8 @@ return [
             'SessionContainerManager'               => 'CmsCommon\Factory\SessionContainerPluginManagerFactory',
         ],
         'initializers' => [
-            'CmsCommon\Initializer\MvcTranslatorInitializer'  => 'CmsCommon\Initializer\MvcTranslatorInitializer',
+            'CmsCommon\Initializer\MvcTranslatorInitializer'
+                => 'CmsCommon\Initializer\MvcTranslatorInitializer',
         ],
         'invokables' => [
             'CmsCommon\Crypt\PasswordGeneratorInterface'      => 'CmsCommon\Crypt\PasswordGenerator',
