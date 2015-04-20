@@ -84,7 +84,8 @@ abstract class AbstractHtmlContainer extends HtmlContainer
         if (in_array($element, $elements)) {
             /* @var $fieldsetElement ElementInterface */
             foreach ($elements as $fieldsetElement) {
-                if ($fieldsetElement->getAttribute('type') === 'hidden'
+                if (($fieldsetElement->getAttribute('type') === 'hidden'
+                        || $fieldsetElement instanceof Element\Captcha)
                     && $fieldsetElement->getMessages()
                 ) {
                     return $elements;

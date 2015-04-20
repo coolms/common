@@ -15,14 +15,21 @@ use Zend\Captcha\AdapterInterface;
 trait CommonOptionsTrait
 {
     /**
-     * @var string
+     * @var bool
      */
-    protected $formLabel;
+    protected $useFormLabel = true;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $formTimeout = 300;
+
+    /**
+     * Use Сross Site Request Forgery protection by default
+     *
+     * @var bool
+     */
+    protected $useCsrf = true;
 
     /**
      * @var array|\Traversable|AdapterInterface
@@ -47,19 +54,18 @@ trait CommonOptionsTrait
     /**
      * {@inheritDoc}
      */
-    public function setFormLabel($label)
+    public function setUseFormLabel($flag)
     {
-        $this->formLabel = $label;
-    
+        $this->useFormLabel = (bool) $flag;
         return $this;
     }
-    
+
     /**
      * {@inheritDoc}
      */
-    public function getFormLabel()
+    public function getUseFormLabel()
     {
-        return $this->formLabel;
+        return $this->useFormLabel;
     }
 
     /**
@@ -67,8 +73,7 @@ trait CommonOptionsTrait
      */
     public function setFormTimeout($ttl)
     {
-        $this->formTimeout = (int) $ttl;
-    
+        $this->formTimeout = $ttl;
         return $this;
     }
 
@@ -83,10 +88,26 @@ trait CommonOptionsTrait
     /**
      * {@inheritDoc}
      */
+    public function setUseCsrf($flag)
+    {
+        $this->useCsrf = (bool) $flag;
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getUseCsrf()
+    {
+        return $this->useCsrf;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function setCaptchaOptions($options)
     {
         $this->captchaOptions = $options;
-    
         return $this;
     }
 
@@ -104,7 +125,6 @@ trait CommonOptionsTrait
     public function setUseCaptcha($useCaptcha)
     {
         $this->useCaptcha = (bool) $useCaptcha;
-    
         return $this;
     }
 
@@ -122,7 +142,6 @@ trait CommonOptionsTrait
     public function setUseSubmitElement($flag)
     {
         $this->useSubmitElement = (bool) $flag;
-
         return $this;
     }
 
@@ -140,7 +159,6 @@ trait CommonOptionsTrait
     public function setUseResetElement($flag)
     {
         $this->useResetElement = (bool) $flag;
-
         return $this;
     }
 

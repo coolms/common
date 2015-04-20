@@ -8,9 +8,15 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\Form\View\Helper;
 
-interface CommonElementsInterface extends CommonOptionsInterface
+class FormCsrf extends FormHidden
 {
-    
+    /**
+     * __construct
+     */
+    public function __construct()
+    {
+        $this->decoratorSpecification['errors']['placement'] = 'append';
+    }
 }

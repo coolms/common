@@ -34,7 +34,6 @@ trait FormProviderTrait
     public function setForm(FormInterface $form)
     {
         $this->form = $form;
-
         return $this;
     }
 }

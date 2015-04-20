@@ -15,7 +15,7 @@ class PasswordGenerator implements PasswordGeneratorInterface
     /**
      * {@inheritDoc}
      */
-    protected function generate($l = 8, $c = 0, $n = 0, $s = 0)
+    public function generate($l = 8, $c = 0, $n = 0, $s = 0)
     {
         $count = $c + $n + $s;
         $out = '';

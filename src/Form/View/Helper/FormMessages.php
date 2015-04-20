@@ -56,7 +56,7 @@ class FormMessages extends FormElementErrors
             $formName = $element->getName();
             foreach ($this->classMessages as $namespace => $class)
             {
-                $attribs  = $attributes;
+                $attribs = $attributes;
                 if ($namespace === FlashMessenger::NAMESPACE_ERROR) {
 
                     $flashMessenger->setTranslatorTextDomain($this->getTranslatorTextDomain());
@@ -74,10 +74,7 @@ class FormMessages extends FormElementErrors
                     if ($flashMessenger->hasCurrentMessages() &&
                         ($messages = $flashMessenger->getCurrentMessagesFromNamespace("$formName-$namespace"))
                     ) {
-                        $element->setMessages(array_merge(
-                            $element->getMessages(),
-                            $this->translateMessages($messages)
-                        ));
+                        $element->setMessages(array_merge($element->getMessages(), $messages));
                     }
 
                     if (isset($attribs['class'])) {
@@ -99,27 +96,5 @@ class FormMessages extends FormElementErrors
         }
 
         return $markup;
-    }
-
-    /**
-     * @param array $messages
-     * @return array
-     */
-    protected function translateMessages(array $messages)
-    {
-        $messagesToPrint = [];
-
-        $escapeHtml = $this->getEscapeHtmlHelper();
-        $translator = $this->getTranslator();
-        $textDomain = $this->getTranslatorTextDomain();
-
-        array_walk_recursive($messages, function ($item) use (&$messagesToPrint, $escapeHtml, $translator, $textDomain) {
-            if ($translator !== null) {
-                $item = $translator->translate($item, $textDomain);
-            }
-            $messagesToPrint[] = $escapeHtml($item);
-        });
-
-        return $messagesToPrint;
     }
 }

@@ -51,7 +51,7 @@ class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implemen
 
         return (isset($config[$requestedName])
             && is_array($config[$requestedName])
-            && class_exists($requestedName, true));
+            && class_exists($requestedName));
     }
 
     /**
@@ -66,14 +66,9 @@ class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implemen
         $services   = $formElements->getServiceLocator();
         $builder    = $this->getAnnotationBuilder($services);
         $formSpec   = ArrayUtils::iteratorToArray($builder->getFormSpecification($requestedName));
-        $config     = $this->getConfig($services);
+        $formSpec['options'] = array_replace_recursive($formSpec['options'], $this->creationOptions);
+        $this->config[$requestedName] = $formSpec;
 
-        $configOptions = [];
-        if (!empty($config[$requestedName])) {
-            $configOptions = $config[$requestedName];
-        }
-
-        $this->config[$requestedName] = array_replace_recursive($formSpec, $configOptions, $this->creationOptions);
         return parent::createServiceWithName($services, $name, $requestedName);
     }
 
@@ -82,8 +77,25 @@ class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implemen
      */
     public function setCreationOptions(array $options)
     {
-        $this->creationOptions = $options;
+        $this->creationOptions = $this->arrayFilter($options);
         return $this;
+    }
+
+    /**
+     * This method filters an array and remove all null values recursively
+     *
+     * @param array $array
+     * @return array
+     */
+    private function arrayFilter(array $array)
+    {
+        foreach ($array as &$value) {
+            if (is_array($value)) {
+                $value = $this->arrayFilter($value);
+            }
+        }
+
+        return array_filter($array);
     }
 
     /**

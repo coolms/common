@@ -129,8 +129,8 @@ return [
         ],
     ],
     'listeners' => [
-        'CmsCommon\EventListener\ModuleOptionsListener'   => 'CmsCommon\EventListener\ModuleOptionsListener',
-        'CmsCommon\EventListener\PhpSettingsListener'     => 'CmsCommon\EventListener\PhpSettingsListener',
+        'CmsCommon\Event\ModuleOptionsListener'   => 'CmsCommon\Event\ModuleOptionsListener',
+        'CmsCommon\Event\PhpSettingsListener'     => 'CmsCommon\Event\PhpSettingsListener',
     ],
     'module_options_suffixes' => [
         'Options\ModuleOptionsInterface',
@@ -179,9 +179,9 @@ return [
                 => 'CmsCommon\Initializer\MvcTranslatorInitializer',
         ],
         'invokables' => [
-            'CmsCommon\Crypt\PasswordGeneratorInterface'      => 'CmsCommon\Crypt\PasswordGenerator',
-            'CmsCommon\EventListener\ModuleOptionsListener'   => 'CmsCommon\EventListener\ModuleOptionsListener',
-            'CmsCommon\EventListener\PhpSettingsListener'     => 'CmsCommon\EventListener\PhpSettingsListener',
+            'CmsCommon\Crypt\PasswordGeneratorInterface'    => 'CmsCommon\Crypt\PasswordGenerator',
+            'CmsCommon\Event\ModuleOptionsListener'         => 'CmsCommon\Event\ModuleOptionsListener',
+            'CmsCommon\Event\PhpSettingsListener'           => 'CmsCommon\Event\PhpSettingsListener',
         ],
     ],
     'translator' => [
@@ -211,8 +211,10 @@ return [
             'form'               => 'CmsCommon\Form\View\Helper\Form',
             'formCaptcha'        => 'CmsCommon\Form\View\Helper\FormCaptcha',
             'formCollection'     => 'CmsCommon\Form\View\Helper\FormCollection',
+            'formCsrf'           => 'CmsCommon\Form\View\Helper\FormCsrf',
             'formDateSelect'     => 'CmsCommon\Form\View\Helper\FormDateSelect',
             'formElement'        => 'CmsCommon\Form\View\Helper\FormElement',
+            'formHidden'         => 'CmsCommon\Form\View\Helper\FormHidden',
             'formMessages'       => 'CmsCommon\Form\View\Helper\FormMessages',
             'formMonthSelect'    => 'CmsCommon\Form\View\Helper\FormMonthSelect',
             'formRow'            => 'CmsCommon\Form\View\Helper\FormRow',

@@ -28,13 +28,9 @@ class FormElement extends ZendFormElement implements
      */
     public function __construct()
     {
-        if (!isset($this->classMap['Zend\Form\Fieldset'])) {
-            $this->addClass('Zend\Form\Fieldset', 'formcollection');
-        }
-
-        if (!isset($this->typeMap['static'])) {
-            $this->addType('static', 'formstatic');
-        }
+        $this->addClass('Zend\Form\Element\Csrf', 'formcsrf');
+        $this->addClass('Zend\Form\Fieldset', 'formcollection');
+        $this->addType('static', 'formstatic');
     }
 
     /**

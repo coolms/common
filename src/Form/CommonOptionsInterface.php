@@ -15,19 +15,19 @@ use Zend\Captcha\AdapterInterface;
 interface CommonOptionsInterface
 {
     /**
-     * Sets form label
+     * Sets whether to use form label
      *
-     * @param string $label
+     * @param bool $flag
      * @return self
      */
-    public function setFormLabel($label);
+    public function setUseFormLabel($flag);
 
     /**
-     * Retrieves form label
+     * Retrieves whether to use form label
      *
-     * @return string
+     * @return bool
      */
-    public function getFormLabel();
+    public function getUseFormLabel();
 
     /**
      * Sets form TTL in seconds
@@ -45,6 +45,21 @@ interface CommonOptionsInterface
     public function getFormTimeout();
 
     /**
+     * Sets whether to use Сross Site Request Forgery protection
+     *
+     * @param bool $flag
+     * @return self
+     */
+    public function setUseCsrf($flag);
+
+    /**
+     * Gets whether to use Сross Site Request Forgery protection
+     *
+     * @return bool
+     */
+    public function getUseCsrf();
+
+    /**
      * Sets CAPTCHA options
      *
      * @param array|\Traversable|AdapterInterface $options
@@ -60,7 +75,7 @@ interface CommonOptionsInterface
     public function getCaptchaOptions();
 
     /**
-     * Sets whether use CAPTCHA
+     * Sets whether to use CAPTCHA
      *
      * @param bool $flag
      * @return self
@@ -68,7 +83,7 @@ interface CommonOptionsInterface
     public function setUseCaptcha($flag);
 
     /**
-     * Gets whether use CAPCTHA
+     * Gets whether to use CAPCTHA
      *
      * @return bool
      */
