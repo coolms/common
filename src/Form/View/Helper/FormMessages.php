@@ -12,7 +12,7 @@ namespace CmsCommon\Form\View\Helper;
 
 use Zend\Form\ElementInterface,
     Zend\Form\View\Helper\FormElementErrors,
-    Zend\Mvc\Controller\Plugin\FlashMessenger;
+    Zend\Mvc\Controller\Plugin\FlashMessenger as PluginFlashMessenger;
 
 class FormMessages extends FormElementErrors
 {
@@ -30,11 +30,11 @@ class FormMessages extends FormElementErrors
      * @var array
      */
     protected $classMessages = [
-        FlashMessenger::NAMESPACE_INFO    => 'info',
-        FlashMessenger::NAMESPACE_ERROR   => 'error',
-        FlashMessenger::NAMESPACE_SUCCESS => 'success',
-        FlashMessenger::NAMESPACE_DEFAULT => 'default',
-        FlashMessenger::NAMESPACE_WARNING => 'warning',
+        PluginFlashMessenger::NAMESPACE_INFO    => 'info',
+        PluginFlashMessenger::NAMESPACE_ERROR   => 'error',
+        PluginFlashMessenger::NAMESPACE_SUCCESS => 'success',
+        PluginFlashMessenger::NAMESPACE_DEFAULT => 'default',
+        PluginFlashMessenger::NAMESPACE_WARNING => 'warning',
     ];
 
     /**
@@ -57,7 +57,7 @@ class FormMessages extends FormElementErrors
             foreach ($this->classMessages as $namespace => $class)
             {
                 $attribs = $attributes;
-                if ($namespace === FlashMessenger::NAMESPACE_ERROR) {
+                if ($namespace === PluginFlashMessenger::NAMESPACE_ERROR) {
 
                     $flashMessenger->setTranslatorTextDomain($this->getTranslatorTextDomain());
 
@@ -96,5 +96,27 @@ class FormMessages extends FormElementErrors
         }
 
         return $markup;
+    }
+
+    /**
+     * Set messages classes
+     *
+     * @param  array $classMessages
+     * @return self
+     */
+    public function setClassMessages(array $classMessages)
+    {
+        $this->classMessages = array_replace($this->classMessages, $classMessages);
+        return $this;
+    }
+
+    /**
+     * Get messages classes
+     *
+     * @return array
+     */
+    public function getClassMessages()
+    {
+        return $this->classMessages;
     }
 }
