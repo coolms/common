@@ -59,6 +59,7 @@ class Module implements
                 __DIR__ . '/../autoload_classmap.php',
             ],
             'Zend\Loader\StandardAutoloader' => [
+                'fallback_autoloader' => true,
                 'namespaces' => [
                     __NAMESPACE__ => __DIR__,
                 ],
@@ -81,7 +82,7 @@ class Module implements
     {
         set_error_handler([__CLASS__, 'handlePhpErrors']);
 
-        $eventManager        = $e->getApplication()->getEventManager();
+        $eventManager = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
     }
