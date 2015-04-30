@@ -3,7 +3,7 @@
   "description" : "CoolMS2 Common Module",
   "version" : "0.1.0",
   "type" : "library",
-  "keywords" : ["framework", "zf2", "coolms", "coolms2"],
+  "keywords" : [ "zf2", "coolms", "coolms2", "cmscommon" ],
   "homepage" : "https://github.com/coolms/common",
   "license" : "BSD-3-Clause",
   "authors" : [ {
