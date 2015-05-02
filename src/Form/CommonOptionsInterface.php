@@ -110,4 +110,9 @@ interface CommonOptionsInterface
      * @return bool
      */
     public function getUseResetElement();
+
+    /**
+     * @return array
+     */
+    public function toArray();
 }

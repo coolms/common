@@ -240,12 +240,12 @@ return [
     ],
     'view_manager' => [
         'template_map' => [
-            'cms-common/crud/create'  => __DIR__ . '/../view/cms-common/crud/create.phtml',
-            'cms-common/crud/read'    => __DIR__ . '/../view/cms-common/crud/read.phtml',
-            'cms-common/crud/update'  => __DIR__ . '/../view/cms-common/crud/update.phtml',
-            'cms-common/crud/delete'  => __DIR__ . '/../view/cms-common/crud/delete.phtml',
-            'cms-common/crud/list'    => __DIR__ . '/../view/cms-common/crud/list.phtml',
-            'cms-common/crud/form'    => __DIR__ . '/../view/cms-common/crud/form.phtml',
+            'cms-common/crud/create' => __DIR__ . '/../view/cms-common/crud/create.phtml',
+            'cms-common/crud/read' => __DIR__ . '/../view/cms-common/crud/read.phtml',
+            'cms-common/crud/update' => __DIR__ . '/../view/cms-common/crud/update.phtml',
+            'cms-common/crud/delete' => __DIR__ . '/../view/cms-common/crud/delete.phtml',
+            'cms-common/crud/list' => __DIR__ . '/../view/cms-common/crud/list.phtml',
+            'cms-common/crud/form' => __DIR__ . '/../view/cms-common/crud/form.phtml',
         ],
     ],
 ];

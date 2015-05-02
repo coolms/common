@@ -24,6 +24,11 @@ interface DomainServiceInterface extends
     MapperProviderInterface
 {
     /**
+     * @return string
+     */
+    public function getClassName();
+
+    /**
      * @return bool
      */
     public function hasForm();

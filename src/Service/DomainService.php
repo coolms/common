@@ -73,28 +73,32 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
         $this->setServiceLocator($manager);
 
         if (is_string($options)) {
-            $this->className = $options;
+            $this->setClassName($options);
         } elseif ($options instanceof MapperInterface) {
             $this->setMapper($options);
-            $this->className = (string) $options->getClassName();
+            $this->setClassName($options->getClassName());
         } elseif ($options instanceof \Traversable) {
             $options = ArrayUtils::iteratorToArray($options);
+        } elseif (is_object($options) && method_exists($options, 'toArray')) {
+            $options = $options->toArray();
         }
 
         if (is_array($options)) {
-            if (empty($options['class_name'])) {
-                throw new \InvalidArgumentException(sprintf(
-                    'Option missing; $options must contain \'class_name\' option'
-                ));
-            }
+            if (!$this->getClassName()) {
+                if (empty($options['class_name'])) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'Option missing; $options must contain \'class_name\' option'
+                    ));
+                }
 
-            $this->className = (string) $options['class_name'];
-            unset($options['class_name']);
+                $this->setClassName($options['class_name']);
+                unset($options['class_name']);
+            }
 
             $this->setOptions($options);
         }
 
-        if (!$this->className) {
+        if (!$this->getClassName()) {
             throw new \InvalidArgumentException(sprintf(
                 'First argument passed to %s::%s must be a string, array, \Traversable '
                     . 'or an instance of CmsCommon\Persistence\Mapper\MapperInterface, %s given',
@@ -109,6 +113,26 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
      * {@inheritDoc}
      */
     public function init() {}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getClassName()
+    {
+        return $this->className;
+    }
+
+    /**
+     * Set domain entity class name
+     *
+     * @param string $className
+     * @return self
+     */
+    protected function setClassName($className)
+    {
+        $this->className = (string) $className;
+        return $this;
+    }
 
     /**
      * {@inheritDoc}
@@ -190,6 +214,17 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
         if (isset($this->options[$option])) {
             return $this->options[$option];
         }
+    }
+
+    /**
+     * @param string $option
+     * @param mixed $value
+     * @return self
+     */
+    public function setOption($option, $value)
+    {
+        $this->options[$option] = $value;
+        return $this;
     }
 
     /**
