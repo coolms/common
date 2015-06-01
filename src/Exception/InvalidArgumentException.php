@@ -8,24 +8,12 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Mapping\Dateable;
-
-use DateTime;
+namespace CmsCommon\Exception;
 
 /**
- * Interface for the model that might change
- *
- * @author Dmitry Popov <d.popov@altgraphic.com>
+ * Invalid argument exception for CmsCommon
  */
-interface ChangeableInterface
+class InvalidArgumentException extends \InvalidArgumentException implements ExceptionInterface
 {
-    /**
-     * @return DateTime
-     */
-    public function getChangedAt();
-
-    /**
-     * @param DateTime $changedAt
-     */
-    public function setChangedAt(DateTime $changedAt);
+    
 }

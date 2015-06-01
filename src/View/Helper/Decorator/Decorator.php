@@ -13,6 +13,7 @@ namespace CmsCommon\View\Helper\Decorator;
 use Zend\View\Helper\AbstractHelper,
     Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerAwareTrait,
+    Zend\Stdlib\ArrayUtils,
     CmsCommon\View\Helper\HtmlContainer;
 
 class Decorator extends AbstractHelper implements EventManagerAwareInterface
@@ -44,10 +45,10 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
 
     /**
      * @param string $markup
-     * @param array $decorators
+     * @param array|\Traversable $decorators
      * @return string
      */
-    public function render($markup, array $decorators)
+    public function render($markup, $decorators)
     {
         $renderer = $this->getView();
         if (!method_exists($renderer, 'plugin') || !$decorators) {
@@ -56,19 +57,8 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
         }
 
         $param_arr = func_get_args();
-
-        $decorators = $this->sort($decorators);
-        foreach ($decorators as $decorator => $options)
-        {
-            if (!is_string($decorator)) {
-                $decorator  = $options;
-                $options    = [];
-            }
-
-            if (!is_array($options)) {
-                continue;
-            }
-
+        $decorators = call_user_func_array([$this, 'prepare'], $param_arr);
+        foreach ($decorators as $decorator => $options) {
             if (isset($options['placement']) && $options['placement'] === false) {
                 continue;
             }
@@ -78,12 +68,7 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
             }
 
             $plugin = $this->getDecoratorHelper($decorator);
-
-            if (isset($options['content'])) {
-                $param_arr[0] = $options['content'];
-            } else {
-                $param_arr[0] = '';
-            }
+            $param_arr[0] = isset($options['content']) ? $options['content'] : '';
 
             if (isset($options['attributes'])) {
                 $param_arr[1] = (array) $options['attributes'];
@@ -92,7 +77,7 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
                 $param_arr[1] = $options;
                 unset(
                     $param_arr[1]['content'],
-                    $param_arr[1][self::OPTION_KEY],
+                    $param_arr[1][static::OPTION_KEY],
                     $param_arr[1]['order'],
                     $param_arr[1]['placement'],
                     $param_arr[1]['type']
@@ -105,24 +90,24 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
 
             if (isset($options['placement'])) {
                 $param_arr[0] = call_user_func_array($plugin, $param_arr);
-                if (!empty($options[self::OPTION_KEY])) {
-                    $param_arr[1] = $options[self::OPTION_KEY];
+                if (!empty($options[static::OPTION_KEY])) {
+                    $param_arr[1] = $options[static::OPTION_KEY];
                     $param_arr[0] = call_user_func_array([$this, 'render'], $param_arr);
                 }
 
                 switch ($options['placement']) {
-                    case self::PLACEMENT_APPEND:
+                    case static::PLACEMENT_APPEND:
                         $markup .= $param_arr[0];
                         break;
-                    case self::PLACEMENT_PREPEND:
+                    case static::PLACEMENT_PREPEND:
                         $markup  = $param_arr[0] . $markup;
-                        break;
                 }
+
             } else {
                 $param_arr[0] = $markup;
-                if (!empty($options[self::OPTION_KEY])) {
+                if (!empty($options[static::OPTION_KEY])) {
                     $param_arr[0] = call_user_func_array($plugin, $param_arr);
-                    $param_arr[1] = $options[self::OPTION_KEY];
+                    $param_arr[1] = $options[static::OPTION_KEY];
                     $markup = call_user_func_array([$this, 'render'], $param_arr);
                 } else {
                     $markup = call_user_func_array($plugin, $param_arr);
@@ -136,33 +121,43 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
     /**
      * Sorts decorators according to 'order' option
      *
-     * @param array $decorators
+     * @param string $markup
+     * @param array|\Traversable $decorators
      * @return array
      */
-    protected function sort(array $decorators)
+    protected function prepare($markup, $decorators)
     {
-        $order   = 0;
+        $param_arr = func_get_args();
+        if (is_array($decorators)) {
+            $param_arr[1] = new \ArrayObject($decorators);
+        }
+
+        $order = 0;
         $sortAux = [];
 
-        foreach ($decorators as $decorator => $options) {
-            if (!is_string($decorator)) {
-                $decorator  = $options;
-                $options    = [];
+        foreach ($param_arr[1] as $decorator => $options) {
+            if (!is_string($decorator) && is_string($options)) {
+                $param_arr[1][$options] = [];
+                continue;
+            } elseif (is_callable($options)) {
+                $options = call_user_func_array($options, $param_arr);
             }
 
             if (!is_array($options)) {
                 continue;
             }
 
-            if (!empty($options['type'])) {
-                $decorator = $options['type'];
-            }
-
             if (!isset($options['order'])) {
-                $plugin = $this->getDecoratorHelper($decorator);
+                $plugin = $this->getDecoratorHelper(
+                    empty($options['type'])
+                        ? $decorator
+                        : $options['type']
+                );
+
                 if ($plugin instanceof OrderedDecoratorInterface) {
                     $order = $plugin->getOrder();
                 }
+
                 $options['order'] = $order;
             } else {
                 $order = (int) $options['order'];
@@ -172,9 +167,11 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
             $order += $this->orderStep;
         }
 
-        array_multisort($sortAux, SORT_ASC, SORT_NUMERIC, $decorators);
+        $param_arr[1] = ArrayUtils::iteratorToArray($param_arr[1]);
+        $param_arr[1] = array_filter($param_arr[1], 'is_array');
+        array_multisort($sortAux, SORT_ASC, SORT_NUMERIC, $param_arr[1]);
 
-        return $decorators;
+        return $param_arr[1];
     }
 
     /**

@@ -40,6 +40,12 @@ abstract class AbstractCrudController extends AbstractActionController implement
      */
     protected $eventIdentifier = __CLASS__;
 
+    const ACTION_CREATE = 'create';
+    const ACTION_READ = 'read';
+    const ACTION_UPDATE = 'update';
+    const ACTION_DELETE = 'delete';
+    const ACTION_LIST = 'list';
+
     /**
      * {@inheritDoc}
      */
@@ -51,14 +57,12 @@ abstract class AbstractCrudController extends AbstractActionController implement
             throw new \RuntimeException('CRUD controller from CmsCommon can only handle HTTP requests');
         }
 
-        $url = $this->url()->fromRoute();
+        $url = $this->url()->fromRoute(null, [], true);
         $prg = $this->prg($url, true);
         // Return early if prg plugin returned a response
         if ($prg instanceof ResponseInterface) {
             return $prg;
         }
-
-        $data = $prg;
 
         $action = $this->params()->fromRoute('action', 'not-found');
         $method = static::getMethodFromAction($action);
@@ -67,7 +71,10 @@ abstract class AbstractCrudController extends AbstractActionController implement
             $method = 'notFoundAction';
         }
 
-        if ($action === 'read' || $action === 'update' || $action === 'delete') {
+        if ($action === static::ACTION_READ ||
+            $action === static::ACTION_UPDATE ||
+            $action === static::ACTION_DELETE
+        ) {
             $options = $this->getOptions();
             $id = $this->params()->fromRoute($options->getIdentifierKey());
 
@@ -83,26 +90,20 @@ abstract class AbstractCrudController extends AbstractActionController implement
             $object = $this->getDomainService()->getMapper()->find($id);
             if (!$object) {
                 $this->flashMessenger()->addWarningMessage($this->translate('An object cannot be found'));
-
                 return $this->redirectToBaseRoute();
             }
         }
 
         switch ($action) {
-            case 'create':
-                $result = $this->$method($data);
-                break;
-            case 'read':
+            case static::ACTION_READ:
+            case static::ACTION_DELETE:
                 $result = $this->$method($object);
                 break;
-            case 'update':
-                $result = $this->$method($object, $data);
-                break;
-            case 'delete':
-                $result = $this->$method($object);
+            case static::ACTION_UPDATE:
+                $result = $this->$method($object, $prg);
                 break;
             default:
-                $result = $this->$method($data);
+                $result = $this->$method($prg);
         }
 
         $e->setResult($result);
@@ -115,7 +116,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
     {
         return $this->forward()->dispatch(
             $this->getEvent()->getRouteMatch()->getParam('controller'),
-            ['action' => 'list']
+            ['action' => static::ACTION_LIST]
         );
     }
 
@@ -136,7 +137,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
         $viewModel->setTemplate($options->getListTemplate());
 
         $params = compact('form', 'options', 'paginator', 'service', 'viewModel');
-        $this->getEventManager()->trigger('list', $this, $params);
+        $this->getEventManager()->trigger(static::ACTION_LIST, $this, $params);
 
         return $viewModel;
     }
@@ -164,7 +165,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
             $fm = $this->flashMessenger();
 
             try {
-                $this->getEventManager()->trigger('create', $this, $params);
+                $this->getEventManager()->trigger(static::ACTION_CREATE, $this, $params);
                 $service->getMapper()->add($object)->save();
             } catch (\Exception $e) {
                 $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_ERROR)
@@ -198,7 +199,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
         $viewModel->setTemplate($options->getReadTemplate());
 
         $params = compact('form', 'object', 'options', 'service', 'viewModel');
-        $this->getEventManager()->trigger('read', $this, $params);
+        $this->getEventManager()->trigger(static::ACTION_READ, $this, $params);
 
         return $viewModel;
     }
@@ -227,7 +228,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
             $fm = $this->flashMessenger();
 
             try {
-                $this->getEventManager()->trigger('update', $this, $params);
+                $this->getEventManager()->trigger(static::ACTION_UPDATE, $this, $params);
                 $service->getMapper()->add($object)->save();
             } catch (\Exception $e) {
                 $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_ERROR)
@@ -250,7 +251,7 @@ abstract class AbstractCrudController extends AbstractActionController implement
      */
     public function deleteAction($object)
     {
-        $options   = $this->getOptions();
+        $options = $this->getOptions();
         $viewModel = new ViewModel(compact('object', 'options'));
 
         if ($options->getUseDeleteConfirmation() && !$this->params()->fromRoute($options->getDeleteConfirmKey())) {
@@ -259,12 +260,12 @@ abstract class AbstractCrudController extends AbstractActionController implement
         }
 
         $service = $this->getDomainService();
-        $params  = compact('object', 'options', 'service', 'viewModel');
+        $params = compact('object', 'options', 'service', 'viewModel');
 
         $fm = $this->flashMessenger();
 
         try {
-            $this->getEventManager()->trigger('delete', $this, $params);
+            $this->getEventManager()->trigger(static::ACTION_DELETE, $this, $params);
             $service->getMapper()->remove($object)->save();
         } catch(\Exception $e) {
             $fm->addErrorMessage($e->getMessage());

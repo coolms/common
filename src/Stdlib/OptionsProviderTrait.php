@@ -47,7 +47,6 @@ trait OptionsProviderTrait
     public function setOptions(AbstractOptions $options)
     {
         $this->options = $options;
-
         return $this;
     }
 

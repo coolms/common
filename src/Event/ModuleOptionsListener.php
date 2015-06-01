@@ -60,9 +60,9 @@ class ModuleOptionsListener extends AbstractListenerAggregate implements Service
         }
 
         $params = $matchRoute->getParams();
-        if (!empty($params[self::OPTIONS_KEY]) && is_array($params[self::OPTIONS_KEY])) {
+        if (!empty($params[static::OPTIONS_KEY]) && is_array($params[static::OPTIONS_KEY])) {
             $services = $this->getServiceLocator();
-            foreach ($params[self::OPTIONS_KEY] as $service => $options) {
+            foreach ($params[static::OPTIONS_KEY] as $service => $options) {
                 if ($services->has($service)) {
                     $optionsService = $services->get($service);
                     if ($optionsService instanceof AbstractOptions) {
@@ -82,7 +82,7 @@ class ModuleOptionsListener extends AbstractListenerAggregate implements Service
     public function loadModuleOptions(MvcEvent $e)
     {
         $services = $this->getServiceLocator();
-        $config   = $services->get('Config');
+        $config = $services->get('Config');
         if (empty($config[$this->moduleOptionsSuffixesConfigKey])) {
             return;
         }
@@ -96,6 +96,7 @@ class ModuleOptionsListener extends AbstractListenerAggregate implements Service
                     //set module options as MvcEvent param
                     $e->setParam('module-options', $moduleOptions);
                 }
+
                 break;
             }
         }

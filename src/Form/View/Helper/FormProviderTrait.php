@@ -58,7 +58,6 @@ trait FormProviderTrait
     public function setFormKey($formKey)
     {
         $this->formKey = $formKey;
-
         return $this;
     }
 

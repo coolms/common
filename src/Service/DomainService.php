@@ -13,17 +13,21 @@ namespace CmsCommon\Service;
 use Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerAwareTrait,
     Zend\Form\FormInterface,
+    Zend\ServiceManager\AbstractPluginManager,
     Zend\ServiceManager\ServiceLocatorAwareTrait,
+    Zend\ServiceManager\ServiceLocatorInterface,
     Zend\ServiceManager\ServiceManager,
     Zend\Stdlib\ArrayUtils,
     Zend\Stdlib\InitializableInterface,
     CmsCommon\Form\FormProviderTrait,
     CmsCommon\Persistence\MapperInterface,
     CmsCommon\Persistence\MapperProviderTrait,
+    CmsCommon\Service\Exception\InvalidArgumentException,
+    CmsCommon\Service\Exception\RuntimeException,
     CmsCommon\Session\ContainerProviderTrait;
 
 /**
- * Domain service
+ * Generic Domain Service
  *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  *
@@ -67,6 +71,8 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
      *
      * @param string|array|\Traversable|MapperInterface $options
      * @param ServiceManager $services
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public function __construct($options, ServiceManager $manager)
     {
@@ -86,7 +92,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
         if (is_array($options)) {
             if (!$this->getClassName()) {
                 if (empty($options['class_name'])) {
-                    throw new \InvalidArgumentException(sprintf(
+                    throw new RuntimeException(sprintf(
                         'Option missing; $options must contain \'class_name\' option'
                     ));
                 }
@@ -99,7 +105,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
         }
 
         if (!$this->getClassName()) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'First argument passed to %s::%s must be a string, array, \Traversable '
                     . 'or an instance of CmsCommon\Persistence\Mapper\MapperInterface, %s given',
                 __CLASS__,
@@ -139,8 +145,8 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
      */
     public function hasForm()
     {
-        $sm = $this->getServiceLocator();
-        return $sm->getServiceLocator()->get($this->formElementManager)->has($this->className);
+        $services = $this->getServiceManager();
+        return $services->get($this->formElementManager)->has($this->className);
     }
 
     /**
@@ -149,8 +155,8 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
     public function getForm()
     {
         if (null === $this->form && $this->hasForm()) {
-            $sm = $this->getServiceLocator();
-            $form = $sm->getServiceLocator()->get($this->formElementManager)->get($this->className, $this->options);
+            $services = $this->getServiceManager();
+            $form = $services->get($this->formElementManager)->get($this->className, $this->options);
             $this->setForm($form);
         }
 
@@ -163,8 +169,8 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
     public function getMapper()
     {
         if (null === $this->mapper) {
-            $sm = $this->getServiceLocator();
-            $mapper = $sm->getServiceLocator()->get($this->mapperManager)->get($this->className);
+            $services = $this->getServiceManager();
+            $mapper = $services->get($this->mapperManager)->get($this->className);
             $this->setMapper($mapper);
         }
 
@@ -176,8 +182,8 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
      */
     public function hasSessionContainer()
     {
-        $sm = $this->getServiceLocator();
-        return $sm->getServiceLocator()->get($this->sessionContainerManager)->has($this->className);
+        $services = $this->getServiceManager();
+        return $services->get($this->sessionContainerManager)->has($this->className);
     }
 
     /**
@@ -186,8 +192,8 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
     public function getSessionContainer()
     {
         if (null === $this->sessionContainer && $this->hasSessionContainer()) {
-            $sm = $this->getServiceLocator();
-            $container = $sm->get($this->sessionContainerManager)->get($this->className);
+            $services = $this->getServiceManager();
+            $container = $services->get($this->sessionContainerManager)->get($this->className);
             $this->setSessionContainer($container);
         }
 
@@ -235,6 +241,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
         if ($data instanceof \Traversable) {
             $data = ArrayUtils::iteratorToArray($data);
         }
+
         if (!is_array($data)) {
             return $data;
         }
@@ -254,5 +261,18 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
         if ($form->setData($data)->isValid()) {
             return $form->getObject();
         }
+    }
+
+    /**
+     * @return ServiceLocatorInterface
+     */
+    protected function getServiceManager()
+    {
+        $serviceLocator = $this->getServiceLocator();
+        if ($serviceLocator instanceof AbstractPluginManager) {
+            $serviceLocator = $serviceLocator->getServiceLocator();
+        }
+
+        return $serviceLocator;
     }
 }

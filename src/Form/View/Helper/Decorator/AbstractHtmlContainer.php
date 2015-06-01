@@ -28,9 +28,14 @@ abstract class AbstractHtmlContainer extends HtmlContainer
      * @param array $attribs
      * @param ElementInterface $element
      * @param FormInterface $form
+     * @return self|string
      */
-    public function __invoke($content = null, array $attribs = [], ElementInterface $element = null, FormInterface $form = null)
-    {
+    public function __invoke(
+        $content = null,
+        array $attribs = [],
+        ElementInterface $element = null,
+        FormInterface $form = null
+    ) {
         if (func_num_args() === 0) {
             return $this;
         }
@@ -43,9 +48,14 @@ abstract class AbstractHtmlContainer extends HtmlContainer
      * @param array $attribs
      * @param ElementInterface $element
      * @param FormInterface $form
+     * @return string
      */
-    public function render($content, array $attribs = [], ElementInterface $element = null, FormInterface $form = null)
-    {
+    public function render(
+        $content,
+        array $attribs = [],
+        ElementInterface $element = null,
+        FormInterface $form = null
+    ) {
         return parent::render($content, $attribs);
     }
 
@@ -62,8 +72,9 @@ abstract class AbstractHtmlContainer extends HtmlContainer
             return true;
         }
 
+        $elementName = $this->normalizeElementName($element->getName());
         $elements = $this->getInvalidFieldsetElements($element, $form);
-        if ($elements && in_array($element, $elements)) {
+        if (isset($elements[$elementName]) && $elements[$elementName] === $element) {
             return true;
         }
 
@@ -75,18 +86,19 @@ abstract class AbstractHtmlContainer extends HtmlContainer
      *
      * @param ElementInterface $element
      * @param FieldsetInterface $fieldset
-     * @return array|\Traversable|null
+     * @return array|\Traversable
      */
     protected function getInvalidFieldsetElements(ElementInterface $element, FieldsetInterface $fieldset)
     {
+        $elementName = $this->normalizeElementName($element->getName());
         $elements = $fieldset->getElements();
 
-        if (in_array($element, $elements)) {
+        if (isset($elements[$elementName]) && $elements[$elementName] === $element) {
             /* @var $fieldsetElement ElementInterface */
             foreach ($elements as $fieldsetElement) {
-                if (($fieldsetElement->getAttribute('type') === 'hidden'
+                if ($fieldsetElement->getMessages()
+                    && ($fieldsetElement->getAttribute('type') === 'hidden'
                         || $fieldsetElement instanceof Element\Captcha)
-                    && $fieldsetElement->getMessages()
                 ) {
                     return $elements;
                 }
@@ -98,6 +110,8 @@ abstract class AbstractHtmlContainer extends HtmlContainer
                 return $elements;
             }
         }
+
+        return [];
     }
 
     /**
@@ -109,15 +123,17 @@ abstract class AbstractHtmlContainer extends HtmlContainer
      */
     protected function getFieldsetElements(ElementInterface $element, FieldsetInterface $fieldset)
     {
+        $elementName = $this->normalizeElementName($element->getName());
+
         if ($fieldset instanceof Element\Collection) {
             if (($templateElement = $fieldset->getTemplateElement())
-                && ($elements = $templateElement->getElements())
-                && in_array($element, $elements, true)
+                && $templateElement->has($elementName)
+                && $templateElement->get($elementName) === $element
             ) {
-                return $elements;
+                return $templateElement->getElements();
             }
-        } elseif (($elements = $fieldset->getElements()) && in_array($element, $elements, true)) {
-            return $elements;
+        } elseif ($fieldset->has($elementName) && $fieldset->get($elementName) === $element) {
+            return $fieldset->getElements();
         }
 
         foreach ($fieldset->getFieldsets() as $fieldsetElement) {
@@ -130,17 +146,15 @@ abstract class AbstractHtmlContainer extends HtmlContainer
     }
 
     /**
-     * @param string $elementName
-     * @param ElementInterface[] $elements
-     * @return ElementInterface|null
+     * @param string $name
+     * @return string
      */
-    protected function getFieldsetElementByName($elementName, array $elements)
+    private function normalizeElementName($name)
     {
-        /* @var $element ElementInterface */
-        foreach ($elements as $name => $element) {
-            if ($elementName === $name) {
-                return $element;
-            }
+        if (strpos($name, '[') === false) {
+            return $name;
         }
+
+        return trim(strrchr($name, '['), '[]');
     }
 }

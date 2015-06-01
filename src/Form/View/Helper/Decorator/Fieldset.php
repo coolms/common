@@ -32,8 +32,12 @@ class Fieldset extends HtmlContainer
      * @param  ElementInterface $element
      * @param  FormInterface $form
      */
-    public function __invoke($content = null, array $attribs = [], ElementInterface $element = null, FormInterface $form = null)
-    {
+    public function __invoke(
+        $content = null,
+        array $attribs = [],
+        ElementInterface $element = null,
+        FormInterface $form = null
+    ) {
         if (func_num_args() === 0) {
             return $this;
         }
@@ -42,14 +46,17 @@ class Fieldset extends HtmlContainer
     }
 
     /**
-     * @param  string $content
-     * @param  array $attribs
+     * {@inheritDoc}
+     *
      * @param  ElementInterface $element
      * @param  FormInterface $form
-     * @return string
      */
-    public function render($content, array $attribs = [], ElementInterface $element = null, FormInterface $form = null)
-    {
+    public function render(
+        $content,
+        array $attribs = [],
+        ElementInterface $element = null,
+        FormInterface $form = null
+    ) {
         $legendHelper = $this->getLegendHelper();
         $content = $legendHelper(null, [], $element, $form) . $content;
 

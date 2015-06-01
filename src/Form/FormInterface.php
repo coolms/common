@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * CoolMS2 Common Module (http://www.coolms.com/)
  *
@@ -8,24 +8,16 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Mapping\Dateable;
+namespace CmsCommon\Form;
 
-use DateTime;
+use Zend\Form\FormInterface as ZendFormInterface;
 
-/**
- * Interface for the model that might change
- *
- * @author Dmitry Popov <d.popov@altgraphic.com>
- */
-interface ChangeableInterface
+interface FormInterface extends ZendFormInterface
 {
     /**
-     * @return DateTime
+     * Set the element group (set of values to display and validate)
+     *
+     * @return FormInterface
      */
-    public function getChangedAt();
-
-    /**
-     * @param DateTime $changedAt
-     */
-    public function setChangedAt(DateTime $changedAt);
+    public function setElementGroup();
 }

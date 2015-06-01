@@ -26,6 +26,7 @@ use Zend\Captcha\AdapterInterface,
     Zend\Stdlib\PriorityList;
 
 class Form extends ZendForm implements
+        FormInterface,
         EventManagerAwareInterface,
         ServiceLocatorAwareInterface
 {
@@ -276,11 +277,7 @@ class Form extends ZendForm implements
         }
 
         $argv = func_get_args();
-        if ($argc > 1) {
-            $group = $argv;
-        } else {
-            $group = array_shift($argv);
-        }
+        $group = $argc > 1 ? $argv : array_shift($argv);
 
         if ($this->has($this->getCaptchaElementName())) {
             $name = $this->getCaptchaElementName();
@@ -321,16 +318,14 @@ class Form extends ZendForm implements
      */
     private function removeFieldsetElementGroup(array $group, FieldsetInterface $fieldset)
     {
-        $elements = $fieldset->getElements();
-        foreach ($elements as $fieldsetOrElement) {
+        foreach ($fieldset->getElements() as $fieldsetOrElement) {
             $name = $fieldsetOrElement->getName();
             if (!in_array($name, $group)) {
                 $fieldset->remove($name);
             }
         }
 
-        $fieldsets = $fieldset->getFieldsets();
-        foreach ($fieldsets as $fieldsetOrElement) {
+        foreach ($fieldset->getFieldsets() as $fieldsetOrElement) {
             $name = $fieldsetOrElement->getName();
             if (!in_array($name, $group) && !array_key_exists($name, $group)) {
                 $fieldset->remove($name);
@@ -348,6 +343,7 @@ class Form extends ZendForm implements
         if ($data instanceof \Traversable) {
             $data = ArrayUtils::iteratorToArray($data);
         }
+
         if (!is_array($data)) {
             throw new InvalidArgumentException(sprintf(
                 '%s expects an array or Traversable argument; received "%s"',
@@ -366,6 +362,7 @@ class Form extends ZendForm implements
     protected function prepareBindData(array $values, array $match)
     {
         $data = [];
+
         foreach ($values as $name => $value) {
             if (!array_key_exists($name, $match)) {
                 if (is_array($value)) {
@@ -373,8 +370,10 @@ class Form extends ZendForm implements
                         $data[$name] = [];
                     }
                 }
+
                 continue;
             }
+
             if (is_array($value) && is_array($match[$name])) {
                 $data[$name] = $this->prepareBindData($value, $match[$name]);
             } else {
@@ -393,6 +392,10 @@ class Form extends ZendForm implements
      */
     protected static function filterFormData(ElementInterface $element, $data)
     {
+        if ($element instanceof Collection && $element->getOption('count') == 0) {
+            return $data ?: [];
+        }
+
         if (is_array($data)) {
             if ($element instanceof Collection) {
                 // Collections are to be recursed
@@ -416,8 +419,6 @@ class Form extends ZendForm implements
                     return $data; // null;
                 }
             }
-        } elseif ($element instanceof Collection && $element->getOption('count') == 0) {
-            $data = $data ?: [];
         }
 
         return $data;

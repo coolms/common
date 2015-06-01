@@ -8,24 +8,14 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Mapping\Dateable;
+namespace CmsCommon\Service\Exception;
 
-use DateTime;
+use CmsCommon\Exception\ExceptionInterface as BaseExceptionInterface;
 
 /**
- * Interface for the model that might change
- *
- * @author Dmitry Popov <d.popov@altgraphic.com>
+ * Base exception interface for CmsCommon\Service
  */
-interface ChangeableInterface
+interface ExceptionInterface extends BaseExceptionInterface
 {
-    /**
-     * @return DateTime
-     */
-    public function getChangedAt();
-
-    /**
-     * @param DateTime $changedAt
-     */
-    public function setChangedAt(DateTime $changedAt);
+    
 }

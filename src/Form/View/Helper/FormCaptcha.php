@@ -28,7 +28,8 @@ class FormCaptcha extends ZendFormCaptcha
 
         if ($captcha === null || !$captcha instanceof CaptchaAdapter) {
             throw new Exception\DomainException(sprintf(
-                '%s requires that the element has a "captcha" attribute implementing Zend\Captcha\AdapterInterface; none found',
+                '%s requires that the element has a "captcha" attribute '
+                    . 'implementing Zend\Captcha\AdapterInterface; none found',
                 __METHOD__
             ));
         }

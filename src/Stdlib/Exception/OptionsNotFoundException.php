@@ -10,7 +10,9 @@
 
 namespace CmsCommon\Stdlib\Exception;
 
-class OptionsNotFoundException extends \RuntimeException
+use CmsCommon\Exception\RuntimeException;
+
+class OptionsNotFoundException extends RuntimeException
 {
     
 }

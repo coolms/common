@@ -13,16 +13,10 @@ namespace CmsCommon\Form\View\Helper\Decorator;
 use Zend\Form\ElementInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormLabel,
-    Zend\I18n\Translator\TranslatorAwareInterface,
-    CmsCommon\View\Helper\HtmlContainer;
+    Zend\I18n\Translator\TranslatorAwareInterface;
 
-class ElementLabel extends HtmlContainer
+class ElementLabel extends Label
 {
-    /**
-     * @var string
-     */
-    protected $tagName = 'label';
-
     /**
      * @var FormLabel
      */
@@ -30,26 +24,12 @@ class ElementLabel extends HtmlContainer
 
     /**
      * {@inheritDoc}
-     *
-     * @param ElementInterface $element
      */
-    public function __invoke($content = null, array $attribs = [], ElementInterface $element = null)
-    {
-        if (func_num_args() === 0) {
-            return $this;
-        }
-
-        return $this->render($content, $attribs, $element);
-    }
-
-    /**
-     * @param  string $content
-     * @param  array $attribs
-     * @param  ElementInterface $element
-     * @return string
-     */
-    public function render($content, array $attribs = [], ElementInterface $element = null)
-    {
+    public function render(
+        $content,
+        array $attribs = [],
+        ElementInterface $element = null
+    ) {
         if (!$element instanceof LabelAwareInterface) {
             return parent::render($content, $attribs);
         }

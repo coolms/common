@@ -50,7 +50,7 @@ class HtmlContainer extends AbstractHtmlElement
      *
      * @param mixed  $content
      * @param array  $attribs
-     * @return string|AbstractHtmlContainer
+     * @return string|self
      */
     public function __invoke($content = null, array $attribs = [])
     {

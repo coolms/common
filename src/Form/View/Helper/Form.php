@@ -10,9 +10,11 @@
 
 namespace CmsCommon\Form\View\Helper;
 
-use Zend\Form\FormInterface,
+use Zend\Filter\Word\CamelCaseToDash,
+    Zend\Form\FormInterface,
     Zend\Form\View\Helper\Form as ZendForm,
-    Zend\View\Helper\AbstractHelper;
+    Zend\View\Helper\AbstractHelper,
+    CmsCommon\View\Exception\InvalidHelperException;
 
 /**
  * View helper for rendering Form objects
@@ -20,24 +22,54 @@ use Zend\Form\FormInterface,
 class Form extends ZendForm
 {
     /**
+     * @var string default form class
+     */
+    private $defaultClass = 'cms-form';
+
+    /**
      * The name of the default view helper that is used to render fieldsets.
      *
      * @var string
      */
-    protected $defaultFieldsetHelper = 'formCollection';
+    protected $defaultFieldsetHelper = 'form_collection';
 
     /**
-     * The view helper used to render sub fieldsets.
+     * The view helper used to render form elements.
      *
      * @var AbstractHelper
      */
     protected $fieldsetHelper;
 
     /**
+     * The name of the default view helper that is used to render form messages.
+     *
+     * @var string
+     */
+    protected $defaultFormMessagesHelper = 'form_messages';
+
+    /**
+     * The view helper used to render form messages.
+     *
+     * @var AbstractHelper
+     */
+    protected $formMessagesHelper;
+
+    /**
+     * @var array map of name parts to be replaced through str_replace
+     */
+    protected $classNameReplacements = [
+        '\\Document\\' => '\\Form\\',
+        '\\Entity\\' => '\\Form\\',
+        '\\ValueObject\\' => '\\Form\\',
+        '\\ValueObjects\\' => '\\Form\\',
+    ];
+
+    /**
      * Invoke as function
      *
      * @param  null|FormInterface $form
-     * @return Form
+     * @param  string $renderMode
+     * @return self|string
      */
     public function __invoke(FormInterface $form = null, $renderMode = null)
     {
@@ -49,9 +81,10 @@ class Form extends ZendForm
     }
 
     /**
-     * Render a form from the provided $form,
+     * Render a form from the provided $form
      *
      * @param  FormInterface $form
+     * @param  string $renderMode
      * @return string
      */
     public function render(FormInterface $form, $renderMode = null)
@@ -80,7 +113,12 @@ class Form extends ZendForm
             }
         }
 
-        $markup = $this->openTag($form) . $fieldsetHelper($form, false, false) . $this->closeTag();
+        $formMessagesHelper = $this->getFormMessagesHelper();
+
+        $markup = $this->openTag($form)
+            . $formMessagesHelper($form)
+            . $fieldsetHelper($form, false, false)
+            . $this->closeTag();
 
         if ($rollbackRenderMode) {
             $elementHelper->setRenderMode($rollbackRenderMode);
@@ -90,7 +128,47 @@ class Form extends ZendForm
     }
 
     /**
-     * Sets the fieldset helper that should be used by this collection.
+     * {@inheritDoc}
+     */
+    public function openTag(FormInterface $form = null)
+    {
+        if ($form) {
+            $class = $form->getAttribute('class');
+            if (strpos($class, $this->defaultClass) === false) {
+                $class = trim("$class {$this->defaultClass}");
+            }
+
+            if ($object = $form->getObject()) {
+                $className = str_replace(
+                    array_keys($this->classNameReplacements),
+                    array_values($this->classNameReplacements),
+                    get_class($object)
+                );
+            } else {
+                $className = get_class($form);
+            }
+
+            $parts = explode('\\', $className);
+            foreach ($parts as $part) {
+                $classes[] = strtolower($part);
+                if (count($classes) > 1) {
+                    $class .= ' ' . implode('-', $classes);
+                }
+            }
+
+            $form->setAttribute('class', $class);
+
+            $formAttributes = $form->getAttributes();
+            if (!array_key_exists('id', $formAttributes) && $classes) {
+                $form->setAttribute('id', implode('-', $classes));
+            }
+        }
+
+        return parent::openTag($form);
+    }
+
+    /**
+     * Sets the fieldset helper that should be used by this collection
      *
      * @param  AbstractHelper $fieldsetHelper The fieldset helper to use.
      * @return self
@@ -102,10 +180,10 @@ class Form extends ZendForm
     }
 
     /**
-     * Retrieve the fieldset helper.
+     * Retrieve the fieldset helper
      *
      * @return AbstractHelper
-     * @throws \RuntimeException
+     * @throws InvalidHelperException
      */
     protected function getFieldsetHelper()
     {
@@ -119,10 +197,45 @@ class Form extends ZendForm
 
     	if (!$this->fieldsetHelper instanceof AbstractHelper) {
     	    // @todo Ideally the helper should implement an interface.
-    	    throw new \RuntimeException('Invalid fieldset helper set in Form. '
-    	        . 'The helper must be an instance of AbstractHelper.');
+    	    throw InvalidHelperException::invalidHelperInstance($this->fieldsetHelper);
     	}
 
     	return $this->fieldsetHelper;
+    }
+
+    /**
+     * Sets the form messages helper
+     *
+     * @param  AbstractHelper $formMessagesHelper The form messages helper to use.
+     * @return self
+     */
+    public function setFormMessagestHelper(AbstractHelper $formMessagesHelper)
+    {
+        $this->formMessagesHelper = $formMessagesHelper;
+        return $this;
+    }
+
+    /**
+     * Retrieve the form messages helper
+     *
+     * @return AbstractHelper
+     * @throws InvalidHelperException
+     */
+    protected function getFormMessagesHelper()
+    {
+        if ($this->formMessagesHelper) {
+            return $this->formMessagesHelper;
+        }
+
+        if (method_exists($this->view, 'plugin')) {
+            $this->formMessagesHelper = $this->view->plugin($this->defaultFormMessagesHelper);
+        }
+
+        if (!$this->formMessagesHelper instanceof AbstractHelper) {
+            // @todo Ideally the helper should implement an interface.
+            throw InvalidHelperException::invalidHelperInstance($this->formMessagesHelper);
+        }
+
+        return $this->formMessagesHelper;
     }
 }

@@ -32,6 +32,11 @@ class FormRow extends ZendFormRow
     protected $renderMode = self::RENDER_ALL;
 
     /**
+     * @var string
+     */
+    protected $defaultDecoratorHelper = 'decorator';
+
+    /**
      * @var Decorator
      */
     protected $decoratorHelper;
@@ -43,12 +48,16 @@ class FormRow extends ZendFormRow
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @param string $renderMode
      */
-    public function __invoke(ElementInterface $element = null, $labelPosition = null,
-            $renderErrors = null, $partial = null, $renderMode = null)
-    {
+    public function __invoke(
+        ElementInterface $element = null,
+        $labelPosition = null,
+        $renderErrors = null,
+        $partial = null,
+        $renderMode = null
+    ) {
         if (!$element) {
             return $this;
         }
@@ -78,7 +87,7 @@ class FormRow extends ZendFormRow
             $this->setTranslatorTextDomain($textDomain);
         }
 
-        if ($decorators = $this->getDecorators($element)) {
+        if ($decorators = $this->getDecorators($element, $this->getForm())) {
             $decoratorHelper = $this->getDecoratorHelper();
             $markup = $decoratorHelper($element, $decorators, $element, $this->getForm());
         } else {
@@ -123,7 +132,7 @@ class FormRow extends ZendFormRow
         }
 
         if (method_exists($this->view, 'plugin')) {
-            $this->decoratorHelper = $this->view->plugin('decorator');
+            $this->decoratorHelper = $this->view->plugin($this->defaultDecoratorHelper);
         }
 
         if (!$this->decoratorHelper instanceof Decorator) {
@@ -136,15 +145,19 @@ class FormRow extends ZendFormRow
 
     /**
      * @param ElementInterface $element
+     * @param FormInterface $form
      * @return array
      */
-    protected function getDecorators(ElementInterface $element)
+    protected function getDecorators(ElementInterface $element, FormInterface $form = null)
     {
         $decorators = (array) $element->getOption($this->getDecoratorNamespace());
 
         $helper = $this->getElementHelper();
         if ($helper instanceof DecoratorProviderInterface) {
-            return array_replace_recursive($helper->getDecoratorSpecification($element), $decorators);
+            $decorators = array_replace_recursive(
+                $helper->getDecoratorSpecification($element, $form),
+                $decorators
+            );
         }
 
         return $decorators;

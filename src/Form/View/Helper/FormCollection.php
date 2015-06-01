@@ -15,9 +15,9 @@ use Zend\Form\Element\Collection,
     Zend\Form\FieldsetInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormCollection as ZendFormCollection,
-    Zend\Stdlib\ArrayUtils;
-use Zend\I18n\Translator\TranslatorAwareInterface;
-use CmsCommon\Form\View\Helper\Traits\TranslatorTextDomainTrait;
+    Zend\I18n\Translator\TranslatorAwareInterface,
+    Zend\Stdlib\ArrayUtils,
+    CmsCommon\Form\View\Helper\Traits\TranslatorTextDomainTrait;
 
 /**
  * Helper for rendering a collection
@@ -113,6 +113,7 @@ class FormCollection extends ZendFormCollection
                     $this->getFormKey()     => $this->getForm(),
                     $this->getFieldsetKey() => $element,
                     'legend'                => $this->renderLegend($element),
+                    'description'           => $element->getOption('description'),
                     'allowAdd'              => false,
                     'allowRemove'           => false,
                     'counter'               => null,
@@ -173,19 +174,21 @@ class FormCollection extends ZendFormCollection
      */
     protected function renderElements(FieldsetInterface $fieldset)
     {
-        $markup         = '';
-        $elementHelper  = $this->getElementHelper();
+        $markup = '';
+        $elementHelper = $this->getElementHelper();
 
         // reset the counter if it's called again
         $this->partialCounter = 0;
-        foreach ($fieldset as $elementOrFieldset) {
+        foreach (ArrayUtils::iteratorToArray($fieldset) as $elementOrFieldset) {
             if ($elementOrFieldset instanceof FieldsetInterface) {
                 if ($fieldset instanceof Collection) {
-                    if ($this->partialCounter >= $fieldset->getOption('count')) {
-                    	$elementOrFieldset->setOption('allow_remove', $fieldset->allowRemove());
-                    } else {
-                    	$elementOrFieldset->setOption('allow_remove', false);
-                    }
+                	$elementOrFieldset->setOption(
+                	    'allow_remove',
+                	    $this->partialCounter >= $fieldset->getOption('count')
+                	       ? $fieldset->allowRemove()
+                	       : false
+                	);
+
                     $this->partialCounter++;
                 }
 
@@ -315,6 +318,7 @@ class FormCollection extends ZendFormCollection
         if (null !== ($translator = $this->getTranslator())) {
             $label = $translator->translate($label, $this->getTranslatorTextDomain());
         }
+
         if (!$element instanceof LabelAwareInterface
             || !$element->getLabelOption('disable_html_escape')
         ) {
@@ -375,28 +379,31 @@ class FormCollection extends ZendFormCollection
         } else {
             $helper = $renderer;
         }
-        
+
         $textDomain = $element->getOption('text_domain');
-        if (!$textDomain || !($helper instanceof TranslatorAwareInterface && $helper->isTranslatorEnabled())) {
+        if (!$textDomain
+            || !($helper instanceof TranslatorAwareInterface
+                && $helper->isTranslatorEnabled())
+        ) {
             return call_user_func($renderer, $element);
         }
-        
+
         $translator = $helper->getTranslator();
         if (!($isEventManagerEnabled = $translator->isEventManagerEnabled())) {
             $translator->enableEventManager();
         }
-        
+
         $translatorEventManager = $translator->getEventManager();
         $isMissingTranslation   = false;
         $rollbackTextDomain     = $helper->getTranslatorTextDomain();
-        
+
         if ($element instanceof Captcha) {
             $captchaHelper = $this->getView()->plugin($element->getCaptcha()->getHelperName());
             $captchaHelper->setTranslatorTextDomain($rollbackTextDomain);
         } else {
             $captchaHelper = null;
         }
-        
+
         // Element text domain
         if ($textDomain !== $rollbackTextDomain) {
             $callbackHandler = $translatorEventManager->attach(
@@ -409,25 +416,26 @@ class FormCollection extends ZendFormCollection
                     $isMissingTranslation = true;
                 });
         }
-        
+
         $markup = call_user_func($renderer, $element);
         if ($isMissingTranslation) {
             $markup = call_user_func($renderer, $element);
         }
-        
+
         // Rollback text doamin for element helper
         $helper->setTranslatorTextDomain($rollbackTextDomain);
         if ($captchaHelper) {
             $captchaHelper->setTranslatorTextDomain($rollbackTextDomain);
         }
-        
+
         if (isset($callbackHandler)) {
             $translatorEventManager->detach($callbackHandler);
         }
+
         if (!$isEventManagerEnabled) {
             $translator->disableEventManager();
         }
-        
+
         return $markup;
     }
 

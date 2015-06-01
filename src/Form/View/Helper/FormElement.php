@@ -11,6 +11,7 @@
 namespace CmsCommon\Form\View\Helper;
 
 use Zend\Form\ElementInterface,
+    Zend\Form\FormInterface,
     Zend\Form\View\Helper\FormElement as ZendFormElement,
     Zend\Form\View\Helper\FormInput,
     Zend\I18n\Translator\TranslatorAwareInterface,
@@ -36,12 +37,12 @@ class FormElement extends ZendFormElement implements
     /**
      * {@inheritDoc}
      */
-    public function getDecoratorSpecification(ElementInterface $element = null)
+    public function getDecoratorSpecification(ElementInterface $element = null, FormInterface $form = null)
     {
         if ($element) {
             $elementHelper = $this->getElementHelper($element);
             if ($elementHelper instanceof DecoratorProviderInterface) {
-                return $elementHelper->getDecoratorSpecification();
+                return $elementHelper->getDecoratorSpecification($element, $form);
             }
         }
 

@@ -23,12 +23,14 @@ class ElementDescription extends AbstractHtmlContainer
     /**
      * {@inheritDoc}
      */
-    public function render($content, array $attribs = [], ElementInterface $element = null, FormInterface $form = null)
-    {
-        if (!$content) {
-            if (!($content = $element->getOption('description'))) {
-                return '';
-            }
+    public function render(
+        $content,
+        array $attribs = [],
+        ElementInterface $element = null,
+        FormInterface $form = null
+    ) {
+        if (!$content && !($content = $element->getOption('description'))) {
+            return '';
         }
 
         return parent::render($content, $attribs, $element, $form);

@@ -10,24 +10,26 @@
 
 namespace CmsCommon\Mapping\Dateable;
 
+use DateTime;
+
 /**
  * Interface for the model that might expire
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface ExpirableInterface
 {
     /**
      * Get expiration datetime
-     * 
-     * @return \DateTime
+     *
+     * @return DateTime
      */
     public function getExpireAt();
 
     /**
      * Set expiration datetime
-     * 
-     * @param \DateTime $expireAt
+     *
+     * @param DateTime $expireAt
      */
-    public function setExpireAt(\DateTime $expireAt = null);
+    public function setExpireAt(DateTime $expireAt = null);
 }

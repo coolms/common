@@ -15,6 +15,11 @@ return [
 
     "Data has been successfully saved" => "Данные успешно сохранены",
 
+    // CmsCommon\Form\Element\DateSelectRange
+    "The date must be not earlier than %min% inclusive" => "Дата должна быть не ранее %min% включительно",
+    "The date must be not later than %max% inclusive" => "Дата должна быть не позже %max% включительно",
+    "The end date must be later or equal to the start date" => "Конечная дата должна быть позже или равна начальной дате",
+
     // CmsCommon\Mvc\Controller\AbstractCrudController
     "An identifier must be provided to %s an object" => "Идентификатор должен быть указан для того, чтобы %s объект",
     "read" => "считать",

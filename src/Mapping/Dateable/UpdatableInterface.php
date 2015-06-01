@@ -10,15 +10,17 @@
 
 namespace CmsCommon\Mapping\Dateable;
 
+use DateTime;
+
 interface UpdatableInterface
 {
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getUpdatedAt();
 
     /**
-     * @param \DateTime $updatedAt
+     * @param DateTime $updatedAt
      */
-    public function setUpdatedAt(\DateTime $updatedAt);
+    public function setUpdatedAt(DateTime $updatedAt);
 }

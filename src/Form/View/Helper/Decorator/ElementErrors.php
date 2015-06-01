@@ -30,8 +30,12 @@ class ElementErrors extends AbstractHtmlContainer
     /**
      * {@inheritDoc}
      */
-    public function render($content, array $attribs = [], ElementInterface $element = null, FormInterface $form = null)
-    {
+    public function render(
+        $content,
+        array $attribs = [],
+        ElementInterface $element = null,
+        FormInterface $form = null
+    ) {
         if (!$this->isElementHasError($element, $form)) {
             return '';
         }

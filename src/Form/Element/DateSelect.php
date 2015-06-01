@@ -20,7 +20,13 @@ class DateSelect extends ZendDateSelect
     protected function getValidator()
     {
         if (null === $this->validator) {
-            $this->validator = ['name' => 'Date', 'options' => ['format' => 'Y-m-d', 'allowNull' => true]];
+            $this->validator = [
+                'name' => 'Date',
+                'options' => [
+                    'format' => 'Y-m-d',
+                    'allowNull' => $this->shouldCreateEmptyOption(),
+                ],
+            ];
         }
 
         return $this->validator;
@@ -34,7 +40,12 @@ class DateSelect extends ZendDateSelect
         $inputSpec = parent::getInputSpecification();
 
         $inputSpec['filters'] = [
-            ['name' => 'DateSelect', 'options' => ['null_on_empty' => true]],
+            [
+                'name' => 'DateSelect',
+                'options' => [
+                    'null_on_empty' => $this->shouldCreateEmptyOption(),
+                ],
+            ],
         ];
 
         return $inputSpec;

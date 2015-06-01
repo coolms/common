@@ -13,19 +13,29 @@ namespace CmsCommon\Mapping\Dateable;
 use DateTime;
 
 /**
- * Interface for the model that might change
+ * Interface for the model with date range
  *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
-interface ChangeableInterface
+interface RangeableInterface
 {
     /**
      * @return DateTime
      */
-    public function getChangedAt();
+    public function getStartDate();
 
     /**
-     * @param DateTime $changedAt
+     * @param DateTime $date
      */
-    public function setChangedAt(DateTime $changedAt);
+    public function setStartDate(DateTime $date);
+
+    /**
+     * @return DateTime
+     */
+    public function getEndDate();
+
+    /**
+     * @param DateTime $date
+    */
+    public function setEndDate(DateTime $date);
 }

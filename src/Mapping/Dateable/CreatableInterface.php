@@ -10,15 +10,17 @@
 
 namespace CmsCommon\Mapping\Dateable;
 
+use DateTime;
+
 interface CreatableInterface
 {
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedAt();
 
     /**
-     * @param \DateTime $createdAt
+     * @param DateTime $createdAt
      */
-    public function setCreatedAt(\DateTime $createdAt);
+    public function setCreatedAt(DateTime $createdAt);
 }

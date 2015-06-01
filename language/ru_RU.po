@@ -67,3 +67,15 @@ msgstr "Дата обновления"
 
 msgid "Verify you are human"
 msgstr "Подтвердите, что Вы человек"
+
+msgid "Since"
+msgstr "С"
+
+msgid "since"
+msgstr "с"
+
+msgid "To"
+msgstr "По"
+
+msgid "to"
+msgstr "по"

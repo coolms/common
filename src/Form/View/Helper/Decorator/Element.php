@@ -24,9 +24,19 @@ class Element extends AbstractHtmlContainer
     protected $tagName = 'input';
 
     /**
+     * @var string
+     */
+    protected $defaultElementHelper = 'form_element';
+
+    /**
      * @var AbstractHelper
      */
     protected $elementHelper;
+
+    /**
+     * @var string
+     */
+    protected $defaultIdNormalizer = 'id_normalizer';
 
     /**
      * @var IdNormalizer
@@ -34,17 +44,19 @@ class Element extends AbstractHtmlContainer
     protected $idNormalizer;
 
     /**
-     * @param  string|ElementInterface $content
-     * @param  array $attribs
-     * @param  ElementInterface $element
-     * @param  FormInterface $form
-     * @return string
+     * {@inheritDoc}
      */
-    public function render($content, array $attribs = [], ElementInterface $element = null, FormInterface $form = null)
-    {
+    public function render(
+        $content,
+        array $attribs = [],
+        ElementInterface $element = null,
+        FormInterface $form = null
+    ) {
         if (is_string($content) && $element && $form) {
             $elements = $this->getFieldsetElements($element, $form);
-            $content  = $this->getFieldsetElementByName($content, $elements);
+            if (isset($elements[$content])) {
+                $content = $elements[$content];
+            }
         }
 
         if ($content instanceof ElementInterface) {
@@ -56,6 +68,7 @@ class Element extends AbstractHtmlContainer
 
             $rendered = $this->renderHelper($content, $form);
             $content->setOption('__rendered__', true);
+
             return $rendered;
         }
 
@@ -72,7 +85,7 @@ class Element extends AbstractHtmlContainer
         }
 
         if (method_exists($this->view, 'plugin')) {
-            $this->elementHelper = $this->view->plugin('form_element');
+            $this->elementHelper = $this->view->plugin($this->defaultElementHelper);
         }
 
         if (!$this->elementHelper instanceof FormElement) {
@@ -93,7 +106,7 @@ class Element extends AbstractHtmlContainer
         }
 
         if (method_exists($this->view, 'plugin')) {
-            $this->idNormalizer = $this->view->plugin('id_normalizer');
+            $this->idNormalizer = $this->view->plugin($this->defaultIdNormalizer);
         }
 
         if (!$this->idNormalizer instanceof IdNormalizer) {
