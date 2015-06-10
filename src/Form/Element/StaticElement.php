@@ -10,16 +10,30 @@
 
 namespace CmsCommon\Form\Element;
 
-use Zend\Form\Element;
+use Zend\Form\Element,
+    Zend\Form\Exception;
 
 class StaticElement extends Element
 {
     /**
      * Seed attributes
-     * 
+     *
      * @var array
      */
     protected $attributes = [
-        'type' => 'static'
+        'type' => 'static',
     ];
+
+    /**
+     * {@inheritDoc}
+     * @throws Exception\BadMethodCallException
+     */
+    public function setValue($value)
+    {
+        if ($this->value !== null && $value !== null) {
+            throw new Exception\BadMethodCallException("Can't set value for static form element");
+        }
+
+        return parent::setValue($value);
+    }
 }

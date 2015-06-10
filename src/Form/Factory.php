@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * CoolMS2 Common Module (http://www.coolms.com/)
  *
@@ -10,21 +10,20 @@
 
 namespace CmsCommon\Form;
 
-use Zend\Form\FormInterface as ZendFormInterface;
+use Zend\Form\Factory as FormFactory,
+    CmsCommon\InputFilter\Factory as InputFilterFactory;
 
-interface FormInterface extends ZendFormInterface
+class Factory extends FormFactory
 {
     /**
-     * Set the element group (set of fields to display and validate)
-     *
-     * @return FormInterface
-     * @return self
+     * {@inheritDoc}
      */
-    public function setElementGroup();
+    public function getInputFilterFactory()
+    {
+        if (null === $this->inputFilterFactory) {
+            $this->setInputFilterFactory(new InputFilterFactory());
+        }
 
-    /**
-     * @param bool $flag
-     * @return self
-     */
-    public function setMergeInputFilter($flag);
+        return $this->inputFilterFactory;
+    }
 }

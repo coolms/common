@@ -17,13 +17,18 @@ use Zend\Captcha\AdapterInterface,
     Zend\Filter\Word\SeparatorToSeparator,
     Zend\Form\ElementInterface,
     Zend\Form\Element\Collection,
-    Zend\Form\Exception\InvalidArgumentException,
+    Zend\Form\Exception,
     Zend\Form\FieldsetInterface,
     Zend\Form\Form as ZendForm,
+    Zend\InputFilter\CollectionInputFilter,
+    Zend\InputFilter\InputFilterAwareInterface,
+    Zend\InputFilter\InputFilterInterface,
+    Zend\InputFilter\InputFilterProviderInterface,
     Zend\ServiceManager\ServiceLocatorAwareInterface,
     Zend\ServiceManager\ServiceLocatorAwareTrait,
     Zend\Stdlib\ArrayUtils,
-    Zend\Stdlib\PriorityList;
+    Zend\Stdlib\PriorityList,
+    CmsCommon\InputFilter\InputFilter;
 
 class Form extends ZendForm implements
         FormInterface,
@@ -32,6 +37,7 @@ class Form extends ZendForm implements
 {
     use EventManagerAwareTrait,
         ServiceLocatorAwareTrait,
+        MessagesTrait,
         CommonOptionsTrait {
             CommonOptionsTrait::getUseFormLabel as private;
             CommonOptionsTrait::setUseFormLabel as private;
@@ -41,6 +47,11 @@ class Form extends ZendForm implements
             CommonOptionsTrait::getUseSubmitElement as private;
             CommonOptionsTrait::getUseResetElement as private;
         }
+
+    /**
+     * @var bool
+     */
+    protected $mergeInputFilter = true;
 
     /**
      * @var string
@@ -124,6 +135,10 @@ class Form extends ZendForm implements
             $this->setUseResetElement($options['use_reset_element']);
         }
 
+        if (isset($options['merge_input_filter'])) {
+            $this->setMergeInputFilter($options['merge_input_filter']);
+        }
+
         return $this;
     }
 
@@ -153,6 +168,9 @@ class Form extends ZendForm implements
                 break;
             case 'use_reset_element':
                 $this->setUseResetElement($value);
+                break;
+            case 'merge_input_filter':
+                $this->setMergeInputFilter($value);
                 break;
         }
 
@@ -263,14 +281,14 @@ class Form extends ZendForm implements
      *
      * Typically, proxies to the composed input filter
      *
-     * @throws InvalidArgumentException
+     * @throws Exception\InvalidArgumentException
      * @return self
      */
     public function setElementGroup()
     {
         $argc = func_num_args();
         if (0 === $argc) {
-            throw new InvalidArgumentException(sprintf(
+            throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects at least one argument; none provided',
                 __METHOD__
             ));
@@ -345,7 +363,7 @@ class Form extends ZendForm implements
         }
 
         if (!is_array($data)) {
-            throw new InvalidArgumentException(sprintf(
+            throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an array or Traversable argument; received "%s"',
                 __METHOD__,
                 (is_object($data) ? get_class($data) : gettype($data))
@@ -422,6 +440,103 @@ class Form extends ZendForm implements
         }
 
         return $data;
+    }
+
+    /**
+     * @param bool $flag
+     * @return self
+     */
+    public function setMergeInputFilter($flag)
+    {
+        $this->mergeInputFilter = (bool) $flag;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function mergeInputFilter()
+    {
+        return $this->mergeInputFilter;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getInputFilter()
+    {
+        if (!$this->mergeInputFilter()) {
+            return parent::getInputFilter();
+        }
+
+        $filter = null;
+
+        if ($this->object instanceof InputFilterAwareInterface) {
+            if (null == $this->baseFieldset) {
+                $filter = $this->object->getInputFilter();
+            } else {
+                $name = $this->baseFieldset->getName();
+                if (!$this->filter instanceof InputFilterInterface || !$this->filter->has($name)) {
+                    $filter = new InputFilter();
+                    $filter->add($this->object->getInputFilter(), $name);
+                }
+            }
+        }
+
+        if (null === $this->filter) {
+            $this->filter = $filter ?: new InputFilter();
+        } elseif ($filter) {
+            $this->filter = $this->getPreferFormInputFilter()
+                ? $this->filter->merge($filter)
+                : $filter->merge($this->filter);
+        }
+
+        if (!$this->hasAddedInputFilterDefaults
+            && $this->filter instanceof InputFilterInterface
+            && $this->useInputFilterDefaults()
+        ) {
+            $this->attachInputFilterDefaults($this->filter, $this);
+            $this->hasAddedInputFilterDefaults = true;
+        }
+
+        return $this->filter;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function attachInputFilterDefaults(InputFilterInterface $inputFilter, FieldsetInterface $fieldset)
+    {
+        parent::attachInputFilterDefaults($inputFilter, $fieldset);
+
+        if (!$this->mergeInputFilter()) {
+            return;
+        }
+
+        $formFactory  = $this->getFormFactory();
+        $inputFactory = $formFactory->getInputFilterFactory();
+
+        foreach ($fieldset->getFieldsets() as $name => $childFieldset) {
+            if (!$childFieldset instanceof InputFilterProviderInterface ||
+                ($inputFilter->has($name) && $inputFilter->get($name)->count())
+            ) {
+                continue;
+            }
+
+            // Create an input filter based on the specification returned from the fieldset
+            // and merge with existing one
+            $spec   = $childFieldset->getInputFilterSpecification();
+            $filter = $inputFactory->createInputFilter($spec);
+            $inputFilter = $inputFilter->get($name)->merge($filter);
+
+            // Recursively attach sub filters
+            $this->attachInputFilterDefaults($inputFilter, $childFieldset);
+
+            // We need to copy the inputs to the collection input filter to ensure that all sub filters are added
+            if ($inputFilter instanceof CollectionInputFilter) {
+                $inputFilter = $this->addInputsToCollectionInputFilter($inputFilter);
+            }
+        }
     }
 
     /**

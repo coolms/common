@@ -8,23 +8,21 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\InputFilter;
 
-use Zend\Form\FormInterface as ZendFormInterface;
+use Zend\Filter\FilterChain,
+    Zend\InputFilter\InputFilterInterface as ZendInputFilterInterface,
+    Zend\Validator\ValidatorChain;
 
-interface FormInterface extends ZendFormInterface
+interface InputFilterInterface extends ZendInputFilterInterface
 {
     /**
-     * Set the element group (set of fields to display and validate)
-     *
-     * @return FormInterface
-     * @return self
+     * @return FilterChain
      */
-    public function setElementGroup();
+    public function getFilterChain();
 
     /**
-     * @param bool $flag
-     * @return self
+     * @return ValidatorChain
      */
-    public function setMergeInputFilter($flag);
+    public function getValidatorChain();
 }

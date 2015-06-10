@@ -20,7 +20,8 @@ use Zend\Cache\Storage\StorageInterface,
  */
 class AnnotationBuilder extends ZendAnnotationBuilder implements StorageProviderInterface
 {
-    use AnnotationBuilderCacheTrait;
+    use AnnotationBuilderCacheTrait,
+        AnnotationBuilderTrait;
 
     /**
      * __construct

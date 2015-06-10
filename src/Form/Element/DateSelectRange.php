@@ -15,11 +15,11 @@ use DateTime,
     Locale,
     Zend\Filter\DateSelect as DateSelectFilter,
     Zend\Filter\StaticFilter,
-    Zend\Form\InputFilterProviderFieldset,
     Zend\Validator\Between,
     Zend\Validator\Callback,
     Zend\Validator\GreaterThan,
-    Zend\Validator\LessThan;
+    Zend\Validator\LessThan,
+    CmsCommon\Form\InputFilterProviderFieldset;
 
 class DateSelectRange extends InputFilterProviderFieldset
 {

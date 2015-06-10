@@ -10,7 +10,8 @@
 
 namespace CmsCommon\Form\Annotation;
 
-use Zend\Form\FormAbstractServiceFactory as ZendFormAbstractServiceFactory,
+use Zend\Form\Factory,
+    Zend\Form\FormAbstractServiceFactory as ZendFormAbstractServiceFactory,
     Zend\ServiceManager\AbstractPluginManager,
     Zend\ServiceManager\MutableCreationOptionsInterface,
     Zend\ServiceManager\ServiceLocatorInterface,
@@ -116,11 +117,40 @@ class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implemen
     }
 
     /**
+     * {@inheritDoc}
+     */
+    protected function getFormFactory(ServiceLocatorInterface $services)
+    {
+        $injectInputFilterFactory = !$this->factory;
+        $factory = parent::getFormFactory($services);
+        if ($injectInputFilterFactory && $services->has('Zend\InputFilter\Factory')) {
+            $inputFilterFactory = $services->get('Zend\InputFilter\Factory');
+            $inputFilterFactory->setInputFilterManager($services->get('InputFilterManager'));
+            $factory->setInputFilterFactory($inputFilterFactory);
+        }
+
+        return $factory;
+    }
+
+    /**
      * @param ServiceLocatorInterface $services
      * @return \Zend\Cache\Storage\StorageInterface|null
      */
     protected function getAnnotationBuilderCache(ServiceLocatorInterface $services)
     {
         return $services->has($this->cacheConfigKey) ? $services->get($this->cacheConfigKey) : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function marshalInputFilter(array &$config, ServiceLocatorInterface $services, Factory $formFactory)
+    {
+        if ($services->has('InputFilterManager')) {
+            $inputFilterFactory = $formFactory->getInputFilterFactory();
+            $inputFilterFactory->setInputFilterManager($services->get('InputFilterManager'));
+        }
+
+        parent::marshalInputFilter($config, $services, $formFactory);
     }
 }

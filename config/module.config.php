@@ -104,6 +104,14 @@ return [
                 => 'CmsCommon\Initializer\MvcTranslatorInitializer',
         ],
     ],
+    'filters' => [
+        'aliases' => [
+            'BindableClosure' => 'CmsCommon\Filter\BindableClosure',
+        ],
+        'invokables' => [
+            'CmsCommon\Filter\BindableClosure' => 'CmsCommon\Filter\BindableClosure',
+        ],
+    ],
     'form_elements' => [
         'abstract_factories' => [
             'CmsCommon\Form\Annotation\FormAbstractServiceFactory'
@@ -114,6 +122,7 @@ return [
             'DateSelect' => 'CmsCommon\Form\Element\DateSelect',
             'DateSelectRange' => 'CmsCommon\Form\Element\DateSelectRange',
             'DateTimeSelect' => 'CmsCommon\Form\Element\DateTimeSelect',
+            'Fieldset' => 'CmsCommon\Form\Fieldset',
             'Form' => 'CmsCommon\Form\Form',
             'MonthSelect' => 'CmsCommon\Form\Element\MonthSelect',
             'Number' => 'CmsCommon\Form\Element\Number',
@@ -121,6 +130,7 @@ return [
         ],
         'invokables' => [
             'Zend\Form\Element\Collection' => 'CmsCommon\Form\Element\Collection',
+            'Zend\Form\Fieldset' => 'CmsCommon\Form\Fieldset',
             'Zend\Form\Form' => 'CmsCommon\Form\Form',
             'CmsCommon\Form\Element\DateSelect' => 'CmsCommon\Form\Element\DateSelect',
             'CmsCommon\Form\Element\DateSelectRange' => 'CmsCommon\Form\Element\DateSelectRange',
@@ -128,6 +138,14 @@ return [
             'CmsCommon\Form\Element\MonthSelect' => 'CmsCommon\Form\Element\MonthSelect',
             'CmsCommon\Form\Element\Number' => 'CmsCommon\Form\Element\Number',
             'CmsCommon\Form\Element\StaticElement' => 'CmsCommon\Form\Element\StaticElement',
+        ],
+    ],
+    'input_filters' => [
+        'aliases' => [
+            'InputFilter' => 'Zend\InputFilter\InputFilter',
+        ],
+        'invokables' => [
+            'Zend\InputFilter\InputFilter' => 'CmsCommon\InputFilter\InputFilter',
         ],
     ],
     'listeners' => [
@@ -184,6 +202,7 @@ return [
             'CmsCommon\Crypt\PasswordGeneratorInterface' => 'CmsCommon\Crypt\PasswordGenerator',
             'CmsCommon\Event\ModuleOptionsListener' => 'CmsCommon\Event\ModuleOptionsListener',
             'CmsCommon\Event\PhpSettingsListener' => 'CmsCommon\Event\PhpSettingsListener',
+            'Zend\InputFilter\Factory' => 'CmsCommon\InputFilter\Factory',
         ],
     ],
     'translator' => [
