@@ -10,14 +10,13 @@
 
 namespace CmsCommon\Form\Annotation;
 
-use Zend\Form\Factory,
-    Zend\Form\FormAbstractServiceFactory as ZendFormAbstractServiceFactory,
-    Zend\ServiceManager\AbstractPluginManager,
+use Zend\ServiceManager\AbstractPluginManager,
     Zend\ServiceManager\MutableCreationOptionsInterface,
     Zend\ServiceManager\ServiceLocatorInterface,
-    Zend\Stdlib\ArrayUtils;
+    Zend\Stdlib\ArrayUtils,
+    CmsCommon\Form\FormAbstractServiceFactory as CommonFormAbstractServiceFactory;
 
-class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implements MutableCreationOptionsInterface
+class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implements MutableCreationOptionsInterface
 {
     /**
      * @var AnnotationBuilder
@@ -66,8 +65,21 @@ class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implemen
 
         $services   = $formElements->getServiceLocator();
         $builder    = $this->getAnnotationBuilder($services);
-        $formSpec   = ArrayUtils::iteratorToArray($builder->getFormSpecification($requestedName));
+
+        $formSpec = ArrayUtils::iteratorToArray($builder->getFormSpecification($requestedName));
         $formSpec['options'] = array_replace_recursive($formSpec['options'], $this->creationOptions);
+
+        // Setting some defaults
+        if (!isset($formSpec['options']['merge_input_filter'])) {
+            $formSpec['options']['merge_input_filter'] = true;
+        }
+        if (!isset($formSpec['options']['prefer_form_input_filter'])) {
+            $formSpec['options']['prefer_form_input_filter'] = true;
+        }
+        if (!isset($formSpec['options']['use_input_filter_defaults'])) {
+            $formSpec['options']['use_input_filter_defaults'] = true;
+        }
+
         $this->config[$requestedName] = $formSpec;
 
         return parent::createServiceWithName($services, $name, $requestedName);
@@ -108,9 +120,7 @@ class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implemen
     protected function getAnnotationBuilder(ServiceLocatorInterface $services)
     {
         if (null === $this->annotationBuilder) {
-            $factory = $this->getFormFactory($services);
             $this->annotationBuilder = new AnnotationBuilder($this->getAnnotationBuilderCache($services));
-            $this->annotationBuilder->setFormFactory($factory);
         }
 
         return $this->annotationBuilder;
@@ -121,15 +131,13 @@ class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implemen
      */
     protected function getFormFactory(ServiceLocatorInterface $services)
     {
-        $injectInputFilterFactory = !$this->factory;
-        $factory = parent::getFormFactory($services);
-        if ($injectInputFilterFactory && $services->has('Zend\InputFilter\Factory')) {
-            $inputFilterFactory = $services->get('Zend\InputFilter\Factory');
-            $inputFilterFactory->setInputFilterManager($services->get('InputFilterManager'));
-            $factory->setInputFilterFactory($inputFilterFactory);
+        $annotationBuilder = $this->getAnnotationBuilder($services);
+        if ($services->has('FormElementManager')) {
+            $formElementManager = $services->get('FormElementManager');
+            $formElementManager->injectFactory($annotationBuilder);
         }
 
-        return $factory;
+        return $annotationBuilder->getFormFactory();
     }
 
     /**
@@ -139,18 +147,5 @@ class FormAbstractServiceFactory extends ZendFormAbstractServiceFactory implemen
     protected function getAnnotationBuilderCache(ServiceLocatorInterface $services)
     {
         return $services->has($this->cacheConfigKey) ? $services->get($this->cacheConfigKey) : null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function marshalInputFilter(array &$config, ServiceLocatorInterface $services, Factory $formFactory)
-    {
-        if ($services->has('InputFilterManager')) {
-            $inputFilterFactory = $formFactory->getInputFilterFactory();
-            $inputFilterFactory->setInputFilterManager($services->get('InputFilterManager'));
-        }
-
-        parent::marshalInputFilter($config, $services, $formFactory);
     }
 }

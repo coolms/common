@@ -45,6 +45,7 @@ trait MessagesTrait
                 $this->messages[$key] = $messageSet;
                 continue;
             }
+
             $element = $this->get($key);
             $element->setMessages($messageSet);
         }
@@ -76,6 +77,7 @@ trait MessagesTrait
                     }
                     $messages[$name] = $messageSet;
             }
+
             return $messages;
         }
 

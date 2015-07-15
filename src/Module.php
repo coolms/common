@@ -15,7 +15,8 @@ use Zend\EventManager\EventInterface,
     Zend\ModuleManager\Feature\BootstrapListenerInterface,
     Zend\ModuleManager\Feature\ConfigProviderInterface,
     Zend\ModuleManager\ModuleManager,
-    Zend\Mvc\ModuleRouteListener;
+    Zend\Mvc\ModuleRouteListener,
+    Zend\Validator\AbstractValidator;
 
 class Module implements
     AutoloaderProviderInterface,
@@ -82,9 +83,19 @@ class Module implements
     {
         set_error_handler([__CLASS__, 'handlePhpErrors']);
 
-        $eventManager = $e->getApplication()->getEventManager();
+        $app = $e->getApplication();
+        $eventManager = $app->getEventManager();
+
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
+
+        $serviceManager = $app->getServiceManager();
+
+        if ($serviceManager->has('MvcTranslator')) {
+            // Setting up default MVC translator
+            $translator = $serviceManager->get('MvcTranslator');
+            AbstractValidator::setDefaultTranslator($translator);
+        }
     }
 
     /**

@@ -14,6 +14,7 @@ use ArrayObject,
     Zend\Code\Annotation\AnnotationCollection,
     Zend\Code\Reflection\PropertyReflection,
     Zend\EventManager\Event,
+    Zend\Stdlib\ArrayUtils,
     CmsCommon\Form\Factory;
 
 trait AnnotationBuilderTrait
@@ -33,6 +34,22 @@ trait AnnotationBuilderTrait
 
         $this->formFactory = new Factory();
         return $this->formFactory;
+    }
+
+    /**
+     * Create a form from an object.
+     *
+     * @param  string|object $entity
+     * @return \CmsCommon\Form\FormInterface
+     */
+    public function createForm($entity)
+    {
+        $formSpec = ArrayUtils::iteratorToArray($this->getFormSpecification($entity));
+        if (!isset($formSpec['options']['merge_input_filter'])) {
+            $formSpec['options']['merge_input_filter'] = true;
+        }
+
+        return $this->getFormFactory()->createForm($formSpec);
     }
 
     /**
@@ -75,20 +92,17 @@ trait AnnotationBuilderTrait
             'formSpec'    => $formSpec,
             'filterSpec'  => $filterSpec,
         ]);
+
         foreach ($annotations as $annotation) {
             $event->setParam('annotation', $annotation);
             $events->trigger(__FUNCTION__, $this, $event);
         }
 
-        // Since "filters", "type", "validators" is a reserved name in the filter specification,
+        // Since "filters", "type", "validators" is a reserved names in the filter specification,
         // we need to add the specification without the name as the key.
         // In all other cases, though, the name is fine.
-        if ($event->getParam('inputSpec')->count() > 1 || isset($event->getParam('inputSpec')['type'])) {
-            if ($name === 'type' || (
-                ($name === 'filters' || $name === 'validators') &&
-                isset($event->getParam('inputSpec')['type']) &&
-                is_subclass_of($event->getParam('inputSpec')['type'], 'Zend\InputFilter\InputFilterInterface')
-            )) {
+        if ($event->getParam('inputSpec')->count() > 1 || $annotations->hasAnnotation('Zend\Form\Annotation\Input')) {
+            if ($name === 'type' || $name === 'filters' || $name === 'validators') {
                 $filterSpec[] = $event->getParam('inputSpec');
             } else {
                 $filterSpec[$name] = $event->getParam('inputSpec');
@@ -96,7 +110,7 @@ trait AnnotationBuilderTrait
         }
 
         $elementSpec = $event->getParam('elementSpec');
-        $type = (isset($elementSpec['spec']['type']))
+        $type = isset($elementSpec['spec']['type'])
             ? $elementSpec['spec']['type']
             : 'Zend\Form\Element';
 

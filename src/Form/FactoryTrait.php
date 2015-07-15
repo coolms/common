@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * CoolMS2 Common Module (http://www.coolms.com/)
  *
@@ -10,10 +10,23 @@
 
 namespace CmsCommon\Form;
 
-use Zend\Form\Fieldset as ZendFieldset;
+use Zend\Form\FormInterface;
 
-class Fieldset extends ZendFieldset
+trait FactoryTrait
 {
-    use FactoryTrait,
-        MessagesTrait;
+    /**
+     * Retrieve composed form factory
+     *
+     * Lazy-loads one if none present.
+     *
+     * @return Factory
+     */
+    public function getFormFactory()
+    {
+        if (null === $this->factory) {
+            $this->setFormFactory(new Factory());
+        }
+
+        return $this->factory;
+    }
 }

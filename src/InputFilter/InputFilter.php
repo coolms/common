@@ -14,8 +14,9 @@ use Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerAwareTrait,
     Zend\Filter\FilterChain,
     Zend\InputFilter\BaseInputFilter,
+    Zend\InputFilter\Exception,
     Zend\InputFilter\InputFilter as ZendInputFilter,
-    Zend\InputFilter\InputFilterInterface,
+    Zend\InputFilter\InputFilterInterface as ZendInputFilterInterface,
     Zend\InputFilter\InputInterface,
     Zend\ServiceManager\AbstractPluginManager,
     Zend\ServiceManager\ServiceLocatorAwareInterface,
@@ -44,16 +45,46 @@ class InputFilter extends ZendInputFilter implements
 
     /**
      * {@inheritDoc}
+     *
+     * @param bool $recursive
      */
-    public function add($input, $name = null)
+    public function add($input, $name = null, $recursive = false)
     {
-        parent::add($input, $name);
+        if (is_array($input)
+            || ($input instanceof Traversable && !$input instanceof InputFilterInterface)
+        ) {
+            $factory = $this->getFactory();
+            $input = $factory->createInput($input);
+        }
+
+        if (!$input instanceof InputInterface && !$input instanceof ZendInputFilterInterface) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '%s expects an instance of %s or %s as its first argument; received "%s"',
+                __METHOD__,
+                'Zend\InputFilter\InputInterface',
+                'Zend\InputFilter\InputFilterInterface',
+                (is_object($input) ? get_class($input) : gettype($input))
+            ));
+        }
 
         if ($input instanceof InputInterface && (empty($name) || is_int($name))) {
             $name = $input->getName();
         }
 
-        $input = $this->inputs[$name];
+        if (isset($this->inputs[$name]) &&
+            ($this->inputs[$name] instanceof InputInterface
+                || ($recursive && $this->inputs[$name] instanceof ZendInputFilterInterface))
+        ) {
+            // The element already exists, so merge the config. Please note
+            // that this merges the new input into the original.
+            $original = $this->inputs[$name];
+            if ($original !== $input) {
+                $original->merge($input, $recursive);
+            }
+        } else {
+            $this->inputs[$name] = $input;
+        }
+
         if ($input instanceof InputInterface || $input instanceof InputFilterInterface) {
             $filter = $input->getFilterChain();
             $this->bindClosureFilter($filter);
@@ -71,7 +102,7 @@ class InputFilter extends ZendInputFilter implements
 
         $input = $this->inputs[$name];
         if ($input instanceof InputInterface || $input instanceof InputFilterInterface) {
-            $filter = $this->inputs[$name]->getFilterChain();
+            $filter = $input->getFilterChain();
             $this->bindClosureFilter($filter);
         }
 
@@ -84,13 +115,13 @@ class InputFilter extends ZendInputFilter implements
     public function isValid($context = null)
     {
         $valid = parent::isValid($context);
-        
+
         if (!$valid) {
             return $valid;
         }
 
         $validators = $this->getValidatorChain();
-        $valid = $validators->isValid(new \ArrayObject($this->getValues()), $context ?: $this->data);
+        $valid = $validators->isValid(new \ArrayObject($this->getValues()), $context);
 
         if (!$valid) {
             $validators->getMessages();
@@ -135,11 +166,11 @@ class InputFilter extends ZendInputFilter implements
      */
     public function getMessages()
     {
-        $messages = parent::getMessages();
         $validatorMessages = $this->getValidatorChain()->getMessages();
+        $messages = $validatorMessages ? array_values($validatorMessages) : [];
 
-        if ($validatorMessages) {
-            array_unshift($messages, $validatorMessages);
+        foreach ($this->getInvalidInput() as $name => $input) {
+            $messages[$name] = $input->getMessages();
         }
 
         return $messages;
@@ -155,10 +186,8 @@ class InputFilter extends ZendInputFilter implements
             $inputs = $this->getServiceLocator();
             if ($inputs instanceof AbstractPluginManager) {
                 $services = $inputs->getServiceLocator();
-                if ($services instanceof ServiceLocatorInterface &&
-                    $services->has('FilterPluginManager')
-                ) {
-                    $filter->setPluginManager($services->get('FilterPluginManager'));
+                if ($services instanceof ServiceLocatorInterface && $services->has('FilterManager')) {
+                    $filter->setPluginManager($services->get('FilterManager'));
                 }
             }
 
@@ -188,10 +217,8 @@ class InputFilter extends ZendInputFilter implements
             $inputs = $this->getServiceLocator();
             if ($inputs instanceof AbstractPluginManager) {
                 $services = $inputs->getServiceLocator();
-                if ($services instanceof ServiceLocatorInterface &&
-                    $services->has('ValidatorPluginManager')
-                ) {
-                    $validator->setPluginManager($services->get('ValidatorPluginManager'));
+                if ($services instanceof ServiceLocatorInterface && $services->has('ValidatorManager')) {
+                    $validator->setPluginManager($services->get('ValidatorManager'));
                 }
             }
 
@@ -213,10 +240,14 @@ class InputFilter extends ZendInputFilter implements
 
     /**
      * {@inheritDoc}
+     *
+     * @param bool $recursive
      */
-    public function merge(BaseInputFilter $inputFilter)
+    public function merge(BaseInputFilter $inputFilter, $recursive = false)
     {
-        parent::merge($inputFilter);
+        foreach ($inputFilter->getInputs() as $name => $input) {
+            $this->add($input, $name, $recursive);
+        }
 
         if ($inputFilter instanceof InputFilterInterface) {
             $this->getFilterChain()->merge($inputFilter->getFilterChain());

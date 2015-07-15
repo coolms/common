@@ -105,11 +105,8 @@ return [
         ],
     ],
     'filters' => [
-        'aliases' => [
-            'BindableClosure' => 'CmsCommon\Filter\BindableClosure',
-        ],
         'invokables' => [
-            'CmsCommon\Filter\BindableClosure' => 'CmsCommon\Filter\BindableClosure',
+            'BindableClosure' => 'CmsCommon\Filter\BindableClosure',
         ],
     ],
     'form_elements' => [
@@ -202,7 +199,6 @@ return [
             'CmsCommon\Crypt\PasswordGeneratorInterface' => 'CmsCommon\Crypt\PasswordGenerator',
             'CmsCommon\Event\ModuleOptionsListener' => 'CmsCommon\Event\ModuleOptionsListener',
             'CmsCommon\Event\PhpSettingsListener' => 'CmsCommon\Event\PhpSettingsListener',
-            'Zend\InputFilter\Factory' => 'CmsCommon\InputFilter\Factory',
         ],
     ],
     'translator' => [
@@ -218,6 +214,11 @@ return [
                 'base_dir' => __DIR__ . '/../language',
                 'pattern' => '%s.php',
             ],
+        ],
+    ],
+    'validators' => [
+        'invokables' => [
+            'Callback' => 'CmsCommon\Validator\Callback',
         ],
     ],
     'view_helpers' => [

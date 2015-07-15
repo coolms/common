@@ -24,11 +24,12 @@ use Zend\Captcha\AdapterInterface,
     Zend\InputFilter\InputFilterAwareInterface,
     Zend\InputFilter\InputFilterInterface,
     Zend\InputFilter\InputFilterProviderInterface,
+    Zend\InputFilter\InputProviderInterface,
+    Zend\InputFilter\ReplaceableInputInterface,
     Zend\ServiceManager\ServiceLocatorAwareInterface,
     Zend\ServiceManager\ServiceLocatorAwareTrait,
     Zend\Stdlib\ArrayUtils,
-    Zend\Stdlib\PriorityList,
-    CmsCommon\InputFilter\InputFilter;
+    Zend\Stdlib\PriorityList;
 
 class Form extends ZendForm implements
         FormInterface,
@@ -36,8 +37,9 @@ class Form extends ZendForm implements
         ServiceLocatorAwareInterface
 {
     use EventManagerAwareTrait,
-        ServiceLocatorAwareTrait,
+        FactoryTrait,
         MessagesTrait,
+        ServiceLocatorAwareTrait,
         CommonOptionsTrait {
             CommonOptionsTrait::getUseFormLabel as private;
             CommonOptionsTrait::setUseFormLabel as private;
@@ -51,7 +53,22 @@ class Form extends ZendForm implements
     /**
      * @var bool
      */
-    protected $mergeInputFilter = true;
+    protected $mergeInputFilter = false;
+
+    /**
+     * @var bool
+     */
+    protected $hasMergedInputFilter = false;
+
+    /**
+     * @var InputFilterInterface
+     */
+    protected $inputFilterPrototype;
+
+    /**
+     * @var InputFilterInterface
+     */
+    protected $objectInputFilter;
 
     /**
      * @var string
@@ -66,7 +83,7 @@ class Form extends ZendForm implements
     /**
      * @var FilterChain
      */
-    private $nameFilterChain;
+    private $nameFilter;
 
     /**
      * {@inheritDoc}
@@ -331,7 +348,7 @@ class Form extends ZendForm implements
 
     /**
      * @param array $group
-     * @param FieldsetInterface $interface
+     * @param FieldsetInterface $fieldset
      * @return void
      */
     private function removeFieldsetElementGroup(array $group, FieldsetInterface $fieldset)
@@ -463,37 +480,103 @@ class Form extends ZendForm implements
     /**
      * {@inheritDoc}
      */
-    public function getInputFilter()
+    public function setObject($object)
     {
-        if (!$this->mergeInputFilter()) {
-            return parent::getInputFilter();
+        $this->objectInputFilter = null;
+        $this->hasAddedInputFilterDefaults = false;
+        $this->hasMergedInputFilter = false;
+
+        return parent::setObject($object);
+    }
+
+    /**
+     * @return null|InputFilterInterface
+     */
+    protected function getObjectInputFilter()
+    {
+        if (!$this->objectInputFilter) {
+            if ($this->object instanceof InputFilterAwareInterface) {
+                $this->objectInputFilter = $this->object->getInputFilter();
+            } elseif ($this->object instanceof InputFilterProviderInterface) {
+                $inputFactory = $this->getFormFactory()->getInputFilterFactory();
+                $this->objectInputFilter = $inputFactory->createInputFilter($this->object);
+            }
         }
 
-        $filter = null;
+        return $this->objectInputFilter;
+    }
 
-        if ($this->object instanceof InputFilterAwareInterface) {
-            if (null == $this->baseFieldset) {
-                $filter = $this->object->getInputFilter();
-            } else {
+    /**
+     * {@inheritDoc}
+     */
+    public function setInputFilter(InputFilterInterface $inputFilter)
+    {
+        $this->inputFilterPrototype = $inputFilter;
+        $this->hasMergedInputFilter = false;
+
+        return parent::setInputFilter($inputFilter);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getInputFilter()
+    {
+        $inputFactory = $this->getFormFactory()->getInputFilterFactory();
+
+        if ($filter = $this->getObjectInputFilter()) {
+            if ($this->baseFieldset) {
+                if (!$this->filter) {
+                    $this->filter = $inputFactory->createInputFilter([]);
+                }
+
                 $name = $this->baseFieldset->getName();
-                if (!$this->filter instanceof InputFilterInterface || !$this->filter->has($name)) {
-                    $filter = new InputFilter();
-                    $filter->add($this->object->getInputFilter(), $name);
+                if (!$this->filter->has($name)) {
+                    $this->filter->add($filter, $name);
+                } elseif (!$this->hasMergedInputFilter && $this->mergeInputFilter()) {
+                    if ($this->getPreferFormInputFilter()) {
+                        $this->filter = clone $this->inputFilterPrototype;
+                        $this->filter->get($name)->merge($filter, true);
+                    } else {
+                        $filter = clone $filter;
+                        $filter->merge($this->filter->get($name), true);
+                    }
+
+                    $this->hasMergedInputFilter = true;
+                }
+
+                if ($this->filter instanceof ReplaceableInputInterface &&
+                    !$this->getPreferFormInputFilter() ||
+                    $this->hasMergedInputFilter
+                ) {
+                    $this->filter->replace($filter, $name);
+                }
+            } else {
+                if (!$this->hasMergedInputFilter && $this->mergeInputFilter()) {
+                    if ($this->getPreferFormInputFilter()) {
+                        $this->filter = clone $this->inputFilterPrototype;
+                        $this->filter->merge($filter, true);
+                    } else {
+                        $filter = clone $filter;
+                        $filter->merge($this->filter, true);
+                    }
+    
+                    $this->hasMergedInputFilter = true;
+                }
+
+                if (!$this->filter || !$this->getPreferFormInputFilter()) {
+                    $this->filter = $filter;
                 }
             }
         }
 
-        if (null === $this->filter) {
-            $this->filter = $filter ?: new InputFilter();
-        } elseif ($filter) {
-            $this->filter = $this->getPreferFormInputFilter()
-                ? $this->filter->merge($filter)
-                : $filter->merge($this->filter);
+        if (!$this->filter) {
+            $this->filter = $inputFactory->createInputFilter([]);
         }
 
-        if (!$this->hasAddedInputFilterDefaults
-            && $this->filter instanceof InputFilterInterface
-            && $this->useInputFilterDefaults()
+        if (!$this->hasAddedInputFilterDefaults &&
+            $this->filter instanceof InputFilterInterface &&
+            $this->useInputFilterDefaults()
         ) {
             $this->attachInputFilterDefaults($this->filter, $this);
             $this->hasAddedInputFilterDefaults = true;
@@ -507,30 +590,123 @@ class Form extends ZendForm implements
      */
     public function attachInputFilterDefaults(InputFilterInterface $inputFilter, FieldsetInterface $fieldset)
     {
-        parent::attachInputFilterDefaults($inputFilter, $fieldset);
-
-        if (!$this->mergeInputFilter()) {
-            return;
-        }
-
         $formFactory  = $this->getFormFactory();
         $inputFactory = $formFactory->getInputFilterFactory();
 
+        if ($fieldset instanceof Collection && $fieldset->getTargetElement() instanceof FieldsetInterface) {
+            $elements = $fieldset->getTargetElement()->getElements();
+        } else {
+            $elements = $fieldset->getElements();
+        }
+
+        if (!$fieldset instanceof Collection ||
+            !$fieldset->getTargetElement() instanceof FieldsetInterface ||
+            $inputFilter instanceof CollectionInputFilter
+        ) {
+            foreach ($elements as $name => $element) {
+                if ($this->getPreferFormInputFilter() && !$this->mergeInputFilter() && $inputFilter->has($name)) {
+                    continue;
+                }
+
+                if (!$element instanceof InputProviderInterface) {
+                    if ($inputFilter->has($name)) {
+                        continue;
+                    }
+                    // Create a new empty default input for this element
+                    $spec  = array('name' => $name, 'required' => false);
+                    $input = $inputFactory->createInput($spec);
+                } else {
+                    // Create an input based on the specification returned from the element
+                    $spec  = $element->getInputSpecification();
+                    $input = $inputFactory->createInput($spec);
+
+                    if ($inputFilter->has($name) && $inputFilter instanceof ReplaceableInputInterface) {
+                        $input->merge($inputFilter->get($name));
+                        $inputFilter->replace($input, $name);
+                        continue;
+                    }
+                }
+
+                // Add element input filter to CollectionInputFilter
+                if ($inputFilter instanceof CollectionInputFilter && !$inputFilter->getInputFilter()->has($name)) {
+                    $inputFilter->getInputFilter()->add($input, $name);
+                } else {
+                    $inputFilter->add($input, $name);
+                }
+            }
+
+            if ($fieldset === $this && $fieldset instanceof InputFilterProviderInterface) {
+                foreach ($fieldset->getInputFilterSpecification() as $name => $spec) {
+                    $input = $inputFactory->createInput($spec);
+                    $inputFilter->add($input, $name);
+                }
+            }
+        }
+
         foreach ($fieldset->getFieldsets() as $name => $childFieldset) {
-            if (!$childFieldset instanceof InputFilterProviderInterface ||
-                ($inputFilter->has($name) && $inputFilter->get($name)->count())
-            ) {
+            if (!$childFieldset instanceof InputFilterProviderInterface) {
+                if (!$inputFilter->has($name)) {
+                    // Add a new empty input filter if it does not exist (or the fieldset's object input filter),
+                    // so that elements of nested fieldsets can be recursively added
+                    if ($childFieldset->getObject() instanceof InputFilterAwareInterface) {
+                        $inputFilter->add($childFieldset->getObject()->getInputFilter(), $name);
+                    } else {
+                        // Add input filter for collections via getInputFilterSpecification()
+                        if ($childFieldset instanceof Collection
+                            && $childFieldset->getTargetElement() instanceof InputFilterProviderInterface
+                            && $childFieldset->getTargetElement()->getInputFilterSpecification()
+                        ) {
+                            $collectionContainerFilter = new CollectionInputFilter();
+
+                            $spec = $childFieldset->getTargetElement()->getInputFilterSpecification();
+                            $filter = $inputFactory->createInputFilter($spec);
+
+                            $collectionContainerFilter->setInputFilter($filter);
+
+                            $inputFilter->add($collectionContainerFilter, $name);
+
+                            // We need to copy the inputs to the collection input filter
+                            if ($inputFilter instanceof CollectionInputFilter) {
+                                $inputFilter = $this->addInputsToCollectionInputFilter($inputFilter);
+                            }
+
+                            // Add child elements from target element
+                            $childFieldset = $childFieldset->getTargetElement();
+                        } else {
+                            $inputFilter->add($inputFactory->createInputFilter([]), $name);
+                        }
+                    }
+                }
+
+                $fieldsetFilter = $inputFilter->get($name);
+
+                if (!$fieldsetFilter instanceof InputFilterInterface) {
+                    // Input attached for fieldset, not input filter; nothing more to do.
+                    continue;
+                }
+
+                // Traverse the elements of the fieldset, and attach any
+                // defaults to the fieldset's input filter
+                $this->attachInputFilterDefaults($fieldsetFilter, $childFieldset);
+                continue;
+            }
+
+            if (!$this->mergeInputFilter() && $inputFilter->has($name)) {
+                // if we already have an input/filter by this name, use it
                 continue;
             }
 
             // Create an input filter based on the specification returned from the fieldset
-            // and merge with existing one
             $spec   = $childFieldset->getInputFilterSpecification();
             $filter = $inputFactory->createInputFilter($spec);
-            $inputFilter = $inputFilter->get($name)->merge($filter);
+            if ($inputFilter->has($name)) {
+                $filter = $inputFilter->get($name)->merge($filter);
+            } else {
+                $inputFilter->add($filter, $name);
+            }
 
             // Recursively attach sub filters
-            $this->attachInputFilterDefaults($inputFilter, $childFieldset);
+            $this->attachInputFilterDefaults($filter, $childFieldset);
 
             // We need to copy the inputs to the collection input filter to ensure that all sub filters are added
             if ($inputFilter instanceof CollectionInputFilter) {
@@ -628,7 +804,7 @@ class Form extends ZendForm implements
         if (null === $this->captchaElementName) {
             $name = $this->getName();
             if ($name) {
-                $this->captchaElementName  = $this->getNameFilterChain()->filter($name);
+                $this->captchaElementName  = $this->getNameFilter()->filter($name);
                 $this->captchaElementName .= '_captcha';
             } else {
                 $this->captchaElementName  = 'captcha';
@@ -704,7 +880,7 @@ class Form extends ZendForm implements
         if (null === $this->csrfElementName) {
             $name = $this->getName();
             if ($name) {
-                $this->csrfElementName  = $this->getNameFilterChain()->filter($name);
+                $this->csrfElementName  = $this->getNameFilter()->filter($name);
                 $this->csrfElementName .= '_csrf';
             } else {
                 $this->csrfElementName  = 'csrf';
@@ -793,15 +969,15 @@ class Form extends ZendForm implements
     /**
      * @return FilterChain
      */
-    private function getNameFilterChain()
+    private function getNameFilter()
     {
-        if (null === $this->nameFilterChain) {
-            $this->nameFilterChain = (new FilterChain)
+        if (null === $this->nameFilter) {
+            $this->nameFilter = (new FilterChain)
                 ->attach(new SeparatorToSeparator('\\', ''))
                 ->attachByName('Word\CamelCaseToUnderscore')
                 ->attachByName('Word\DashToUnderscore');
         }
 
-        return $this->nameFilterChain;
+        return $this->nameFilter;
     }
 }

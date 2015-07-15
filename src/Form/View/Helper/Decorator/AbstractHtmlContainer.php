@@ -94,6 +94,10 @@ abstract class AbstractHtmlContainer extends HtmlContainer
         $elements = $fieldset->getElements();
 
         if (isset($elements[$elementName]) && $elements[$elementName] === $element) {
+            if ($fieldset->getMessages()) {
+                return $elements;
+            }
+
             /* @var $fieldsetElement ElementInterface */
             foreach ($elements as $fieldsetElement) {
                 if ($fieldsetElement->getMessages()
