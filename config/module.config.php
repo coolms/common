@@ -109,6 +109,10 @@ return [
             'BindableClosure' => 'CmsCommon\Filter\BindableClosure',
         ],
     ],
+    'form_annotaion_builder' => [
+        'cache' => 'array',
+        'listeners' => [],
+    ],
     'form_elements' => [
         'abstract_factories' => [
             'CmsCommon\Form\Annotation\FormAbstractServiceFactory'
@@ -184,16 +188,20 @@ return [
             'Zend\Cache\Service\StorageCacheAbstractServiceFactory'
                 => 'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
         ],
+        'aliases' => [
+            'Zend\Mvc\Service\FormAnnotationBuilderFactory' => 'CmsCommon\Form\Annotation\AnnotationBuilder',
+        ],
         'factories' => [
             'Zend\Cache\Storage\StorageInterface' => 'Zend\Cache\Service\StorageCacheFactory',
             'Zend\Captcha\AdapterInterface' => 'CmsCommon\Factory\CaptchaFactory',
+            'CmsCommon\Form\Annotation\AnnotationBuilder' => 'CmsCommon\Factory\Form\AnnotationBuilderFactory',
+            'CmsCommon\Form\Options\FormAnnotationBuilder' => 'CmsCommon\Factory\Form\AnnotationBuilderOptionsFactory',
             'DomainServiceManager' => 'CmsCommon\Factory\DomainServicePluginManagerFactory',
             'MapperManager' => 'CmsCommon\Factory\MapperPluginManagerFactory',
             'SessionContainerManager' => 'CmsCommon\Factory\SessionContainerPluginManagerFactory',
         ],
         'initializers' => [
-            'CmsCommon\Initializer\MvcTranslatorInitializer'
-                => 'CmsCommon\Initializer\MvcTranslatorInitializer',
+            'CmsCommon\Initializer\MvcTranslatorInitializer' => 'CmsCommon\Initializer\MvcTranslatorInitializer',
         ],
         'invokables' => [
             'CmsCommon\Crypt\PasswordGeneratorInterface' => 'CmsCommon\Crypt\PasswordGenerator',

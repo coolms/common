@@ -27,4 +27,9 @@ interface FormInterface extends ZendFormInterface
      * @return self
      */
     public function setMergeInputFilter($flag);
+
+    /**
+     * @return bool
+     */
+    public function hasData();
 }

@@ -179,7 +179,7 @@ class FormCollection extends ZendFormCollection
 
         // reset the counter if it's called again
         $this->partialCounter = 0;
-        foreach (ArrayUtils::iteratorToArray($fieldset) as $elementOrFieldset) {
+        foreach (ArrayUtils::iteratorToArray($fieldset, false) as $elementOrFieldset) {
             if ($elementOrFieldset instanceof FieldsetInterface) {
                 if ($fieldset instanceof Collection) {
                 	$elementOrFieldset->setOption(
@@ -338,11 +338,14 @@ class FormCollection extends ZendFormCollection
         $control = '';
 
         if ($element instanceof Collection && $element->allowAdd()) {
-            $control = ' <button type="button" class="btn btn-success btn-xs" '
+            $control = ' <button type="button" class="btn btn-add-fieldset" '
                      . 'onclick="return CmsCommon.Form.Collection.addFieldset(this, \'prepend\');">'
                      . '+</button>';
-        } elseif ($element instanceof FieldsetInterface && $element->getOption('allow_remove')) {
-            $control = ' <button type="button" class="btn btn-danger btn-xs" '
+        } elseif ($element instanceof FieldsetInterface
+            && !$element instanceof Collection
+            && $element->getOption('allow_remove')
+        ) {
+            $control = ' <button type="button" class="btn btn-remove-fieldset" '
                      . 'onclick="return CmsCommon.Form.Collection.removeFieldset(this);">'
                      . '-</button>';
         }

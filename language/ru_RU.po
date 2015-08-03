@@ -41,6 +41,9 @@ msgstr "Идентификатор"
 msgid "Language"
 msgstr "Язык"
 
+msgid "Select Language"
+msgstr "Выберите язык"
+
 msgid "Name"
 msgstr "Наименование"
 

@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * CoolMS2 Common Module (http://www.coolms.com/)
  *
@@ -8,39 +8,24 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Mvc\Controller;
+namespace CmsCommon\Mvc\Controller\Options\Traits;
 
-interface ControllerOptionsInterface
+trait RestfulControllerOptionsTrait
 {
-    /**
-     * Sets controller FQCN
-     *
-     * @param string $type
-     * @return self
-     */
-    public function setControllerType($type);
-
-    /**
-     * Retrieves controller FQCN
-     *
-     * @return string
-     */
-    public function getControllerType();
-
     /**
      * Sets request identifier param name
      *
      * @param string $key
      * @return self
      */
-    public function setIdentifierKey($key);
+    abstract public function setIdentifierKey($key);
 
     /**
      * Retrieves request identifier param name
      *
      * @return string
      */
-    public function getIdentifierKey();
+    abstract public function getIdentifierKey();
 
     /**
      * Sets base route
@@ -48,12 +33,12 @@ interface ControllerOptionsInterface
      * @param string $route
      * @return self
      */
-    public function setBaseRoute($route);
+    abstract public function setBaseRoute($route);
 
     /**
      * Retrieves base route
      *
      * @return string
      */
-    public function getBaseRoute();
+    abstract public function getBaseRoute();
 }

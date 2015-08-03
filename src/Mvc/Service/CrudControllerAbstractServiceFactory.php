@@ -12,7 +12,7 @@ namespace CmsCommon\Mvc\Service;
 
 use Zend\ServiceManager\ServiceLocatorInterface,
     CmsCommon\Mvc\Controller\CrudController,
-    CmsCommon\Mvc\Controller\CrudControllerOptionsInterface;
+    CmsCommon\Mvc\Controller\Options\CrudControllerOptionsInterface;
 
 class CrudControllerAbstractServiceFactory extends AbstractControllerAbstractServiceFactory
 {
@@ -48,7 +48,7 @@ class CrudControllerAbstractServiceFactory extends AbstractControllerAbstractSer
         $options = parent::getDefaultOptions($services);
 
         if (!$options instanceof CrudControllerOptionsInterface) {
-            $optionsType = 'CmsCommon\Mvc\Controller\CrudControllerOptions';
+            $optionsType = 'CmsCommon\Mvc\Controller\Options\CrudControllerOptions';
             $options = new $optionsType($options ?: []);
         }
 

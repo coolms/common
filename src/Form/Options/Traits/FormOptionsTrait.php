@@ -8,11 +8,11 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\Form\Options\Traits;
 
 use Zend\Captcha\AdapterInterface;
 
-trait CommonOptionsTrait
+trait FormOptionsTrait
 {
     /**
      * @var bool

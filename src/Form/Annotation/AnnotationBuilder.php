@@ -12,7 +12,8 @@ namespace CmsCommon\Form\Annotation;
 
 use Zend\Cache\Storage\StorageInterface,
     Zend\Form\Annotation\AnnotationBuilder as ZendAnnotationBuilder,
-    CmsCommon\Cache\StorageProviderInterface;
+    CmsCommon\Cache\StorageProviderInterface,
+    CmsCommon\Form\Factory;
 
 /**
  * Parses a class' properties for annotations in order to create a form and
@@ -33,5 +34,18 @@ class AnnotationBuilder extends ZendAnnotationBuilder implements StorageProvider
         if (null !== $cacheStorage) {
             $this->setCacheStorage($cacheStorage);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getFormFactory()
+    {
+        if ($this->formFactory) {
+            return $this->formFactory;
+        }
+
+        $this->formFactory = new Factory();
+        return $this->formFactory;
     }
 }

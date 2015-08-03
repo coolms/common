@@ -13,8 +13,8 @@ namespace CmsCommon\Form\Annotation;
 use Zend\ServiceManager\AbstractPluginManager,
     Zend\ServiceManager\MutableCreationOptionsInterface,
     Zend\ServiceManager\ServiceLocatorInterface,
-    Zend\Stdlib\ArrayUtils,
-    CmsCommon\Form\FormAbstractServiceFactory as CommonFormAbstractServiceFactory;
+    CmsCommon\Form\FormAbstractServiceFactory as CommonFormAbstractServiceFactory,
+    CmsCommon\Stdlib\ArrayUtils;
 
 class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implements MutableCreationOptionsInterface
 {
@@ -22,11 +22,6 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
      * @var AnnotationBuilder
      */
     protected $annotationBuilder;
-
-    /**
-     * @var string
-     */
-    protected $cacheConfigKey = 'form_annotation_builder_cache';
 
     /**
      * @var array
@@ -60,14 +55,18 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
     public function createServiceWithName(ServiceLocatorInterface $formElements, $name, $requestedName)
     {
         if (!$this->canCreateServiceWithName($formElements, $name, $requestedName)) {
-            throw new \BadMethodCallException('This abstract factory can\'t create form for "' . $requestedName . '"');
+            throw new \BadMethodCallException("This abstract factory can't create form for $requestedName");
         }
 
         $services   = $formElements->getServiceLocator();
         $builder    = $this->getAnnotationBuilder($services);
 
         $formSpec = ArrayUtils::iteratorToArray($builder->getFormSpecification($requestedName));
-        $formSpec['options'] = array_replace_recursive($formSpec['options'], $this->creationOptions);
+        if (isset($formSpec['options'])) {
+            $formSpec['options'] = array_replace_recursive($formSpec['options'], $this->creationOptions);
+        } else {
+            $formSpec['options'] = $this->creationOptions;
+        }
 
         // Setting some defaults
         if (!isset($formSpec['options']['merge_input_filter'])) {
@@ -90,25 +89,8 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
      */
     public function setCreationOptions(array $options)
     {
-        $this->creationOptions = $this->arrayFilter($options);
+        $this->creationOptions = ArrayUtils::filterRecursive($options, null, true);
         return $this;
-    }
-
-    /**
-     * This method filters an array and remove all null values recursively
-     *
-     * @param array $array
-     * @return array
-     */
-    private function arrayFilter(array $array)
-    {
-        foreach ($array as &$value) {
-            if (is_array($value)) {
-                $value = $this->arrayFilter($value);
-            }
-        }
-
-        return array_filter($array);
     }
 
     /**
@@ -119,11 +101,7 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
      */
     protected function getAnnotationBuilder(ServiceLocatorInterface $services)
     {
-        if (null === $this->annotationBuilder) {
-            $this->annotationBuilder = new AnnotationBuilder($this->getAnnotationBuilderCache($services));
-        }
-
-        return $this->annotationBuilder;
+        return $services->get('FormAnnotationBuilder');
     }
 
     /**
@@ -138,14 +116,5 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
         }
 
         return $annotationBuilder->getFormFactory();
-    }
-
-    /**
-     * @param ServiceLocatorInterface $services
-     * @return \Zend\Cache\Storage\StorageInterface|null
-     */
-    protected function getAnnotationBuilderCache(ServiceLocatorInterface $services)
-    {
-        return $services->has($this->cacheConfigKey) ? $services->get($this->cacheConfigKey) : null;
     }
 }

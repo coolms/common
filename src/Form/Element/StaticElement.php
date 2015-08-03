@@ -31,7 +31,7 @@ class StaticElement extends Element
     public function setValue($value)
     {
         if ($this->value !== null && $value !== null) {
-            throw new Exception\BadMethodCallException("Can't set value for static form element");
+            //throw new Exception\BadMethodCallException("Can't set value for static form element");
         }
 
         return parent::setValue($value);

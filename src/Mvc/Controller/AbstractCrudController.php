@@ -13,25 +13,20 @@ namespace CmsCommon\Mvc\Controller;
 use Zend\Http\Request as HttpRequest,
     Zend\Mvc\Controller\AbstractActionController,
     Zend\Mvc\ModuleRouteListener,
-    Zend\Mvc\MvcEvent,
     Zend\Stdlib\ResponseInterface,
     Zend\View\Model\ViewModel,
-    CmsCommon\Service\DomainServiceProviderInterface,
-    CmsCommon\Service\DomainServiceProviderTrait,
-    CmsCommon\Stdlib\OptionsProviderInterface,
-    CmsCommon\Stdlib\OptionsProviderTrait;
+    CmsCommon\Stdlib\ArrayUtils;
 
 /**
- * @property CrudControllerOptionsInterface $options
- * @method CrudControllerOptionsInterface getOptions()
- * @method self setOptions(CrudControllerOptionsInterface $options)
+ * @author Dmitry Popov <d.popov@altgraphic.com>
  */
-abstract class AbstractCrudController extends AbstractActionController implements
-        DomainServiceProviderInterface,
-        OptionsProviderInterface
+abstract class AbstractCrudController extends AbstractActionController
 {
-    use DomainServiceProviderTrait,
-        OptionsProviderTrait;
+    const ACTION_CREATE = 'create';
+    const ACTION_READ   = 'read';
+    const ACTION_UPDATE = 'update';
+    const ACTION_DELETE = 'delete';
+    const ACTION_LIST   = 'list';
 
     /**
      * Event identifier
@@ -39,75 +34,6 @@ abstract class AbstractCrudController extends AbstractActionController implement
      * @var string
      */
     protected $eventIdentifier = __CLASS__;
-
-    const ACTION_CREATE = 'create';
-    const ACTION_READ = 'read';
-    const ACTION_UPDATE = 'update';
-    const ACTION_DELETE = 'delete';
-    const ACTION_LIST = 'list';
-
-    /**
-     * {@inheritDoc}
-     */
-    public function onDispatch(MvcEvent $e)
-    {
-        $request = $e->getRequest();
-
-        if (!$request instanceof HttpRequest) {
-            throw new \RuntimeException('CRUD controller from CmsCommon can only handle HTTP requests');
-        }
-
-        $url = $this->url()->fromRoute(null, [], true);
-        $prg = $this->prg($url, true);
-        // Return early if prg plugin returned a response
-        if ($prg instanceof ResponseInterface) {
-            return $prg;
-        }
-
-        $action = $this->params()->fromRoute('action', 'not-found');
-        $method = static::getMethodFromAction($action);
-
-        if (!method_exists($this, $method)) {
-            $method = 'notFoundAction';
-        }
-
-        if ($action === static::ACTION_READ ||
-            $action === static::ACTION_UPDATE ||
-            $action === static::ACTION_DELETE
-        ) {
-            $options = $this->getOptions();
-            $id = $this->params()->fromRoute($options->getIdentifierKey());
-
-            if (null === $id) {
-                $this->flashMessenger()->addWarningMessage(sprintf(
-                    $this->translate('An identifier must be provided to %s an object'),
-                    $this->translate($action)
-                ));
-
-                return $this->redirectToBaseRoute();
-            }
-
-            $object = $this->getDomainService()->getMapper()->find($id);
-            if (!$object) {
-                $this->flashMessenger()->addWarningMessage($this->translate('An object cannot be found'));
-                return $this->redirectToBaseRoute();
-            }
-        }
-
-        switch ($action) {
-            case static::ACTION_READ:
-            case static::ACTION_DELETE:
-                $result = $this->$method($object);
-                break;
-            case static::ACTION_UPDATE:
-                $result = $this->$method($object, $prg);
-                break;
-            default:
-                $result = $this->$method($prg);
-        }
-
-        $e->setResult($result);
-    }
 
     /**
      * {@inheritDoc}
@@ -127,153 +53,67 @@ abstract class AbstractCrudController extends AbstractActionController implement
      */
     public function listAction()
     {
-        $options = $this->getOptions();
-        $service = $this->getDomainService();
-
-        $form = $service->getForm();
-        $paginator = $service->getMapper()->getPaginator();
-
-        $viewModel = new ViewModel(compact('form', 'options', 'paginator'));
-        $viewModel->setTemplate($options->getListTemplate());
-
-        $params = compact('form', 'options', 'paginator', 'service', 'viewModel');
-        $this->getEventManager()->trigger(static::ACTION_LIST, $this, $params);
-
-        return $viewModel;
+        return $this->forward()->dispatch(
+            $this->getEvent()->getRouteMatch()->getParam('controller'),
+            ['action' => 'notFound']
+        );
     }
 
     /**
      * Creates new persistence object
      *
+     * @param bool|array $data
      * @return ResponseInterface|ViewModel
      */
     public function createAction($data)
     {
-        $options = $this->getOptions();
-        $service = $this->getDomainService();
-
-        $form = $service->getForm();
-        $form->setAttribute('action', $this->url()->fromRoute());
-
-        $viewModel = new ViewModel(compact('form', 'options'));
-        $viewModel->setTemplate($options->getCreateTemplate());
-
-        if ($data && $form->setData($data)->isValid()) {
-            $object = $form->getObject();
-            $params = compact('form', 'object', 'options', 'service', 'viewModel');
-
-            $fm = $this->flashMessenger();
-
-            try {
-                $this->getEventManager()->trigger(static::ACTION_CREATE, $this, $params);
-                $service->getMapper()->add($object)->save();
-            } catch (\Exception $e) {
-                $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_ERROR)
-                   ->addMessage($e->getMessage());
-
-                return $viewModel;
-            }
-
-            $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_SUCCESS)
-               ->addMessage($this->translate('An object has been successfully created'));
-        }
-
-        return $viewModel;
+        return $this->forward()->dispatch(
+            $this->getEvent()->getRouteMatch()->getParam('controller'),
+            ['action' => 'notFound']
+        );
     }
 
     /**
      * Retrieves persistence object
      *
+     * @param object $object
      * @return ResponseInterface|ViewModel
      */
     public function readAction($object)
     {
-        $options = $this->getOptions();
-        $service = $this->getDomainService();
-
-        $form = $service->getForm();
-        $form->setAttribute('action', $this->url()->fromRoute());
-        $form->bind($object);
-
-        $viewModel = new ViewModel(compact('form', 'options'));
-        $viewModel->setTemplate($options->getReadTemplate());
-
-        $params = compact('form', 'object', 'options', 'service', 'viewModel');
-        $this->getEventManager()->trigger(static::ACTION_READ, $this, $params);
-
-        return $viewModel;
+        return $this->forward()->dispatch(
+            $this->getEvent()->getRouteMatch()->getParam('controller'),
+            ['action' => 'notFound']
+        );
     }
 
     /**
      * Updates persitence object
      *
+     * @param bool|array $data
+     * @param object $object
      * @return ResponseInterface|ViewModel
      */
-    public function updateAction($object, $data)
+    public function updateAction($data, $object)
     {
-        $options = $this->getOptions();
-        $service = $this->getDomainService();
-
-        $form = $service->getForm();
-        $form->setAttribute('action', $this->url()->fromRoute());
-        $form->bind($object);
-
-        $viewModel = new ViewModel(compact('form', 'options'));
-        $viewModel->setTemplate($options->getUpdateTemplate());
-
-        if ($data && $form->setData($data)->isValid()) {
-            $object = $form->getObject();
-            $params = compact('form', 'object', 'options', 'service', 'viewModel');
-
-            $fm = $this->flashMessenger();
-
-            try {
-                $this->getEventManager()->trigger(static::ACTION_UPDATE, $this, $params);
-                $service->getMapper()->add($object)->save();
-            } catch (\Exception $e) {
-                $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_ERROR)
-                   ->addMessage($e->getMessage());
-
-                return $viewModel;
-            }
-
-            $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_SUCCESS)
-               ->addMessage($this->translate('An object has been successfully updated'));
-        }
-
-        return $viewModel;
+        return $this->forward()->dispatch(
+            $this->getEvent()->getRouteMatch()->getParam('controller'),
+            ['action' => 'notFound']
+        );
     }
 
     /**
      * Removes persitence object
      *
+     * @param object $object
      * @return ResponseInterface
      */
     public function deleteAction($object)
     {
-        $options = $this->getOptions();
-        $viewModel = new ViewModel(compact('object', 'options'));
-
-        if ($options->getUseDeleteConfirmation() && !$this->params()->fromRoute($options->getDeleteConfirmKey())) {
-            $viewModel->setTemplate($options->getDeleteTemplate());
-            return $viewModel;
-        }
-
-        $service = $this->getDomainService();
-        $params = compact('object', 'options', 'service', 'viewModel');
-
-        $fm = $this->flashMessenger();
-
-        try {
-            $this->getEventManager()->trigger(static::ACTION_DELETE, $this, $params);
-            $service->getMapper()->remove($object)->save();
-        } catch(\Exception $e) {
-            $fm->addErrorMessage($e->getMessage());
-            return $this->redirectToBaseRoute();
-        }
-
-        $fm->addSuccessMessage($this->translate('An object has been successfully removed'));
-        return $this->redirectToBaseRoute();
+        return $this->forward()->dispatch(
+            $this->getEvent()->getRouteMatch()->getParam('controller'),
+            ['action' => 'notFound']
+        );
     }
 
     /**
@@ -289,5 +129,17 @@ abstract class AbstractCrudController extends AbstractActionController implement
         $controller = $routeMatch->getParam(ModuleRouteListener::ORIGINAL_CONTROLLER);
 
         return $this->redirect()->toRoute($baseRoute, compact('controller'));
+    }
+
+    /**
+     * @param HttpRequest $files
+     * @return bool
+     */
+    public static function hasUploadedFiles(HttpRequest $request)
+    {
+        $files = $request->getFiles()->toArray();
+        return (bool) ArrayUtils::filterRecursive($files, function($value) {
+            return $value && $value !== UPLOAD_ERR_NO_FILE;
+        }, true);
     }
 }

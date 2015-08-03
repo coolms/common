@@ -8,11 +8,11 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\Form\Options;
 
 use Zend\Captcha\AdapterInterface;
 
-interface CommonOptionsInterface
+interface FormOptionsInterface
 {
     /**
      * Sets whether to use form label

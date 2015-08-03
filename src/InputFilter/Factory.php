@@ -83,7 +83,7 @@ class Factory extends InputFilterFactory
             ) {
                 $input = $value;
             } else {
-                switch ($key) {
+                switch ((string) $key) {
                     case 'validators':
                         if ($value instanceof ValidatorChain) {
                             $inputFilter->setValidatorChain($value);

@@ -29,7 +29,8 @@ use Zend\Captcha\AdapterInterface,
     Zend\ServiceManager\ServiceLocatorAwareInterface,
     Zend\ServiceManager\ServiceLocatorAwareTrait,
     Zend\Stdlib\ArrayUtils,
-    Zend\Stdlib\PriorityList;
+    Zend\Stdlib\PriorityList,
+    CmsCommon\Form\Options\Traits\FormOptionsTrait;
 
 class Form extends ZendForm implements
         FormInterface,
@@ -40,15 +41,20 @@ class Form extends ZendForm implements
         FactoryTrait,
         MessagesTrait,
         ServiceLocatorAwareTrait,
-        CommonOptionsTrait {
-            CommonOptionsTrait::getUseFormLabel as private;
-            CommonOptionsTrait::setUseFormLabel as private;
-            CommonOptionsTrait::getFormTimeout as private;
-            CommonOptionsTrait::getUseCsrf as private;
-            CommonOptionsTrait::getUseCaptcha as private;
-            CommonOptionsTrait::getUseSubmitElement as private;
-            CommonOptionsTrait::getUseResetElement as private;
+        FormOptionsTrait {
+            FormOptionsTrait::getUseFormLabel as private;
+            FormOptionsTrait::setUseFormLabel as private;
+            FormOptionsTrait::getFormTimeout as private;
+            FormOptionsTrait::getUseCsrf as private;
+            FormOptionsTrait::getUseCaptcha as private;
+            FormOptionsTrait::getUseSubmitElement as private;
+            FormOptionsTrait::getUseResetElement as private;
         }
+
+    /**
+     * @var bool
+     */
+    protected $hasData = false;
 
     /**
      * @var bool
@@ -387,8 +393,18 @@ class Form extends ZendForm implements
             ));
         }
 
+        $this->hasData = true;
+
         $data = self::filterFormData($this, $data);
         return parent::setData($data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasData()
+    {
+        return $this->hasData;
     }
 
     /**
@@ -451,7 +467,7 @@ class Form extends ZendForm implements
                 if (count(array_filter($data)) > 0) {
                     return $data;
                 } else {
-                    return $data; // null;
+                    return $data; // null?;
                 }
             }
         }
@@ -713,6 +729,20 @@ class Form extends ZendForm implements
                 $inputFilter = $this->addInputsToCollectionInputFilter($inputFilter);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    private function addInputsToCollectionInputFilter(CollectionInputFilter $inputFilter)
+    {
+        foreach ($inputFilter->getInputs() as $name => $input) {
+            if (!$inputFilter->getInputFilter()->has($name)) {
+                $inputFilter->getInputFilter()->add($input, $name);
+            }
+        }
+
+        return $inputFilter;
     }
 
     /**

@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * CoolMS2 Common Module (http://www.coolms.com/)
  *
@@ -8,9 +8,17 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Mvc\Controller;
+namespace CmsCommon\Mvc\Controller\Options;
 
-interface RestfulControllerOptionsInterface extends ControllerOptionsInterface
+use Zend\Stdlib\AbstractOptions;
+
+class CrudControllerOptions extends AbstractOptions implements CrudControllerOptionsInterface
 {
-    
+    use Traits\ControllerOptionsTrait,
+        Traits\CrudControllerOptionsTrait;
+
+    /**
+     * @var bool
+     */
+    protected $__strictMode__ = false;
 }

@@ -120,11 +120,13 @@ trait AnnotationBuilderTrait
             if (!isset($formSpec['fieldsets'])) {
                 $formSpec['fieldsets'] = [];
             }
+
             $formSpec['fieldsets'][] = $elementSpec;
         } else {
             if (!isset($formSpec['elements'])) {
                 $formSpec['elements'] = [];
             }
+
             $formSpec['elements'][] = $elementSpec;
         }
     }

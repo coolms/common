@@ -8,14 +8,14 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Mvc\Controller;
+namespace CmsCommon\Mvc\Controller\Options;
 
 use Zend\Stdlib\AbstractOptions;
 
-class CrudControllerOptions extends AbstractOptions implements CrudControllerOptionsInterface
+class RestfulControllerOptions extends AbstractOptions implements RestfulControllerOptionsInterface
 {
-    use ControllerOptionsTrait,
-        CrudControllerOptionsTrait;
+    use Traits\ControllerOptionsTrait,
+        Traits\RestfulControllerOptionsTrait;
 
     /**
      * @var bool

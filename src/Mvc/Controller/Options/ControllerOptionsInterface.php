@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * CoolMS2 Common Module (http://www.coolms.com/)
  *
@@ -8,47 +8,24 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Mvc\Controller;
+namespace CmsCommon\Mvc\Controller\Options;
 
-trait ControllerOptionsTrait
+interface ControllerOptionsInterface
 {
-    /**
-     * @var string controller FQCN
-     */
-    protected $controllerType;
-
-    /**
-     * @var string
-     */
-    protected $identifierKey = 'id';
-
-    /**
-     * @var string
-     */
-    protected $baseRoute;
-
     /**
      * Sets controller FQCN
      *
      * @param string $type
      * @return self
      */
-    public function setControllerType($type)
-    {
-        $this->controllerType = $type;
-
-        return $this;
-    }
+    public function setControllerType($type);
 
     /**
      * Retrieves controller FQCN
      *
      * @return string
      */
-    public function getControllerType()
-    {
-        return $this->controllerType;
-    }
+    public function getControllerType();
 
     /**
      * Sets request identifier param name
@@ -56,22 +33,14 @@ trait ControllerOptionsTrait
      * @param string $key
      * @return self
      */
-    public function setIdentifierKey($key)
-    {
-        $this->identifierKey = $key;
-
-        return $this;
-    }
+    public function setIdentifierKey($key);
 
     /**
      * Retrieves request identifier param name
      *
      * @return string
      */
-    public function getIdentifierKey()
-    {
-        return $this->identifierKey;
-    }
+    public function getIdentifierKey();
 
     /**
      * Sets base route
@@ -79,20 +48,12 @@ trait ControllerOptionsTrait
      * @param string $route
      * @return self
      */
-    public function setBaseRoute($route)
-    {
-        $this->baseRoute = $route;
-
-        return $this;
-    }
+    public function setBaseRoute($route);
 
     /**
      * Retrieves base route
      *
      * @return string
      */
-    public function getBaseRoute()
-    {
-        return $this->baseRoute;
-    }
+    public function getBaseRoute();
 }

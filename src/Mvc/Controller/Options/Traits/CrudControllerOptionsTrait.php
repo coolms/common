@@ -8,7 +8,7 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Mvc\Controller;
+namespace CmsCommon\Mvc\Controller\Options\Traits;
 
 trait CrudControllerOptionsTrait
 {

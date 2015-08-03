@@ -12,6 +12,7 @@ namespace CmsCommon\Service;
 
 use Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerAwareTrait,
+    Zend\Form\FormElementManager,
     Zend\Form\FormInterface,
     Zend\ServiceManager\AbstractPluginManager,
     Zend\ServiceManager\ServiceLocatorAwareTrait,
@@ -21,9 +22,11 @@ use Zend\EventManager\EventManagerAwareInterface,
     Zend\Stdlib\InitializableInterface,
     CmsCommon\Form\FormProviderTrait,
     CmsCommon\Persistence\MapperInterface,
+    CmsCommon\Persistence\MapperPluginManager,
     CmsCommon\Persistence\MapperProviderTrait,
     CmsCommon\Service\Exception\InvalidArgumentException,
     CmsCommon\Service\Exception\RuntimeException,
+    CmsCommon\Session\ContainerPluginManager,
     CmsCommon\Session\ContainerProviderTrait;
 
 /**
@@ -145,8 +148,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
      */
     public function hasForm()
     {
-        $services = $this->getServiceManager();
-        return $services->get($this->formElementManager)->has($this->className);
+        return $this->getFormElementManager()->has($this->className);
     }
 
     /**
@@ -155,8 +157,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
     public function getForm()
     {
         if (null === $this->form && $this->hasForm()) {
-            $services = $this->getServiceManager();
-            $form = $services->get($this->formElementManager)->get($this->className, $this->options);
+            $form = $this->getFormElementManager()->get($this->className, $this->options);
             $this->setForm($form);
         }
 
@@ -169,8 +170,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
     public function getMapper()
     {
         if (null === $this->mapper) {
-            $services = $this->getServiceManager();
-            $mapper = $services->get($this->mapperManager)->get($this->className);
+            $mapper = $this->getMapperManager()->get($this->className);
             $this->setMapper($mapper);
         }
 
@@ -182,8 +182,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
      */
     public function hasSessionContainer()
     {
-        $services = $this->getServiceManager();
-        return $services->get($this->sessionContainerManager)->has($this->className);
+        return $this->getSessionContainerManager()->has($this->className);
     }
 
     /**
@@ -192,8 +191,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
     public function getSessionContainer()
     {
         if (null === $this->sessionContainer && $this->hasSessionContainer()) {
-            $services = $this->getServiceManager();
-            $container = $services->get($this->sessionContainerManager)->get($this->className);
+            $container = $this->getSessionContainerManager()->get($this->className);
             $this->setSessionContainer($container);
         }
 
@@ -207,7 +205,6 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
     public function setOptions($options)
     {
         $this->options = $options;
-
         return $this;
     }
 
@@ -261,6 +258,30 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
         if ($form->setData($data)->isValid()) {
             return $form->getObject();
         }
+    }
+
+    /**
+     * @return FormElementManager
+     */
+    protected function getFormElementManager()
+    {
+        return $this->getServiceManager()->get($this->formElementManager);
+    }
+
+    /**
+     * @return MapperPluginManager
+     */
+    protected function getMapperManager()
+    {
+        return $this->getServiceManager()->get($this->mapperManager);
+    }
+
+    /**
+     * @return ContainerPluginManager
+     */
+    protected function getSessionContainerManager()
+    {
+        return $this->getServiceManager()->get($this->sessionContainerManager);
     }
 
     /**

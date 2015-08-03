@@ -25,9 +25,9 @@ interface RangeableInterface
     public function getStartDate();
 
     /**
-     * @param DateTime $date
+     * @param int|string|DateTime $date
      */
-    public function setStartDate(DateTime $date);
+    public function setStartDate($date);
 
     /**
      * @return DateTime
@@ -35,7 +35,7 @@ interface RangeableInterface
     public function getEndDate();
 
     /**
-     * @param DateTime $date
+     * @param int|string|DateTime $date
     */
-    public function setEndDate(DateTime $date);
+    public function setEndDate($date);
 }
