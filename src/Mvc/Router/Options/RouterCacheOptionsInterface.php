@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * CoolMS2 Common Module (http://www.coolms.com/)
  *
@@ -8,23 +8,18 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\Mvc\Router\Options;
 
-trait FactoryTrait
+interface RouterCacheOptionsInterface
 {
     /**
-     * Retrieve composed form factory
-     *
-     * Lazy-loads one if none present.
-     *
-     * @return Factory
+     * @param string $name
+     * @return self
      */
-    public function getFormFactory()
-    {
-        if (null === $this->factory) {
-            $this->setFormFactory(new Factory());
-        }
+    public function setCache($name);
 
-        return $this->factory;
-    }
+    /**
+     * @return string
+     */
+    public function getCache();
 }

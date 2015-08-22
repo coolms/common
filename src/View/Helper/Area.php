@@ -8,23 +8,22 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\View\Helper;
 
-trait FactoryTrait
+class Area extends HtmlContainer
 {
     /**
-     * Retrieve composed form factory
-     *
-     * Lazy-loads one if none present.
-     *
-     * @return Factory
+     * @var string
      */
-    public function getFormFactory()
-    {
-        if (null === $this->factory) {
-            $this->setFormFactory(new Factory());
-        }
+    protected $tagName = 'area';
 
-        return $this->factory;
-    }
+    /**
+     * @var string
+     */
+    protected $closeTag = null;
+
+    /**
+     * @var array
+     */
+    protected $attributes = ['alt' => ''];
 }

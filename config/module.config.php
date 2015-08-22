@@ -152,6 +152,7 @@ return [
     'listeners' => [
         'CmsCommon\Event\ModuleOptionsListener' => 'CmsCommon\Event\ModuleOptionsListener',
         'CmsCommon\Event\PhpSettingsListener' => 'CmsCommon\Event\PhpSettingsListener',
+        'CmsCommon\Event\RouterCacheListener' => 'CmsCommon\Event\RouterCacheListener',
     ],
     'module_options_suffixes' => [
         'Options\ModuleOptionsInterface',
@@ -167,6 +168,7 @@ return [
         ],
     ],
     'router' => [
+        'cache' => 'array',
         'routes' => [
             'api' => [
                 'type' => 'Literal',
@@ -189,6 +191,7 @@ return [
                 => 'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
         ],
         'aliases' => [
+            'ViewAcceptStrategy' => 'CmsCommon\View\AcceptStrategy',
             'Zend\Mvc\Service\FormAnnotationBuilderFactory' => 'CmsCommon\Form\Annotation\AnnotationBuilder',
         ],
         'factories' => [
@@ -196,6 +199,8 @@ return [
             'Zend\Captcha\AdapterInterface' => 'CmsCommon\Factory\CaptchaFactory',
             'CmsCommon\Form\Annotation\AnnotationBuilder' => 'CmsCommon\Factory\Form\AnnotationBuilderFactory',
             'CmsCommon\Form\Options\FormAnnotationBuilder' => 'CmsCommon\Factory\Form\AnnotationBuilderOptionsFactory',
+            'CmsCommon\Mvc\Router\Options\RouterCacheOptions' => 'CmsCommon\Factory\Mvc\RouterCacheOptionsFactory',
+            'CmsCommon\View\AcceptStrategy' => 'CmsCommon\Factory\View\AcceptStrategyFactory',
             'DomainServiceManager' => 'CmsCommon\Factory\DomainServicePluginManagerFactory',
             'MapperManager' => 'CmsCommon\Factory\MapperPluginManagerFactory',
             'SessionContainerManager' => 'CmsCommon\Factory\SessionContainerPluginManagerFactory',
@@ -207,6 +212,7 @@ return [
             'CmsCommon\Crypt\PasswordGeneratorInterface' => 'CmsCommon\Crypt\PasswordGenerator',
             'CmsCommon\Event\ModuleOptionsListener' => 'CmsCommon\Event\ModuleOptionsListener',
             'CmsCommon\Event\PhpSettingsListener' => 'CmsCommon\Event\PhpSettingsListener',
+            'CmsCommon\Event\RouterCacheListener' => 'CmsCommon\Event\RouterCacheListener',
         ],
     ],
     'translator' => [
@@ -231,20 +237,27 @@ return [
     ],
     'view_helpers' => [
         'aliases' => [
+            'cookie' => 'CmsCommon\View\Helper\Cookie',
             'flashMessenger' => 'CmsCommon\View\Helper\FlashMessenger',
             'formElementErrors' => 'Zend\Form\View\Helper\FormElementErrors',
             'formMessages' => 'CmsCommon\Form\View\Helper\FormMessages',
+            'params' => 'CmsCommon\View\Helper\Params',
         ],
         'factories' => [
             'Zend\Form\View\Helper\FormElementErrors'
                 => 'CmsCommon\Factory\Form\View\Helper\FormElementErrorsFactory',
             'CmsCommon\Form\View\Helper\FormMessages'
                 => 'CmsCommon\Factory\Form\View\Helper\FormMessagesFactory',
+            'CmsCommon\View\Helper\Cookie' => 'CmsCommon\Factory\View\Helper\CookieFactory',
             'CmsCommon\View\Helper\FlashMessenger'
                 => 'CmsCommon\Factory\View\Helper\FlashMessengerFactory',
+            'CmsCommon\View\Helper\Params' => 'CmsCommon\Factory\View\Helper\ParamsFactory',
         ],
         'invokables' => [
+            'area' => 'CmsCommon\View\Helper\Area',
+            'assetPath' => 'CmsCommon\View\Helper\AssetPath',
             'cmsMessages' => 'CmsCommon\View\Helper\Messages',
+            'dataList' => 'CmsCommon\View\Helper\DataList',
             'dateTime' => 'CmsCommon\View\Helper\DateTime',
             'decorator' => 'CmsCommon\View\Helper\Decorator\Decorator',
             'element' => 'CmsCommon\Form\View\Helper\Decorator\Element',
@@ -264,9 +277,12 @@ return [
             'formRow' => 'CmsCommon\Form\View\Helper\FormRow',
             'formStatic' => 'CmsCommon\Form\View\Helper\FormStatic',
             'htmlContainer' => 'CmsCommon\View\Helper\HtmlContainer',
+            'jsonExpr' => 'CmsCommon\View\Helper\JsonExpr',
             'idNormalizer' => 'CmsCommon\View\Helper\IdNormalizer',
             'label' => 'CmsCommon\Form\View\Helper\Decorator\Label',
             'legend' => 'CmsCommon\Form\View\Helper\Decorator\Legend',
+            'locale' => 'CmsCommon\View\Helper\DefaultLocale',
+            'map' => 'CmsCommon\View\Helper\Map',
             'nl2p' => 'CmsCommon\View\Helper\Nl2p',
         ],
     ],
@@ -278,6 +294,9 @@ return [
             'cms-common/crud/delete' => __DIR__ . '/../view/cms-common/crud/delete.phtml',
             'cms-common/crud/list' => __DIR__ . '/../view/cms-common/crud/list.phtml',
             'cms-common/crud/form' => __DIR__ . '/../view/cms-common/crud/form.phtml',
+        ],
+        'strategies' => [
+            'ViewAcceptStrategy' => 'ViewAcceptStrategy',
         ],
     ],
 ];

@@ -8,23 +8,14 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\Mapping\Hierarchy;
 
-trait FactoryTrait
+/**
+ * Interface for the model that is part of the hierarchy
+ * 
+ * @author Dmitry Popov <d.popov@altgraphic.com>
+ */
+interface AdjacencyListInterface extends HierarchyInterface
 {
-    /**
-     * Retrieve composed form factory
-     *
-     * Lazy-loads one if none present.
-     *
-     * @return Factory
-     */
-    public function getFormFactory()
-    {
-        if (null === $this->factory) {
-            $this->setFormFactory(new Factory());
-        }
-
-        return $this->factory;
-    }
+    
 }

@@ -8,23 +8,29 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\View\Helper;
 
-trait FactoryTrait
+use Locale,
+    Zend\View\Helper\AbstractHelper;
+
+/**
+ * AssetPath
+ */
+class DefaultLocale extends AbstractHelper
 {
     /**
-     * Retrieve composed form factory
-     *
-     * Lazy-loads one if none present.
-     *
-     * @return Factory
+     * @return self
      */
-    public function getFormFactory()
+    public function __invoke()
     {
-        if (null === $this->factory) {
-            $this->setFormFactory(new Factory());
-        }
+        return $this;
+    }
 
-        return $this->factory;
+    /**
+     * @return string
+     */
+    public function language()
+    {
+        return Locale::getPrimaryLanguage(Locale::getDefault());
     }
 }

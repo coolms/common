@@ -14,8 +14,6 @@ use Zend\EventManager\AbstractListenerAggregate,
     Zend\EventManager\EventManagerInterface,
     Zend\Mvc\ModuleRouteListener,
     Zend\Mvc\MvcEvent,
-    Zend\ServiceManager\ServiceLocatorAwareInterface,
-    Zend\ServiceManager\ServiceLocatorAwareTrait,
     Zend\Stdlib\AbstractOptions;
 
 /**
@@ -25,35 +23,31 @@ use Zend\EventManager\AbstractListenerAggregate,
  *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
-class ModuleOptionsListener extends AbstractListenerAggregate implements ServiceLocatorAwareInterface
+class ModuleOptionsListener extends AbstractListenerAggregate
 {
-    use ServiceLocatorAwareTrait;
-
-    const OPTIONS_KEY = 'module_options';
-
-    /**
-     * @var string
-     */
-    protected $moduleOptionsSuffixesConfigKey = 'module_options_suffixes';
+    const OPTIONS_KEY           = 'module_options';
+    const OPTIONS_CONFIG_KEY    = 'module_options_suffixes';
 
     /**
      * {@inheritDoc}
      */
     public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH,       [$this, 'loadRouteModuleOptions'], PHP_INT_MAX);
-    	$this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH_ERROR, [$this, 'loadRouteModuleOptions'], PHP_INT_MAX);
-    	$this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH,       [$this, 'loadModuleOptions'], round(PHP_INT_MAX/2));
-    	$this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH,       [$this, 'loadLayoutNamespace']);
+        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH,
+            [$this, 'loadModuleOptionsFromRoute'], PHP_INT_MAX);
+    	$this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH_ERROR,
+    	    [$this, 'loadModuleOptionsFromRoute'], PHP_INT_MAX);
+    	$this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH,
+    	    [$this, 'setupModuleOptionsEventParam'], round(PHP_INT_MAX/2));
     }
 
     /**
-     * Event callback to be triggered on dispatch
+     * Event callback to be triggered on dispatch(.error)
      *
      * @param MvcEvent $e
      * @return void
      */
-    public function loadRouteModuleOptions(MvcEvent $e)
+    public function loadModuleOptionsFromRoute(MvcEvent $e)
     {
         if (!($matchRoute = $e->getRouteMatch())) {
             return;
@@ -61,9 +55,9 @@ class ModuleOptionsListener extends AbstractListenerAggregate implements Service
 
         $params = $matchRoute->getParams();
         if (!empty($params[static::OPTIONS_KEY]) && is_array($params[static::OPTIONS_KEY])) {
-            $services = $this->getServiceLocator();
+            $services = $e->getApplication()->getServiceManager();
             foreach ($params[static::OPTIONS_KEY] as $service => $options) {
-                if ($services->has($service)) {
+                if ((class_exists($service) || interface_exists($service)) && $services->has($service)) {
                     $optionsService = $services->get($service);
                     if ($optionsService instanceof AbstractOptions) {
                         $optionsService->setFromArray($options);
@@ -79,19 +73,26 @@ class ModuleOptionsListener extends AbstractListenerAggregate implements Service
      * @param MvcEvent $e
      * @return void
      */
-    public function loadModuleOptions(MvcEvent $e)
+    public function setupModuleOptionsEventParam(MvcEvent $e)
     {
-        $services = $this->getServiceLocator();
+        $services = $e->getApplication()->getServiceManager();
         $config = $services->get('Config');
-        if (empty($config[$this->moduleOptionsSuffixesConfigKey])) {
+        if (empty($config[static::OPTIONS_CONFIG_KEY])) {
             return;
         }
 
-        $moduleNamespace = $this->getModuleNamespace($e);
+        $routeMatch = $e->getRouteMatch();
+        $moduleNamespace = $routeMatch->getParam(
+            ModuleRouteListener::MODULE_NAMESPACE,
+            $routeMatch->getParam('controller')
+        );
 
-        foreach ($config[$this->moduleOptionsSuffixesConfigKey] as $suffix) {
-            if ($services->has($moduleNamespace . '\\' . $suffix)) {
-                $moduleOptions = $services->get($moduleNamespace . '\\' . $suffix);
+        $module = strstr($moduleNamespace, '\\', true);
+
+        foreach ($config[static::OPTIONS_CONFIG_KEY] as $suffix) {
+            $name = "$module\\$suffix";
+            if ((class_exists($name) || interface_exists($name)) && $services->has($name)) {
+                $moduleOptions = $services->get($name);
                 if ($moduleOptions instanceof AbstractOptions) {
                     //set module options as MvcEvent param
                     $e->setParam('module-options', $moduleOptions);
@@ -100,33 +101,5 @@ class ModuleOptionsListener extends AbstractListenerAggregate implements Service
                 break;
             }
         }
-    }
-
-    /**
-     * Sets module namespace into layout
-     *
-     * @param MvcEvent $e
-     * @return void
-     */
-    public function loadLayoutNamespace(MvcEvent $e)
-    {
-        $e->getTarget()->layout()->modulenamespace = $this->getModuleNamespace($e);
-    }
-
-    /**
-     * @param MvcEvent $e
-     * @return string
-     */
-    protected function getModuleNamespace(MvcEvent $e)
-    {
-        $routeMatch = $e->getRouteMatch();
-
-        $moduleNamespace = $routeMatch->getParam(
-            ModuleRouteListener::MODULE_NAMESPACE,
-            $routeMatch->getParam('controller')
-        );
-        $moduleNamespace = strstr($moduleNamespace, '\\', true);
-
-        return $moduleNamespace;
     }
 }

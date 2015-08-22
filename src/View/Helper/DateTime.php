@@ -10,7 +10,8 @@
 
 namespace CmsCommon\View\Helper;
 
-use Zend\View\Helper\AbstractHelper;
+use Zend\View\Helper\AbstractHelper,
+    CmsCommon\Stdlib\DateTimeUtils;
 
 /**
  * View helper for rendering.
@@ -20,11 +21,15 @@ class DateTime extends AbstractHelper
     /**
      * Returns new DateTime object
 	 *
-	 * @param time[optional]
-	 * @param object[optional]
+	 * @param mixed time[optional]
+	 * @return \DateTime
      */
-    public function __invoke($time = null, $object = null)
+    public function __invoke($time = null)
     {
-        return (new \DateTime($time ?: 'now', $object));
+        if (null === $time) {
+            $time = 'now';
+        }
+
+        return DateTimeUtils::normalize($time);
     }
 }

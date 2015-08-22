@@ -26,6 +26,8 @@ class StaticElement extends Element
 
     /**
      * {@inheritDoc}
+     *
+     * @todo do we need to set value in static element?
      * @throws Exception\BadMethodCallException
      */
     public function setValue($value)

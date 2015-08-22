@@ -8,23 +8,17 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\Permissions\Acl;
 
-trait FactoryTrait
+/**
+ * Acl provider interface
+ *
+ * @author Dmitry Popov <d.popov@altgraphic.com>
+ */
+interface AclProviderInterface
 {
     /**
-     * Retrieve composed form factory
-     *
-     * Lazy-loads one if none present.
-     *
-     * @return Factory
+     * @return \Zend\Permissions\Acl\AclInterface
      */
-    public function getFormFactory()
-    {
-        if (null === $this->factory) {
-            $this->setFormFactory(new Factory());
-        }
-
-        return $this->factory;
-    }
+    public function getAcl();
 }

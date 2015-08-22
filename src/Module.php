@@ -14,20 +14,30 @@ use Zend\EventManager\EventInterface,
     Zend\ModuleManager\Feature\AutoloaderProviderInterface,
     Zend\ModuleManager\Feature\BootstrapListenerInterface,
     Zend\ModuleManager\Feature\ConfigProviderInterface,
-    Zend\ModuleManager\ModuleManager,
+    Zend\ModuleManager\Feature\InitProviderInterface,
+    Zend\ModuleManager\ModuleManagerInterface,
     Zend\Mvc\ModuleRouteListener,
     Zend\Validator\AbstractValidator;
 
 class Module implements
     AutoloaderProviderInterface,
     BootstrapListenerInterface,
-    ConfigProviderInterface
+    ConfigProviderInterface,
+    InitProviderInterface
 {
     /**
-     * @param ModuleManager $moduleManager
+     * {@inheritDoc}
      */
-    public function init(ModuleManager $moduleManager)
+    public function init(ModuleManagerInterface $moduleManager)
     {
+        if (class_exists('ZendDeveloperTools\\Module')) {
+            $moduleManager->loadModule('ZendDeveloperTools');
+        }
+
+        $moduleManager->loadModule('OcraCachedViewResolver');
+        $moduleManager->loadModule('StrokerCache');
+        $moduleManager->loadModule('CmsJquery');
+
         $sm = $moduleManager->getEvent()->getParam('ServiceManager');
         $serviceListener = $sm->get('ServiceListener');
         $serviceListener->addServiceManager(
@@ -99,8 +109,6 @@ class Module implements
     }
 
     /**
-     * @static
-     * @access public
      * @param int $type
      * @param string $message
      * @param string $file

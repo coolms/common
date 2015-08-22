@@ -8,23 +8,24 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Form;
+namespace CmsCommon\View\Helper;
 
-trait FactoryTrait
+use Zend\View\Helper\AbstractHelper,
+    Zend\Json\Expr;
+
+/**
+ * View helper for rendering.
+ */
+class JsonExpr extends AbstractHelper
 {
     /**
-     * Retrieve composed form factory
-     *
-     * Lazy-loads one if none present.
-     *
-     * @return Factory
+     * Returns new Expr object
+	 *
+	 * @param string $expression
+	 * @return Expr
      */
-    public function getFormFactory()
+    public function __invoke($expression)
     {
-        if (null === $this->factory) {
-            $this->setFormFactory(new Factory());
-        }
-
-        return $this->factory;
+        return new Expr($expression);
     }
 }

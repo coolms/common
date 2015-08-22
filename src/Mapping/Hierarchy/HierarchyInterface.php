@@ -18,6 +18,16 @@ namespace CmsCommon\Mapping\Hierarchy;
 interface HierarchyInterface
 {
     /**
+     * @param int $level
+     */
+    public function setLevel($level);
+
+    /**
+     * @return int
+     */
+    public function getLevel();
+
+    /**
      * @return HierarchyInterface
      */
     public function getParent();
@@ -31,6 +41,11 @@ interface HierarchyInterface
      * @return HierarchyInterface[]
      */
     public function getChildren();
+
+    /**
+     * @return bool
+     */
+    public function hasChildren();
 
     /**
      * @param HierarchyInterface[] $children

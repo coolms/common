@@ -127,14 +127,14 @@ class CrudController extends AbstractCrudController implements
      */
     public function listAction()
     {
-        $options    = $this->getOptions();
         $form       = $this->getForm();
-        $paginator  = $this->getDomainService()->getMapper()->getPaginator();
+        $options    = $this->getOptions();
+        $service    = $this->getDomainService();
 
-        $viewModel = new ViewModel(compact('form', 'options', 'paginator'));
+        $viewModel = new ViewModel(compact('form', 'options', 'service'));
         $viewModel->setTemplate($options->getListTemplate());
 
-        $params = compact('form', 'options', 'paginator', 'service', 'viewModel');
+        $params = compact('form', 'options', 'service', 'viewModel');
         $this->getEventManager()->trigger(static::ACTION_LIST, $this, $params);
 
         return $viewModel;

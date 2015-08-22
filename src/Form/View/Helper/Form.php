@@ -58,10 +58,10 @@ class Form extends ZendForm
      * @var array map of name parts to be replaced through str_replace
      */
     protected $classNameReplacements = [
-        '\\Document\\' => '\\Form\\',
-        '\\Entity\\' => '\\Form\\',
-        '\\ValueObject\\' => '\\Form\\',
-        '\\ValueObjects\\' => '\\Form\\',
+        '\\Document\\'      => '\\Form\\',
+        '\\Entity\\'        => '\\Form\\',
+        '\\ValueObject\\'   => '\\Form\\',
+        '\\ValueObjects\\'  => '\\Form\\',
     ];
 
     /**

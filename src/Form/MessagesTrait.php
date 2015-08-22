@@ -14,8 +14,7 @@ use Traversable,
     Zend\Form\Element,
     Zend\Form\ElementInterface,
     Zend\Form\Exception,
-    Zend\Form\FieldsetInterface,
-    Zend\Form\FormInterface;
+    Zend\Form\FieldsetInterface;
 
 /**
  * @see     https://github.com/zendframework/zf2/issues/5265

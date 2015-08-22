@@ -81,6 +81,11 @@ class HtmlContainer extends AbstractHtmlElement
             return (string) $content;
         }
 
+        if (!$content && !$this->closeTag) {
+            $openTag = trim($this->getOpenTag($tagName, $attribs));
+            return substr_replace($openTag, $this->getClosingBracket(), -1);
+        }
+
         return $this->getOpenTag($tagName, $attribs) . $content . $this->getCloseTag($tagName);
     }
 

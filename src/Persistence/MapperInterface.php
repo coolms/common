@@ -14,6 +14,25 @@ use Zend\Paginator\Paginator;
 
 interface MapperInterface
 {
+    const OP_AND                    = 'AND';
+    const OP_EQUAL                  = 'EQUAL';
+    const OP_NOT_EQUAL              = 'NOT_EQUAL';
+    const OP_LESS_THAN              = 'LESS_THAN';
+    const OP_LESS_THAN_OR_EQUAL     = 'LESS_THAN_OR_EQUAL';
+    const OP_GREATER_THAN           = 'GREATER_THAN';
+    const OP_GREATER_THAN_OR_EQUAL  = 'GREATER_THAN_OR_EQUAL';
+    const OP_BEGIN_WITH             = 'BEGIN_WITH';
+    const OP_NOT_BEGIN_WITH         = 'NOT_BEGIN_WITH';
+    const OP_IN                     = 'IN';
+    const OP_NOT_IN                 = 'NOT_IN';
+    const OP_NULL                   = 'NULL';
+    const OP_NOT_NULL               = 'NOT_NULL';
+    const OP_END_WITH               = 'END_WITH';
+    const OP_NOT_END_WITH           = 'NOT_END_WITH';
+    const OP_CONTAIN                = 'CONTAIN';
+    const OP_NOT_CONTAIN            = 'NOT_CONTAIN';
+    const OP_OR                     = 'OR';
+
     /**
      * @return string
      */
@@ -29,11 +48,20 @@ interface MapperInterface
     public function hydrate(array $data, $object);
 
     /**
+     * Retrieves paginator for records
+     *
      * @param array $criteria
      * @param array $orderBy
+     * @param int $currentPageNumber
+     * @param int $itemCountPerPage
      * @return Paginator
      */
-    public function getPaginator(array $criteria = [], array $orderBy = null);
+    public function getPaginator(
+        array $criteria = [],
+        array $orderBy = [],
+        $currentPageNumber = null,
+        $itemCountPerPage = null
+    );
     
     /**
      * @param mixed $id
