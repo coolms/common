@@ -10,15 +10,14 @@
 
 namespace CmsCommon\Stdlib;
 
-use DateTime,
-    Zend\Stdlib\DateTime as ZendDateTime;
+use DateTime;
 
 /**
  * Utility class for testing and manipulation of dates.
  *
  * Declared abstract, as we have no need for instantiation.
  */
-abstract class DateTimeUtils extends ZendDateTime
+abstract class DateTimeUtils
 {
     /**
      * @param string|int|DateTime $date
