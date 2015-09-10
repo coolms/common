@@ -233,6 +233,7 @@ return [
     'validators' => [
         'invokables' => [
             'Callback' => 'CmsCommon\Validator\Callback',
+            'Date' => 'CmsCommon\Validator\Date',
         ],
     ],
     'view_helpers' => [
