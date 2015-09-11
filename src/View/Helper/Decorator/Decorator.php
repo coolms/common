@@ -141,6 +141,7 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
                 continue;
             } elseif (is_callable($options)) {
                 $options = call_user_func_array($options, $param_arr);
+                $param_arr[1][$decorator] = $options;
             }
 
             if (!is_array($options)) {
