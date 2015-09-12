@@ -10,7 +10,8 @@
 
 namespace CmsCommon\Form\View\Helper;
 
-use Zend\Form\Element\Collection,
+use Traversable,
+    Zend\Form\Element\Collection,
     Zend\Form\ElementInterface,
     Zend\Form\FieldsetInterface,
     Zend\Form\LabelAwareInterface,
@@ -18,6 +19,9 @@ use Zend\Form\Element\Collection,
     Zend\I18n\Translator\TranslatorAwareInterface,
     Zend\Stdlib\ArrayUtils,
     CmsCommon\Form\View\Helper\Traits\TranslatorTextDomainTrait;
+use Zend\I18n\Translator\Translator;
+use Zend\View\Helper\AbstractHelper;
+use Zend\Form\Element\Captcha;
 
 /**
  * Helper for rendering a collection
@@ -61,21 +65,18 @@ class FormCollection extends ZendFormCollection
      *
      * If no arguments are provided, returns object instance.
      *
-     * @param  ElementInterface $element     Form collection or fieldset to populate in the view
-     * @param  bool $wrap           
-     * @param  string|bool $partial Name of partial view script
-     * @throws Exception\InvalidArgumentException
-     * @return string
+     * @param  ElementInterface $element    Form collection or fieldset to populate in the view
+     * @param  bool $wrap
+     * @param  string|bool $partial         Name of partial view script
+     * @return string|self
      */
     public function __invoke(ElementInterface $element = null, $wrap = true, $partial = true)
     {
-        if (!$element) {
+        if (0 === func_num_args()) {
             return $this;
         }
 
-        if ($element instanceof Collection
-            && ($element->allowRemove() || $element->allowAdd())
-        ) {
+        if ($element instanceof Collection && ($element->allowRemove() || $element->allowAdd())) {
             $headScript = $this->getView()->plugin('headScript');
             $basePath   = $this->getView()->plugin('basePath');
             $headScript()->appendFile($basePath('assets/cms-common/js/form/collection.js'));
@@ -122,7 +123,6 @@ class FormCollection extends ZendFormCollection
                 $wrap = false;
             }
         } else {
-
             if ($element instanceof Collection) {
                 $markup = $this->renderHiddenElement($element);
 
@@ -192,10 +192,9 @@ class FormCollection extends ZendFormCollection
                     $this->partialCounter++;
                 }
 
-                $markup .= $this($elementOrFieldset);
-
+                $markup .= $this->translate($elementOrFieldset, $this);
             } elseif ($elementOrFieldset instanceof ElementInterface) {
-                $markup .= $elementHelper($elementOrFieldset);
+                $markup .= $this->translate($elementOrFieldset, $elementHelper);
             }
         }
 
@@ -210,7 +209,7 @@ class FormCollection extends ZendFormCollection
      */
     protected function renderCollection(Collection $collection, $wrap, $partial)
     {
-        if ($collection instanceof \Traversable) {
+        if ($collection instanceof Traversable) {
             $fieldsets = ArrayUtils::iteratorToArray($collection, false);
         } elseif (is_object($collection) && method_exists($collection, 'toArray')) {
             $fieldsets = $collection->toArray();
@@ -261,11 +260,9 @@ class FormCollection extends ZendFormCollection
         }
 
         if ($fieldsetKey && $collection->shouldCreateTemplate()) {
-
-            $fieldset = $collection->getTemplateElement();
-
             $templatePlaceholder = $collection->getTemplatePlaceholder();
 
+            $fieldset = $collection->getTemplateElement();
             $fieldset->setOption('allow_remove', $collection->allowRemove());
             $fieldset->setAttribute('data-counter', $templatePlaceholder);
 
@@ -277,11 +274,7 @@ class FormCollection extends ZendFormCollection
             $templateMarkup = $renderer->render($partial, $vars);
 
             if ($wrap) {
-                $templateMarkup = $this->wrap(
-                    $fieldset,
-                    $templateMarkup,
-                    $vars['legend']
-                );
+                $templateMarkup = $this->wrap($fieldset, $templateMarkup, $vars['legend']);
             }
 
             $escapeHtmlAttrHelper = $this->getEscapeHtmlAttrHelper();
@@ -375,20 +368,15 @@ class FormCollection extends ZendFormCollection
         );
     }
 
-    protected function translate()
+    /**
+     * @param ElementInterface $element
+     * @param AbstractHelper $helper
+     * @return string
+     */
+    protected function translate(ElementInterface $element, AbstractHelper $helper)
     {
-        if (is_array($renderer)) {
-            $helper = $renderer[0];
-        } else {
-            $helper = $renderer;
-        }
-
-        $textDomain = $element->getOption('text_domain');
-        if (!$textDomain
-            || !($helper instanceof TranslatorAwareInterface
-                && $helper->isTranslatorEnabled())
-        ) {
-            return call_user_func($renderer, $element);
+        if (!$helper instanceof TranslatorAwareInterface || !$helper->isTranslatorEnabled()) {
+            return $helper($element);
         }
 
         $translator = $helper->getTranslator();
@@ -399,6 +387,12 @@ class FormCollection extends ZendFormCollection
         $translatorEventManager = $translator->getEventManager();
         $isMissingTranslation   = false;
         $rollbackTextDomain     = $helper->getTranslatorTextDomain();
+
+        $textDomain = $element->getOption('text_domain');
+        if (!$textDomain) {
+            $textDomain = $this->getTranslatorTextDomain();
+        }
+        $helper->setTranslatorTextDomain($textDomain);
 
         if ($element instanceof Captcha) {
             $captchaHelper = $this->getView()->plugin($element->getCaptcha()->getHelperName());
@@ -416,13 +410,14 @@ class FormCollection extends ZendFormCollection
                     if ($captchaHelper) {
                         $captchaHelper->setTranslatorTextDomain($textDomain);
                     }
+
                     $isMissingTranslation = true;
                 });
         }
 
-        $markup = call_user_func($renderer, $element);
+        $markup = $helper($element);
         if ($isMissingTranslation) {
-            $markup = call_user_func($renderer, $element);
+            //$markup = $helper($element);
         }
 
         // Rollback text doamin for element helper
