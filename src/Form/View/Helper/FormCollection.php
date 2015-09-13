@@ -179,7 +179,8 @@ class FormCollection extends ZendFormCollection
 
         // reset the counter if it's called again
         $this->partialCounter = 0;
-        foreach (ArrayUtils::iteratorToArray($fieldset, false) as $elementOrFieldset) {
+        $elements = ArrayUtils::iteratorToArray($fieldset, false);
+        foreach ($elements as $elementOrFieldset) {
             if ($elementOrFieldset instanceof FieldsetInterface) {
                 if ($fieldset instanceof Collection) {
                 	$elementOrFieldset->setOption(
@@ -197,6 +198,8 @@ class FormCollection extends ZendFormCollection
                 $markup .= $this->translate($elementOrFieldset, $elementHelper);
             }
         }
+
+        $this->reset($fieldset);
 
         return $markup;
     }
@@ -392,7 +395,7 @@ class FormCollection extends ZendFormCollection
         if (!$textDomain) {
             $textDomain = $this->getTranslatorTextDomain();
         }
-        $helper->setTranslatorTextDomain($textDomain);
+        //$helper->setTranslatorTextDomain($textDomain);
 
         if ($element instanceof Captcha) {
             $captchaHelper = $this->getView()->plugin($element->getCaptcha()->getHelperName());
@@ -402,7 +405,7 @@ class FormCollection extends ZendFormCollection
         }
 
         // Element text domain
-        if ($textDomain !== $rollbackTextDomain) {
+        if ($textDomain && $textDomain !== $rollbackTextDomain) {
             $callbackHandler = $translatorEventManager->attach(
                 Translator::EVENT_MISSING_TRANSLATION,
                 function($e) use (&$isMissingTranslation, $helper, $textDomain, $captchaHelper) {
@@ -416,8 +419,9 @@ class FormCollection extends ZendFormCollection
         }
 
         $markup = $helper($element);
-        if ($isMissingTranslation) {
-            //$markup = $helper($element);
+        if ($textDomain && $isMissingTranslation) {
+            $this->reset($element);
+            $markup = $helper($element);
         }
 
         // Rollback text doamin for element helper
@@ -435,6 +439,28 @@ class FormCollection extends ZendFormCollection
         }
 
         return $markup;
+    }
+
+    /**
+     * @param ElementInterface $element
+     */
+    protected function reset(ElementInterface $element)
+    {
+        if ($element instanceof FieldsetInterface) {
+            foreach ($element as $elementOrFieldset) {
+                if ($elementOrFieldset instanceof FieldsetInterface) {
+                    $this->reset($elementOrFieldset);
+                } else {
+                    if ($elementOrFieldset->getOption('__rendered__')) {
+                        $elementOrFieldset->setOption('__rendered__', null);
+                    }
+                }
+            }
+        }
+
+        if ($element->getOption('__rendered__')) {
+            $element->setOption('__rendered__', null);
+        }
     }
 
     /**
