@@ -30,8 +30,8 @@ use Zend\Captcha\AdapterInterface,
     Zend\ServiceManager\ServiceLocatorAwareTrait,
     Zend\Stdlib\ArrayUtils,
     Zend\Stdlib\PriorityList,
+    CmsCommon\Form\Element\StaticElement,
     CmsCommon\Form\Options\Traits\FormOptionsTrait;
-use CmsCommon\Form\Element\StaticElement;
 
 class Form extends ZendForm implements
         FormInterface,
