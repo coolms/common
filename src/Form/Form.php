@@ -31,6 +31,7 @@ use Zend\Captcha\AdapterInterface,
     Zend\Stdlib\ArrayUtils,
     Zend\Stdlib\PriorityList,
     CmsCommon\Form\Options\Traits\FormOptionsTrait;
+use CmsCommon\Form\Element\StaticElement;
 
 class Form extends ZendForm implements
         FormInterface,
@@ -370,7 +371,7 @@ class Form extends ZendForm implements
             $name = $fieldsetOrElement->getName();
             if (!in_array($name, $group) && !array_key_exists($name, $group)) {
                 $fieldset->remove($name);
-            } elseif (!empty($group[$name])) {
+            } elseif (!empty($group[$name]) && is_array($group[$name])) {
                 $this->removeFieldsetElementGroup($group[$name], $fieldsetOrElement);
             }
         }
@@ -416,10 +417,8 @@ class Form extends ZendForm implements
 
         foreach ($values as $name => $value) {
             if (!array_key_exists($name, $match)) {
-                if (is_array($value)) {
-                    if (!($value = array_filter($value))) {
-                        $data[$name] = [];
-                    }
+                if (is_array($value) && !($value = array_filter($value))) {
+                    $data[$name] = [];
                 }
 
                 continue;
@@ -467,7 +466,7 @@ class Form extends ZendForm implements
                 if (count(array_filter($data)) > 0) {
                     return $data;
                 } else {
-                    return $data; // null?;
+                    return null; // null?;
                 }
             }
         }
@@ -606,8 +605,7 @@ class Form extends ZendForm implements
      */
     public function attachInputFilterDefaults(InputFilterInterface $inputFilter, FieldsetInterface $fieldset)
     {
-        $formFactory  = $this->getFormFactory();
-        $inputFactory = $formFactory->getInputFilterFactory();
+        $inputFactory = $this->getFormFactory()->getInputFilterFactory();
 
         if ($fieldset instanceof Collection && $fieldset->getTargetElement() instanceof FieldsetInterface) {
             $elements = $fieldset->getTargetElement()->getElements();
@@ -620,6 +618,14 @@ class Form extends ZendForm implements
             $inputFilter instanceof CollectionInputFilter
         ) {
             foreach ($elements as $name => $element) {
+                if ($element instanceof StaticElement) {
+                    if ($inputFilter->has($name)) {
+                        $inputFilter->remove($name);
+                    }
+
+                    continue;
+                }
+
                 if ($this->getPreferFormInputFilter() && !$this->mergeInputFilter() && $inputFilter->has($name)) {
                     continue;
                 }
@@ -629,7 +635,7 @@ class Form extends ZendForm implements
                         continue;
                     }
                     // Create a new empty default input for this element
-                    $spec  = array('name' => $name, 'required' => false);
+                    $spec  = ['name' => $name, 'required' => false];
                     $input = $inputFactory->createInput($spec);
                 } else {
                     // Create an input based on the specification returned from the element
@@ -670,12 +676,16 @@ class Form extends ZendForm implements
                         // Add input filter for collections via getInputFilterSpecification()
                         if ($childFieldset instanceof Collection
                             && $childFieldset->getTargetElement() instanceof InputFilterProviderInterface
-                            && $childFieldset->getTargetElement()->getInputFilterSpecification()
+                            && ($spec = $childFieldset->getTargetElement()->getInputFilterSpecification())
                         ) {
                             $collectionContainerFilter = new CollectionInputFilter();
-
-                            $spec = $childFieldset->getTargetElement()->getInputFilterSpecification();
                             $filter = $inputFactory->createInputFilter($spec);
+
+                            foreach ($childFieldset->getTargetElement()->getElements() as $element) {
+                                if ($element instanceof StaticElement) {
+                                    $filter->remove($element->getName());
+                                }
+                            }
 
                             $collectionContainerFilter->setInputFilter($filter);
 

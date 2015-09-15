@@ -107,9 +107,7 @@ class FormRow extends ZendFormRow
     protected function getElementHelper()
     {
         $renderer = $this->getView();
-        if ($this->getRenderMode() === static::RENDER_STATIC
-            && method_exists($renderer, 'plugin')
-        ) {
+        if ($this->getRenderMode() === static::RENDER_STATIC && method_exists($renderer, 'plugin')) {
             $elementHelper = $renderer->plugin('form_static');
         } else {
             $elementHelper = parent::getElementHelper();
