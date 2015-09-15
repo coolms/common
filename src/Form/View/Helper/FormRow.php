@@ -82,8 +82,10 @@ class FormRow extends ZendFormRow
             return '';
         }
 
-        if ($textDomain = $element->getOption('text_domain')) {
-            $rollbackTextDomain = $this->getTranslatorTextDomain();
+        $rollbackTextDomain = $this->getTranslatorTextDomain();
+        if ((!$rollbackTextDomain || $rollbackTextDomain === 'default') &&
+            ($textDomain = $element->getOption('text_domain'))
+        ) {
             $this->setTranslatorTextDomain($textDomain);
         }
 
@@ -94,9 +96,7 @@ class FormRow extends ZendFormRow
             $markup = parent::render($element);
         }
 
-        if ($textDomain) {
-            $this->setTranslatorTextDomain($rollbackTextDomain);
-        }
+        $this->setTranslatorTextDomain($rollbackTextDomain);
 
         return $markup;
     }

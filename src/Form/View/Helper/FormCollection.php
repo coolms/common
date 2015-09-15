@@ -17,11 +17,7 @@ use Traversable,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormCollection as ZendFormCollection,
     Zend\I18n\Translator\TranslatorAwareInterface,
-    Zend\Stdlib\ArrayUtils,
-    CmsCommon\Form\View\Helper\Traits\TranslatorTextDomainTrait;
-use Zend\I18n\Translator\Translator;
-use Zend\View\Helper\AbstractHelper;
-use Zend\Form\Element\Captcha;
+    Zend\Stdlib\ArrayUtils;
 
 /**
  * Helper for rendering a collection
@@ -30,7 +26,8 @@ use Zend\Form\Element\Captcha;
  */
 class FormCollection extends ZendFormCollection
 {
-    use FormProviderTrait;
+    use FormProviderTrait,
+        TranslatorTrait;
 
     /**
      * @var string
@@ -193,9 +190,9 @@ class FormCollection extends ZendFormCollection
                     $this->partialCounter++;
                 }
 
-                $markup .= $this->translate($elementOrFieldset, $this);
+                $markup .= $this->renderTranslated($elementOrFieldset, $this);
             } elseif ($elementOrFieldset instanceof ElementInterface) {
-                $markup .= $this->translate($elementOrFieldset, $elementHelper);
+                $markup .= $elementHelper($elementOrFieldset);
             }
         }
 
@@ -369,76 +366,6 @@ class FormCollection extends ZendFormCollection
             $templateMarkup,
             count($attributes) ? ' ' . $this->createAttributesString($attributes) : ''
         );
-    }
-
-    /**
-     * @param ElementInterface $element
-     * @param AbstractHelper $helper
-     * @return string
-     */
-    protected function translate(ElementInterface $element, AbstractHelper $helper)
-    {
-        if (!$helper instanceof TranslatorAwareInterface || !$helper->isTranslatorEnabled()) {
-            return $helper($element);
-        }
-
-        $translator = $helper->getTranslator();
-        if (!($isEventManagerEnabled = $translator->isEventManagerEnabled())) {
-            $translator->enableEventManager();
-        }
-
-        $translatorEventManager = $translator->getEventManager();
-        $isMissingTranslation   = false;
-        $rollbackTextDomain     = $helper->getTranslatorTextDomain();
-
-        $textDomain = $element->getOption('text_domain');
-        if (!$textDomain) {
-            $textDomain = $this->getTranslatorTextDomain();
-        }
-        //$helper->setTranslatorTextDomain($textDomain);
-
-        if ($element instanceof Captcha) {
-            $captchaHelper = $this->getView()->plugin($element->getCaptcha()->getHelperName());
-            $captchaHelper->setTranslatorTextDomain($rollbackTextDomain);
-        } else {
-            $captchaHelper = null;
-        }
-
-        // Element text domain
-        if ($textDomain && $textDomain !== $rollbackTextDomain) {
-            $callbackHandler = $translatorEventManager->attach(
-                Translator::EVENT_MISSING_TRANSLATION,
-                function($e) use (&$isMissingTranslation, $helper, $textDomain, $captchaHelper) {
-                    $helper->setTranslatorTextDomain($textDomain);
-                    if ($captchaHelper) {
-                        $captchaHelper->setTranslatorTextDomain($textDomain);
-                    }
-
-                    $isMissingTranslation = true;
-                });
-        }
-
-        $markup = $helper($element);
-        if ($textDomain && $isMissingTranslation) {
-            $this->reset($element);
-            $markup = $helper($element);
-        }
-
-        // Rollback text doamin for element helper
-        $helper->setTranslatorTextDomain($rollbackTextDomain);
-        if ($captchaHelper) {
-            $captchaHelper->setTranslatorTextDomain($rollbackTextDomain);
-        }
-
-        if (isset($callbackHandler)) {
-            $translatorEventManager->detach($callbackHandler);
-        }
-
-        if (!$isEventManagerEnabled) {
-            $translator->disableEventManager();
-        }
-
-        return $markup;
     }
 
     /**

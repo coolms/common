@@ -22,7 +22,8 @@ class FormElement extends ZendFormElement implements
         DecoratorProviderInterface,
         TranslatorAwareInterface
 {
-    use TranslatorAwareTrait;
+    use TranslatorAwareTrait,
+        TranslatorTrait;
 
     /**
      * __construct
@@ -76,18 +77,6 @@ class FormElement extends ZendFormElement implements
     protected function renderHelper($name, ElementInterface $element)
     {
         $helper = $this->getView()->plugin($name);
-
-        if ($helper instanceof TranslatorAwareInterface) {
-            $rollbackTextDomain = $helper->getTranslatorTextDomain();
-            $helper->setTranslatorTextDomain($element->getOption('text_domain') ?: $this->getTranslatorTextDomain());
-        }
-
-        $markup = $helper($element);
-
-        if ($helper instanceof TranslatorAwareInterface) {
-            $helper->setTranslatorTextDomain($rollbackTextDomain);
-        }
-
-        return $markup;
+        return $this->renderTranslated($element, $helper);
     }
 }
