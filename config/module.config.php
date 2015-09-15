@@ -276,6 +276,7 @@ return [
             'formLabel' => 'CmsCommon\Form\View\Helper\FormLabel',
             'formMonthSelect' => 'CmsCommon\Form\View\Helper\FormMonthSelect',
             'formRow' => 'CmsCommon\Form\View\Helper\FormRow',
+            'formSelect' => 'CmsCommon\Form\View\Helper\FormSelect',
             'formStatic' => 'CmsCommon\Form\View\Helper\FormStatic',
             'htmlContainer' => 'CmsCommon\View\Helper\HtmlContainer',
             'jsonExpr' => 'CmsCommon\View\Helper\JsonExpr',
