@@ -347,8 +347,7 @@ class Form extends ZendForm implements
             }
         }
 
-        $this->removeFieldsetElementGroup($group, $this);
-        $this->setValidationGroup($group);
+        $this->removeFieldsetElementGroup($group, $this)->setValidationGroup($group);
 
         return $this;
     }
@@ -356,25 +355,31 @@ class Form extends ZendForm implements
     /**
      * @param array $group
      * @param FieldsetInterface $fieldset
-     * @return void
+     * @return self
      */
     private function removeFieldsetElementGroup(array $group, FieldsetInterface $fieldset)
     {
-        foreach ($fieldset->getElements() as $fieldsetOrElement) {
-            $name = $fieldsetOrElement->getName();
-            if (!in_array($name, $group)) {
+        $elements = ArrayUtils::iteratorToArray($fieldset, false);
+        foreach ($elements as $name => $fieldsetOrElement) {
+            if ($fieldsetOrElement instanceof Collection) {
+                if (!empty($group[$name]) && $fieldsetOrElement->shouldCreateTemplate()) {
+                    $this->removeFieldsetElementGroup($group[$name], $fieldsetOrElement->getTemplateElement());
+                }
+
+                $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
+            }
+
+            if (!empty($group[$name]) && $fieldsetOrElement instanceof FieldsetInterface) {
+                $this->removeFieldsetElementGroup($group[$name], $fieldsetOrElement);
+                continue;
+            }
+
+            if (!in_array($name, $group) && !array_key_exists($name, $group)) {
                 $fieldset->remove($name);
             }
         }
 
-        foreach ($fieldset->getFieldsets() as $fieldsetOrElement) {
-            $name = $fieldsetOrElement->getName();
-            if (!in_array($name, $group) && !array_key_exists($name, $group)) {
-                $fieldset->remove($name);
-            } elseif (!empty($group[$name]) && is_array($group[$name])) {
-                $this->removeFieldsetElementGroup($group[$name], $fieldsetOrElement);
-            }
-        }
+        return $this;
     }
 
     /**

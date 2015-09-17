@@ -15,8 +15,6 @@ use Zend\ServiceManager\AbstractPluginManager,
     Zend\ServiceManager\ServiceLocatorInterface,
     CmsCommon\Form\FormAbstractServiceFactory as CommonFormAbstractServiceFactory,
     CmsCommon\Stdlib\ArrayUtils;
-use Zend\Form\FieldsetInterface;
-use Zend\Form\FormInterface;
 
 class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implements MutableCreationOptionsInterface
 {
@@ -64,22 +62,6 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
         $builder    = $this->getAnnotationBuilder($services);
 
         $formSpec = ArrayUtils::iteratorToArray($builder->getFormSpecification($requestedName));
-        if (!empty($formSpec['type']) &&
-            is_a($formSpec['type'], FieldsetInterface::class, true) &&
-            !is_a($formSpec['type'], FormInterface::class, true)
-        ) {
-            //var_dump($formSpec['input_filter']);
-            /*$formSpec['options']['use_as_base_fieldset'] = true;
-            $formSpec = [
-                'elements' => [],
-                'fieldsets' => [
-                    //$formSpec['name'] => $formSpec,
-                ],
-                'input_filter' => $formSpec['input_filter'],
-                'type' => 'Zend\Form\Form',
-            ];*/
-            //var_dump($formSpec);
-        }
 
         if (isset($formSpec['options'])) {
             $formSpec['options'] = array_replace_recursive($formSpec['options'], $this->creationOptions);

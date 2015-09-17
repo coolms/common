@@ -9,22 +9,23 @@ CmsCommon.Form = {};
 	CmsCommon.Form.Collection = {
 		addFieldset: function(button, placement) {
 			var fieldset = $(button).closest("fieldset"),
-				template = $(fieldset).find(">span").data("template"),
-				minMax = this.minMaxCounter($(fieldset).find(">[data-counter]"));
+				template = fieldset.find(">span").data("template"),
+				minMax = this.minMaxCounter(fieldset.find(">[data-counter]"));
 
-	        template = template.replace(/__index__|--index--/g, minMax.max === null ? 0 : minMax.max + 1);
-	        if (!placement || placement === "append") {
-	        	fieldset.append(template);
-	        } else {
-	        	if (fieldset.find("[type=hidden]")) {
-	        		fieldset.find("[type=hidden]").after(template);
-	        	} else if (fieldset.find(">legend")) {
-	        		fieldset.find(">legend").after(template);
-	        	} else {
-	        		fieldset.prepend(template);
-	        	}
-	        	$(".selectpicker").selectpicker('refresh');
-	        }
+			template = template.replace(/__index__|--index--/g, minMax.max === null ? 0 : minMax.max + 1);
+			if (!placement || placement === "append") {
+				fieldset.append(template);
+			} else {
+				var prepended = $(">input[type=hidden]", fieldset) || $(">legend", fieldset);
+				if (prepended) {
+					prepended.after(template);
+				} else {
+					fieldset.prepend(template);
+				}
+			}
+
+			$(".selectpicker").selectpicker("refresh");
+
 	        return false;
 		},
 
