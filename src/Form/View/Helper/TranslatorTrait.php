@@ -47,7 +47,7 @@ trait TranslatorTrait
             $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
         }
 
-        if ($textDomain !== $helper->getTranslatorTextDomain()) {
+        if ($textDomain && $textDomain !== $helper->getTranslatorTextDomain()) {
             $callbackHandler = $translatorEventManager->attach(
                 Translator::EVENT_MISSING_TRANSLATION,
                 function($e) use ($translator, $textDomain) {
