@@ -14,6 +14,7 @@ use Zend\Form\ElementInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormLabel as ZendFormLabel,
     CmsCommon\View\Helper\Decorator\Decorator;
+use Zend\I18n\Translator\TranslatorAwareInterface;
 
 class FormLabel extends ZendFormLabel
 {
@@ -46,7 +47,19 @@ class FormLabel extends ZendFormLabel
 
         if ($decorators = $this->getDecorators($element)) {
             $decoratorHelper = $this->getDecoratorHelper();
+            if ($decoratorHelper instanceof TranslatorAwareInterface) {
+                $decoratorRollbackTextDomain = $decoratorHelper->getTranslatorTextDomain();
+                if (!$decoratorRollbackTextDomain || $decoratorRollbackTextDomain === 'default') {
+                    $decoratorHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+                }
+            }
+
             $markup = $decoratorHelper($labelContent, $decorators, $element);
+
+            if (isset($decoratorRollbackTextDomain)) {
+                $decoratorHelper->setTranslatorTextDomain($decoratorRollbackTextDomain);
+            }
+
         } else {
             $markup = parent::__invoke($element, $labelContent, $position);
         }

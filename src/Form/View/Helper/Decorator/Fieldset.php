@@ -12,10 +12,14 @@ namespace CmsCommon\Form\View\Helper\Decorator;
 
 use Zend\Form\ElementInterface,
     Zend\Form\FormInterface,
+    Zend\I18n\Translator\TranslatorAwareInterface,
+    Zend\I18n\Translator\TranslatorAwareTrait,
     CmsCommon\View\Helper\HtmlContainer;
 
-class Fieldset extends HtmlContainer
+class Fieldset extends HtmlContainer implements TranslatorAwareInterface
 {
+    use TranslatorAwareTrait;
+
     /**
      * @var string
      */
@@ -58,7 +62,18 @@ class Fieldset extends HtmlContainer
         FormInterface $form = null
     ) {
         $legendHelper = $this->getLegendHelper();
+        if ($legendHelper instanceof TranslatorAwareInterface) {
+            $rollbackTextDomain = $legendHelper->getTranslatorTextDomain();
+            if (!$rollbackTextDomain || $rollbackTextDomain === 'default') {
+                $legendHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+            }
+        }
+
         $content = $legendHelper(null, [], $element, $form) . $content;
+
+        if (isset($rollbackTextDomain)) {
+            $legendHelper->setTranslatorTextDomain($rollbackTextDomain);
+        }
 
         return parent::render($content, $attribs);
     }

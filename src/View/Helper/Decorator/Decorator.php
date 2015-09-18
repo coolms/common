@@ -13,12 +13,15 @@ namespace CmsCommon\View\Helper\Decorator;
 use Zend\View\Helper\AbstractHelper,
     Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerAwareTrait,
+    Zend\I18n\Translator\TranslatorAwareInterface,
+    Zend\I18n\Translator\TranslatorAwareTrait,
     Zend\Stdlib\ArrayUtils,
     CmsCommon\View\Helper\HtmlContainer;
 
-class Decorator extends AbstractHelper implements EventManagerAwareInterface
+class Decorator extends AbstractHelper implements EventManagerAwareInterface, TranslatorAwareInterface
 {
-    use EventManagerAwareTrait;
+    use EventManagerAwareTrait,
+        TranslatorAwareTrait;
 
     const PLACEMENT_APPEND  = 'append';
     const PLACEMENT_PREPEND = 'prepend';
@@ -68,6 +71,14 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
             }
 
             $plugin = $this->getDecoratorHelper($decorator);
+            $rollbackTextDomain = null;
+            if ($plugin instanceof TranslatorAwareInterface) {
+                $rollbackTextDomain = $plugin->getTranslatorTextDomain();
+                if (!$rollbackTextDomain || $rollbackTextDomain === 'default') {
+                    $plugin->setTranslatorTextDomain($this->getTranslatorTextDomain());
+                }
+            }
+
             $param_arr[0] = isset($options['content']) ? $options['content'] : '';
 
             if (isset($options['attributes'])) {
@@ -113,6 +124,10 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
                     $markup = call_user_func_array($plugin, $param_arr);
                 }
             }
+
+            if ($rollbackTextDomain) {
+                $plugin->setTranslatorTextDomain($rollbackTextDomain);
+            }
         }
 
         return $markup;
@@ -150,9 +165,7 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface
 
             if (!isset($options['order'])) {
                 $plugin = $this->getDecoratorHelper(
-                    empty($options['type'])
-                        ? $decorator
-                        : $options['type']
+                    empty($options['type']) ? $decorator : $options['type']
                 );
 
                 if ($plugin instanceof OrderedDecoratorInterface) {

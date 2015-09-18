@@ -91,9 +91,21 @@ class FormRow extends ZendFormRow
 
         if ($decorators = $this->getDecorators($element, $this->getForm())) {
             $decoratorHelper = $this->getDecoratorHelper();
+            if ($decoratorHelper instanceof TranslatorAwareInterface) {
+                $decoratorRollbackTextDomain = $decoratorHelper->getTranslatorTextDomain();
+                if (!$decoratorRollbackTextDomain || $decoratorRollbackTextDomain === 'default') {
+                    $decoratorHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+                }
+            }
+
             $markup = $decoratorHelper($element, $decorators, $element, $this->getForm());
+
+            if (isset($decoratorRollbackTextDomain)) {
+                $decoratorHelper->setTranslatorTextDomain($decoratorRollbackTextDomain);
+            }
+
         } else {
-            $markup = parent::render($element);
+            $markup = parent::render($element, $labelPosition);
         }
 
         $this->setTranslatorTextDomain($rollbackTextDomain);

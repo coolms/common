@@ -296,6 +296,7 @@ return [
             'cms-common/crud/delete' => __DIR__ . '/../view/cms-common/crud/delete.phtml',
             'cms-common/crud/list' => __DIR__ . '/../view/cms-common/crud/list.phtml',
             'cms-common/crud/form' => __DIR__ . '/../view/cms-common/crud/form.phtml',
+            'cms-common/date-select-range' => __DIR__ . '/../view/cms-common/date-select-range.phtml',
         ],
         'strategies' => [
             'ViewAcceptStrategy' => 'ViewAcceptStrategy',
