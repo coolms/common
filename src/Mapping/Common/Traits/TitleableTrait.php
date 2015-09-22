@@ -34,7 +34,7 @@ trait TitleableTrait
      * @Form\Attributes({"required":true})
      * @Form\Options({
      *      "label":"Title",
-     *      "translator_text_domain":"default",
+     *      "text_domain":"default",
      *      })
      */
     protected $title;

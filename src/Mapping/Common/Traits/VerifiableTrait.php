@@ -25,7 +25,7 @@ trait VerifiableTrait
      * @Form\Required(false)
      * @Form\Options({
      *      "label":"Verified",
-     *      "translator_text_domain":"default",
+     *      "text_domain":"default",
      *      "checked_value":true,
      *      "unchecked_value":false,
      *      })

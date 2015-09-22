@@ -32,7 +32,12 @@ class FormCollection extends ZendFormCollection
     /**
      * @var string
      */
-    protected $wrapper = "<fieldset%4\$s>\n%2\$s\n%1\$s%3\$s\n</fieldset>";
+    protected $wrapper = "<fieldset%5\$s>\n%2\$s\n%3\$s\n%1\$s%4\$s\n</fieldset>";
+
+    /**
+     * @var string
+     */
+    protected $descriptionWrapper = '<div>%s</div>';
 
     /**
      * @var string
@@ -111,7 +116,7 @@ class FormCollection extends ZendFormCollection
                     $this->getFormKey()     => $this->getForm(),
                     $this->getFieldsetKey() => $element,
                     'legend'                => $this->renderLegend($element),
-                    'description'           => $element->getOption('description'),
+                    'description'           => $this->renderDescription($element),
                     'allowAdd'              => false,
                     'allowRemove'           => false,
                     'counter'               => null,
@@ -136,7 +141,8 @@ class FormCollection extends ZendFormCollection
                     	$templateMarkup = $this->wrap(
                     	    $templateElement,
                     		$templateMarkup,
-                    		$this->renderLegend($templateElement)
+                    		$this->renderLegend($templateElement),
+                    	    $this->renderDescription($templateElement)
                     	);
                     }
 
@@ -152,8 +158,9 @@ class FormCollection extends ZendFormCollection
 
         // Every collection is wrapped by a fieldset if needed
         if ($wrap) {
-            $legend = $this->renderLegend($element); //$this->translateAndRender($element, 'renderLegend');
-        	$markup = $this->wrap($element, $markup, $legend, $templateMarkup);
+            $legend = $this->renderLegend($element);
+            $description = $this->renderDescription($element);
+        	$markup = $this->wrap($element, $markup, $legend, $description, $templateMarkup);
         } else {
         	$markup .= $templateMarkup;
         }
@@ -190,7 +197,7 @@ class FormCollection extends ZendFormCollection
                     $this->partialCounter++;
                 }
 
-                $markup .= $this->renderTranslated($elementOrFieldset, $this);
+                $markup .= $this->renderTranslated($this, $elementOrFieldset);
             } elseif ($elementOrFieldset instanceof ElementInterface) {
                 $markup .= $elementHelper($elementOrFieldset);
             }
@@ -250,7 +257,8 @@ class FormCollection extends ZendFormCollection
                 $markup .= $this->wrap(
                     $fieldset,
                     $fieldsetMarkup,
-                    isset($vars['legend']) ? $vars['legend'] : $this->renderLegend($fieldset)
+                    isset($vars['legend']) ? $vars['legend'] : $this->renderLegend($fieldset),
+                    isset($vars['description']) ? $vars['description'] : $this->renderDescription($fieldset)
                 );
             } else {
                 $markup .= $fieldsetMarkup;
@@ -270,11 +278,12 @@ class FormCollection extends ZendFormCollection
             $vars['counter']        = $templatePlaceholder;
             $vars['allowRemove']    = $collection->allowRemove();
             $vars['legend']         = $this->renderLegend($fieldset);
+            $vars['description']    = $this->renderDescription($fieldset);
 
             $templateMarkup = $renderer->render($partial, $vars);
 
             if ($wrap) {
-                $templateMarkup = $this->wrap($fieldset, $templateMarkup, $vars['legend']);
+                $templateMarkup = $this->wrap($fieldset, $templateMarkup, $vars['legend'], $vars['description']);
             }
 
             $escapeHtmlAttrHelper = $this->getEscapeHtmlAttrHelper();
@@ -326,6 +335,30 @@ class FormCollection extends ZendFormCollection
      * @param ElementInterface $element
      * @return string
      */
+    protected function renderDescription(ElementInterface $element)
+    {
+        if (!($this->getDescriptionWrapper() && ($description = $element->getOption('description')))) {
+            return '';
+        }
+
+        if (null !== ($translator = $this->getTranslator())) {
+            $description = $translator->translate($description, $this->getTranslatorTextDomain());
+        }
+ 
+        if (!$element instanceof LabelAwareInterface
+            || !$element->getLabelOption('disable_html_escape')
+        ) {
+            $escapeHtmlHelper = $this->getEscapeHtmlHelper();
+            $description = $escapeHtmlHelper($description);
+        }
+
+        return sprintf($this->getDescriptionWrapper(), $description);
+    }
+
+    /**
+     * @param ElementInterface $element
+     * @return string
+     */
     protected function getControl(ElementInterface $element)
     {
         $control = '';
@@ -353,7 +386,7 @@ class FormCollection extends ZendFormCollection
      * @param string $templateMarkup
      * @return string
      */
-    protected function wrap(ElementInterface $element, $markup, $legend, $templateMarkup = '')
+    protected function wrap(ElementInterface $element, $markup, $legend, $description, $templateMarkup = '')
     {
         if ($attributes = $element->getAttributes()) {
             unset($attributes['name']);
@@ -363,6 +396,7 @@ class FormCollection extends ZendFormCollection
             $this->getWrapper(),
             $markup,
             $legend,
+            $description,
             $templateMarkup,
             count($attributes) ? ' ' . $this->createAttributesString($attributes) : ''
         );
@@ -388,6 +422,31 @@ class FormCollection extends ZendFormCollection
         if ($element->getOption('__rendered__')) {
             $element->setOption('__rendered__', null);
         }
+    }
+
+    /**
+     * Set the description-wrapper
+     * The string will be passed through sprintf with the description as single
+     * parameter
+     * This defaults to '<div>%s</div>'
+     *
+     * @param string $descriptionWrapper
+     * @return self
+     */
+    public function setDescriptionWrapper($descriptionWrapper)
+    {
+        $this->descriptionWrapper = $descriptionWrapper;
+        return $this;
+    }
+
+    /**
+     * Get the wrapper for the description
+     *
+     * @return string
+     */
+    public function getDescriptionWrapper()
+    {
+        return $this->descriptionWrapper;
     }
 
     /**

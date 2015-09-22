@@ -77,6 +77,6 @@ class FormElement extends ZendFormElement implements
     protected function renderHelper($name, ElementInterface $element)
     {
         $helper = $this->getView()->plugin($name);
-        return $this->renderTranslated($element, $helper);
+        return $this->renderTranslated($helper, $element);
     }
 }

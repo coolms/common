@@ -14,11 +14,13 @@ use Zend\Form\ElementInterface,
     Zend\Form\FormInterface,
     Zend\I18n\Translator\TranslatorAwareInterface,
     Zend\I18n\Translator\TranslatorAwareTrait,
+    CmsCommon\Form\View\Helper\TranslatorTrait,
     CmsCommon\View\Helper\HtmlContainer;
 
 class Fieldset extends HtmlContainer implements TranslatorAwareInterface
 {
-    use TranslatorAwareTrait;
+    use TranslatorAwareTrait,
+        TranslatorTrait;
 
     /**
      * @var string
@@ -62,19 +64,7 @@ class Fieldset extends HtmlContainer implements TranslatorAwareInterface
         FormInterface $form = null
     ) {
         $legendHelper = $this->getLegendHelper();
-        if ($legendHelper instanceof TranslatorAwareInterface) {
-            $rollbackTextDomain = $legendHelper->getTranslatorTextDomain();
-            if (!$rollbackTextDomain || $rollbackTextDomain === 'default') {
-                $legendHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
-            }
-        }
-
-        $content = $legendHelper(null, [], $element, $form) . $content;
-
-        if (isset($rollbackTextDomain)) {
-            $legendHelper->setTranslatorTextDomain($rollbackTextDomain);
-        }
-
+        $content = $this->renderTranslated($legendHelper, $element, [], $element, $form) . $content;
         return parent::render($content, $attribs);
     }
 

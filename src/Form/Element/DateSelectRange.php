@@ -19,7 +19,9 @@ use DateTime,
     Zend\Validator\Callback,
     Zend\Validator\GreaterThan,
     Zend\Validator\LessThan,
-    CmsCommon\Form\InputFilterProviderFieldset;
+    CmsCommon\Form\InputFilterProviderFieldset,
+    CmsCommon\Mapping\Dateable\RangeableInterface,
+    CmsCommon\Stdlib\ArrayUtils;
 
 class DateSelectRange extends InputFilterProviderFieldset
 {
@@ -70,6 +72,7 @@ class DateSelectRange extends InputFilterProviderFieldset
             'type' => 'DateSelect',
             'options' => [
                 'label' => 'since',
+                'text_domain' => $this->getOption('text_domain') ?: 'default',
             ],
         ]);
 
@@ -78,6 +81,7 @@ class DateSelectRange extends InputFilterProviderFieldset
             'type' => 'DateSelect',
             'options' => [
                 'label' => 'to',
+                'text_domain' => $this->getOption('text_domain') ?: 'default',
             ],
         ]);
     }
@@ -235,6 +239,32 @@ class DateSelectRange extends InputFilterProviderFieldset
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function setValue($value)
+    {
+        if ($value instanceof RangeableInterface) {
+            $this->get('startDate')->setValue($value->getStartDate());
+            $this->get('endDate')->setValue($value->getEndDate());
+            return $this;
+        }
+
+        if ($value instanceof \Traversable) {
+            $value = ArrayUtils::iteratorToArray($value, false);
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $name => $val) {
+                if ($this->has($name)) {
+                    $this->get($name)->setValue($val);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @param string|Locale $locale
      * @return self
      */
@@ -364,7 +394,7 @@ class DateSelectRange extends InputFilterProviderFieldset
         try {
             if (is_int($value)) {
                 //timestamp
-                $value = new DateTime('@' . $value);
+                $value = new DateTime("@$value");
             } elseif (!$value instanceof DateTime) {
                 $value = new DateTime($value);
             }

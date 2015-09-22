@@ -35,7 +35,7 @@ trait DescribableTrait
      *      }})
      * @Form\Options({
      *      "label":"Description",
-     *      "translator_text_domain":"default",
+     *      "text_domain":"default",
      *      })
      */
     protected $description;

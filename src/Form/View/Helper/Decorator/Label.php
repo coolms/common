@@ -53,7 +53,9 @@ class Label extends HtmlContainer implements TranslatorAwareInterface
         array $attribs = [],
         ElementInterface $element = null
     ) {
-        if (!$content && $element instanceof LabelAwareInterface) {
+        if ($content && $content instanceof LabelAwareInterface) {
+            $content = $content->getLabel();
+        } elseif (!$content && $element instanceof LabelAwareInterface) {
             $content = $element->getLabel();
         }
 

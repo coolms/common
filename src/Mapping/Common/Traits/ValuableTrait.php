@@ -35,7 +35,7 @@ trait ValuableTrait
      * @Form\Attributes({"required":true})
      * @Form\Options({
      *      "label":"Value",
-     *      "translator_text_domain":"default",
+     *      "text_domain":"default",
      *      })
      */
     protected $value;

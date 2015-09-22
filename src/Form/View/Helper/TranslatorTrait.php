@@ -10,8 +10,7 @@
 
 namespace CmsCommon\Form\View\Helper;
 
-use Zend\Form\Element\Captcha,
-    Zend\Form\ElementInterface,
+use Zend\Form\ElementInterface,
     Zend\I18n\Translator\Translator,
     Zend\I18n\Translator\TranslatorAwareInterface,
     Zend\View\Helper\AbstractHelper;
@@ -19,13 +18,18 @@ use Zend\Form\Element\Captcha,
 trait TranslatorTrait
 {
     /**
-     * @param ElementInterface $element
      * @param AbstractHelper $helper
+     * @param ElementInterface $element
      * @return string
      */
-    protected function renderTranslated(ElementInterface $element, AbstractHelper $helper)
+    protected function renderTranslated(AbstractHelper $helper, ElementInterface $element)
     {
         if (!$helper instanceof TranslatorAwareInterface || !$helper->isTranslatorEnabled()) {
+            if (func_num_args() > 2) {
+                $param_arr = array_slice(func_get_args(), 1);
+                return call_user_func_array($helper, $param_arr);
+            }
+
             return $helper($element);
         }
 
@@ -35,18 +39,13 @@ trait TranslatorTrait
         }
 
         $translatorEventManager = $translator->getEventManager();
-        $rollbackTextDomain     = $helper->getTranslatorTextDomain();
 
-        if ($element instanceof Captcha) {
-            $captchaHelper = $this->getView()->plugin($element->getCaptcha()->getHelperName());
-            $captchaHelper->setTranslatorTextDomain($rollbackTextDomain);
-        }
-
-        $textDomain = $element->getOption('text_domain');
+        $rollbackTextDomain = $helper->getTranslatorTextDomain();
         if (!$rollbackTextDomain || $rollbackTextDomain === 'default') {
             $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
         }
 
+        $textDomain = $element->getOption('text_domain');
         if ($textDomain && $textDomain !== $helper->getTranslatorTextDomain()) {
             $callbackHandler = $translatorEventManager->attach(
                 Translator::EVENT_MISSING_TRANSLATION,
@@ -60,7 +59,12 @@ trait TranslatorTrait
             );
         }
 
-        $markup = $helper($element);
+        if (func_num_args() > 2) {
+            $param_arr = array_slice(func_get_args(), 1);
+            $markup = call_user_func_array($helper, $param_arr);
+        } else {
+            $markup = $helper($element);
+        }
 
         if (isset($callbackHandler)) {
             $translatorEventManager->detach($callbackHandler);

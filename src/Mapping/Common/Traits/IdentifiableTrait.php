@@ -27,7 +27,7 @@ trait IdentifiableTrait
      * @Form\AllowEmpty(true)
      * @Form\Options({
      *      "label":"Identity",
-     *      "translator_text_domain":"default",
+     *      "text_domain":"default",
      *      })
      */
     protected $id;

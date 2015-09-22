@@ -36,7 +36,7 @@ trait RootableTrait
      * @Form\Attributes({"required":true})
      * @Form\Options({
      *      "label":"Hierarchy root",
-     *      "translator_text_domain":"default",
+     *      "text_domain":"default",
      *      })
      */
     protected $root;

@@ -35,7 +35,7 @@ trait NameableTrait
      * @Form\Attributes({"required":true})
      * @Form\Options({
      *      "label":"Name",
-     *      "translator_text_domain":"default",
+     *      "text_domain":"default",
      *      })
      */
     protected $name;

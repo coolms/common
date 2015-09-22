@@ -25,7 +25,7 @@ trait StateableTrait
      * @Form\Options({
      *      "empty_option":"Select state",
      *      "label":"Select state",
-     *      "translator_text_domain":"default",
+     *      "text_domain":"default",
      *      })
      */
     protected $state;
