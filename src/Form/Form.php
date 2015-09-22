@@ -447,21 +447,21 @@ class Form extends ZendForm implements
      */
     protected static function filterFormData(ElementInterface $element, $data)
     {
-        if ($element instanceof Collection && $element->getOption('count') == 0) {
-            return $data ?: [];
+        if (!$data && $element instanceof Collection && $element->getOption('count') == 0) {
+            return [];
         }
 
         if (is_array($data)) {
             if ($element instanceof Collection) {
                 // Collections are to be recursed
                 foreach ($data as $key => $value) {
-                    $data[$key] = self::filterFormData($element->getTargetElement(), $value);
+                    $data[$key] = static::filterFormData($element->getTargetElement(), $value);
                 }
             } elseif ($element instanceof FieldsetInterface) {
                 // Fieldsets are to be recursed
                 foreach ($data as $key => $value) {
                     if ($element->has($key)) {
-                        $data[$key] = self::filterFormData($element->get($key), $value);
+                        $data[$key] = static::filterFormData($element->get($key), $value);
                     } else {
                         unset($data[$key]);
                     }
