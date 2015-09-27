@@ -46,11 +46,12 @@ class Factory extends InputFilterFactory
                     : gettype($inputFilterSpecification))
             ));
         }
+
         if ($inputFilterSpecification instanceof Traversable) {
             $inputFilterSpecification = ArrayUtils::iteratorToArray($inputFilterSpecification);
         }
 
-        $type = 'CmsCommon\InputFilter\InputFilter';
+        $type = 'CmsCommon\\InputFilter\\InputFilter';
 
         if (isset($inputFilterSpecification['type']) && is_string($inputFilterSpecification['type'])) {
             $type = $inputFilterSpecification['type'];
@@ -78,9 +79,7 @@ class Factory extends InputFilterFactory
                 continue;
             }
 
-            if (($value instanceof InputInterface)
-                || ($value instanceof InputFilterInterface)
-            ) {
+            if (($value instanceof InputInterface) || ($value instanceof InputFilterInterface)) {
                 $input = $value;
             } else {
                 switch ((string) $key) {
