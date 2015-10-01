@@ -157,15 +157,27 @@ class DateSelectRange extends InputFilterProviderFieldset
     {
         $inputFilterSpec = parent::getInputFilterSpecification();
 
+        $allowEmpty = !!(null === $this->getOption('create_empty_option')
+                ? $this->get('startDate')->getOption('create_empty_option')
+                : $this->getOption('create_empty_option')
+            );
+
         $inputFilterSpec['startDate'] = [
             'name' => 'startDate',
-            'allow_empty' => !$this->getOption('create_empty_option'),
+            'allow_empty' => $allowEmpty,
+            'required' => true,
             'validators' => [],
         ];
 
+        $allowEmpty = !!(null === $this->getOption('create_empty_option')
+                ? $this->get('endDate')->getOption('create_empty_option')
+                : $this->getOption('create_empty_option')
+            );
+
         $inputFilterSpec['endDate'] = [
             'name' => 'endDate',
-            'allow_empty' => !$this->getOption('create_empty_option'),
+            'allow_empty' => $allowEmpty,
+            'required' => true,
             'validators' => [
                 [
                     'name' => 'Callback',
@@ -293,6 +305,7 @@ class DateSelectRange extends InputFilterProviderFieldset
     public function setMinStartDate($date)
     {
         $this->minStartDate = $this->normalizeDateTime($date);
+        $this->get('startDate')->setMinYear($this->minStartDate->format('Y'));
         return $this;
     }
 
@@ -315,6 +328,7 @@ class DateSelectRange extends InputFilterProviderFieldset
     public function setMaxStartDate($date)
     {
         $this->maxStartDate = $this->normalizeDateTime($date);
+        $this->get('startDate')->setMaxYear($this->maxStartDate->format('Y'));
         return $this;
     }
 
@@ -337,6 +351,7 @@ class DateSelectRange extends InputFilterProviderFieldset
     public function setMinEndDate($date)
     {
         $this->minEndDate = $this->normalizeDateTime($date);
+        $this->get('endDate')->setMinYear($this->minEndDate->format('Y'));
         return $this;
     }
 
@@ -359,6 +374,7 @@ class DateSelectRange extends InputFilterProviderFieldset
     public function setMaxEndDate($date)
     {
         $this->maxEndDate = $this->normalizeDateTime($date);
+        $this->get('endDate')->setMaxYear($this->maxEndDate->format('Y'));
         return $this;
     }
 

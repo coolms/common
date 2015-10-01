@@ -448,7 +448,7 @@ class Form extends ZendForm implements
     protected static function filterFormData(ElementInterface $element, $data)
     {
         if (!$data && $element instanceof Collection && $element->getOption('count') == 0) {
-            return [];
+            return null;
         }
 
         if (is_array($data)) {
@@ -640,8 +640,7 @@ class Form extends ZendForm implements
                         continue;
                     }
                     // Create a new empty default input for this element
-                    $spec  = ['name' => $name, 'required' => false];
-                    $input = $inputFactory->createInput($spec);
+                    $input = $inputFactory->createInput(['name' => $name, 'required' => false]);
                 } else {
                     // Create an input based on the specification returned from the element
                     $spec  = $element->getInputSpecification();
@@ -677,35 +676,34 @@ class Form extends ZendForm implements
                     // so that elements of nested fieldsets can be recursively added
                     if ($childFieldset->getObject() instanceof InputFilterAwareInterface) {
                         $inputFilter->add($childFieldset->getObject()->getInputFilter(), $name);
-                    } else {
-                        // Add input filter for collections via getInputFilterSpecification()
-                        if ($childFieldset instanceof Collection
-                            && $childFieldset->getTargetElement() instanceof InputFilterProviderInterface
-                            && ($spec = $childFieldset->getTargetElement()->getInputFilterSpecification())
-                        ) {
-                            $collectionContainerFilter = new CollectionInputFilter();
-                            $filter = $inputFactory->createInputFilter($spec);
+                    // Add input filter for collections via getInputFilterSpecification()
+                    } elseif ($childFieldset instanceof Collection
+                        && $childFieldset->getTargetElement() instanceof InputFilterProviderInterface
+                        && ($spec = $childFieldset->getTargetElement()->getInputFilterSpecification())
+                    ) {
+                        $collectionContainerFilter = new CollectionInputFilter();
+                        $filter = $inputFactory->createInputFilter($spec);
 
-                            foreach ($childFieldset->getTargetElement()->getElements() as $element) {
-                                if ($element instanceof StaticElement) {
-                                    $filter->remove($element->getName());
-                                }
+                        // Add child elements from target element
+                        $childFieldset = $childFieldset->getTargetElement();
+
+                        foreach ($childFieldset->getElements() as $element) {
+                            if ($element instanceof StaticElement) {
+                                $filter->remove($element->getName());
                             }
-
-                            $collectionContainerFilter->setInputFilter($filter);
-
-                            $inputFilter->add($collectionContainerFilter, $name);
-
-                            // We need to copy the inputs to the collection input filter
-                            if ($inputFilter instanceof CollectionInputFilter) {
-                                $inputFilter = $this->addInputsToCollectionInputFilter($inputFilter);
-                            }
-
-                            // Add child elements from target element
-                            $childFieldset = $childFieldset->getTargetElement();
-                        } else {
-                            $inputFilter->add($inputFactory->createInputFilter([]), $name);
                         }
+
+                        $collectionContainerFilter->setInputFilter($filter);
+
+                        $inputFilter->add($collectionContainerFilter, $name);
+
+                        // We need to copy the inputs to the collection input filter
+                        if ($inputFilter instanceof CollectionInputFilter) {
+                            $inputFilter = $this->addInputsToCollectionInputFilter($inputFilter);
+                        }
+
+                    } else {
+                        $inputFilter->add($inputFactory->createInputFilter([]), $name);
                     }
                 }
 
@@ -714,6 +712,10 @@ class Form extends ZendForm implements
                 if (!$fieldsetFilter instanceof InputFilterInterface) {
                     // Input attached for fieldset, not input filter; nothing more to do.
                     continue;
+                }
+
+                if ($fieldsetFilter instanceof CollectionInputFilter) {
+                    $fieldsetFilter = $fieldsetFilter->getInputFilter();
                 }
 
                 // Traverse the elements of the fieldset, and attach any
