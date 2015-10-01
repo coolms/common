@@ -24,7 +24,7 @@ class DateSelect extends ZendDateSelect
                 'name' => 'Date',
                 'options' => [
                     'format' => 'Y-m-d',
-                    'allowNull' => $this->shouldCreateEmptyOption(),
+                    'allowNull' => !!$this->shouldCreateEmptyOption(),
                 ],
             ];
         }
@@ -43,7 +43,7 @@ class DateSelect extends ZendDateSelect
             [
                 'name' => 'DateSelect',
                 'options' => [
-                    'null_on_empty' => $this->shouldCreateEmptyOption(),
+                    'null_on_empty' => !!$this->shouldCreateEmptyOption(),
                 ],
             ],
         ];
