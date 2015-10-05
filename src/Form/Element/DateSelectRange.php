@@ -67,23 +67,27 @@ class DateSelectRange extends InputFilterProviderFieldset
      */
     public function init()
     {
-        $this->add([
-            'name' => 'startDate',
-            'type' => 'DateSelect',
-            'options' => [
-                'label' => 'since',
-                'text_domain' => $this->getOption('text_domain') ?: 'default',
-            ],
-        ]);
+        if (!$this->has('startDate')) {
+            $this->add([
+                'name' => 'startDate',
+                'type' => 'DateSelect',
+                'options' => [
+                    'label' => 'since',
+                    'text_domain' => $this->getOption('text_domain') ?: 'default',
+                ],
+            ]);
+        }
 
-        $this->add([
-            'name' => 'endDate',
-            'type' => 'DateSelect',
-            'options' => [
-                'label' => 'to',
-                'text_domain' => $this->getOption('text_domain') ?: 'default',
-            ],
-        ]);
+        if (!$this->has('endDate')) {
+            $this->add([
+                'name' => 'endDate',
+                'type' => 'DateSelect',
+                'options' => [
+                    'label' => 'to',
+                    'text_domain' => $this->getOption('text_domain') ?: 'default',
+                ],
+            ]);
+        }
     }
 
     /**
@@ -131,20 +135,28 @@ class DateSelectRange extends InputFilterProviderFieldset
             $this->setLocale($options['locale']);
         }
 
-        if (isset($options['min_start_date'])) {
-            $this->setMinStartDate($options['min_start_date']);
+        if (isset($options['start_date'])) {
+            if (isset($options['start_date']['min'])) {
+                $this->setMinStartDate($options['start_date']['min']);
+            }
+
+            if (isset($options['start_date']['max'])) {
+                $this->setMaxStartDate($options['start_date']['max']);
+            }
+
+            $this->get('startDate')->setOptions($options['start_date']);
         }
 
-        if (isset($options['max_start_date'])) {
-            $this->setMaxStartDate($options['max_start_date']);
-        }
+        if (isset($options['end_date'])) {
+            if (isset($options['end_date']['min'])) {
+                $this->setMinEndDate($options['end_date']['min']);
+            }
 
-        if (isset($options['min_end_date'])) {
-            $this->setMinEndDate($options['min_end_date']);
-        }
+            if (isset($options['end_date']['max'])) {
+                $this->setMaxEndDate($options['end_date']['max']);
+            }
 
-        if (isset($options['max_end_date'])) {
-            $this->setMaxEndDate($options['max_end_date']);
+            $this->get('endDate')->setOptions($options['end_date']);
         }
 
         return $this;
