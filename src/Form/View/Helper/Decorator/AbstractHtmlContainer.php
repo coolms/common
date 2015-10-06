@@ -129,15 +129,15 @@ abstract class AbstractHtmlContainer extends HtmlContainer
     {
         $elementName = $this->normalizeElementName($element->getName());
 
-        if ($fieldset instanceof Element\Collection) {
-            if (($templateElement = $fieldset->getTemplateElement())
-                && $templateElement->has($elementName)
-                && $templateElement->get($elementName) === $element
-            ) {
-                return $templateElement->getElements();
-            }
-        } elseif ($fieldset->has($elementName) && $fieldset->get($elementName) === $element) {
+        if ($fieldset->has($elementName) && $fieldset->get($elementName) === $element) {
             return $fieldset->getElements();
+        }
+
+        if ($fieldset instanceof Element\Collection && (
+            ($elements = $this->getFieldsetElements($element, $fieldset->getTargetElement())) ||
+            ($elements = $this->getFieldsetElements($element, $fieldset->getTemplateElement()))
+        )) {
+            return $elements;
         }
 
         foreach ($fieldset->getFieldsets() as $fieldsetElement) {
