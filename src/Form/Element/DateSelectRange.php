@@ -165,30 +165,56 @@ class DateSelectRange extends InputFilterProviderFieldset
     /**
      * {@inheritDoc}
      */
+    public function get($elementOrFieldset)
+    {
+        if ($element = parent::get($elementOrFieldset)) {
+            $elementOrFieldset = $element->getName();
+
+            if (!$element->hasAttribute('required')) {
+                $element->setAttribute('required', !$this->getInputFilterSpecification()[$elementOrFieldset]['allow_empty']);
+            }
+
+            foreach (['min', 'max'] as $type) {
+                $property = $type . ucfirst($elementOrFieldset);
+                if (property_exists($this, $property) && $this->$property) {
+                    $setter = 'set' . ucfirst($type) . 'Year';
+                    $element->$setter($this->$property->format('Y'));
+                }
+            }
+        }
+
+        return $element;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getInputFilterSpecification()
     {
         $inputFilterSpec = parent::getInputFilterSpecification();
 
-        $allowEmpty = !!(null === $this->getOption('create_empty_option')
+        $spec = [
+            'name' => 'startDate',
+            'allow_empty' => !!(null === $this->getOption('create_empty_option')
                 ? $this->get('startDate')->getOption('create_empty_option')
                 : $this->getOption('create_empty_option')
-            );
-
-        $inputFilterSpec['startDate'] = [
-            'name' => 'startDate',
-            'allow_empty' => $allowEmpty,
+            ),
             'required' => true,
             'validators' => [],
         ];
 
-        $allowEmpty = !!(null === $this->getOption('create_empty_option')
+        if (empty($inputFilterSpec['startDate'])) {
+            $inputFilterSpec['startDate'] = $spec;
+        } else {
+            $inputFilterSpec['startDate'] = array_merge($spec, $inputFilterSpec['startDate']);
+        }
+
+        $spec = [
+            'name' => 'endDate',
+            'allow_empty' => !!(null === $this->getOption('create_empty_option')
                 ? $this->get('endDate')->getOption('create_empty_option')
                 : $this->getOption('create_empty_option')
-            );
-
-        $inputFilterSpec['endDate'] = [
-            'name' => 'endDate',
-            'allow_empty' => $allowEmpty,
+            ),
             'required' => true,
             'validators' => [
                 [
@@ -213,8 +239,15 @@ class DateSelectRange extends InputFilterProviderFieldset
             ],
         ];
 
+        if (empty($inputFilterSpec['endDate'])) {
+            $inputFilterSpec['endDate'] = $spec;
+        } else {
+            $inputFilterSpec['endDate'] = array_merge($spec, $inputFilterSpec['endDate']);
+        }
+
         foreach ($this as $element) {
             $name = $element->getName();
+
             $minGetter = 'getMin' . ucfirst($name);
             $maxGetter = 'getMax' . ucfirst($name);
             if (!method_exists($this, $minGetter) || !method_exists($this, $maxGetter)) {
@@ -317,7 +350,6 @@ class DateSelectRange extends InputFilterProviderFieldset
     public function setMinStartDate($date)
     {
         $this->minStartDate = $this->normalizeDateTime($date);
-        $this->get('startDate')->setMinYear($this->minStartDate->format('Y'));
         return $this;
     }
 
@@ -340,7 +372,6 @@ class DateSelectRange extends InputFilterProviderFieldset
     public function setMaxStartDate($date)
     {
         $this->maxStartDate = $this->normalizeDateTime($date);
-        $this->get('startDate')->setMaxYear($this->maxStartDate->format('Y'));
         return $this;
     }
 
@@ -363,7 +394,6 @@ class DateSelectRange extends InputFilterProviderFieldset
     public function setMinEndDate($date)
     {
         $this->minEndDate = $this->normalizeDateTime($date);
-        $this->get('endDate')->setMinYear($this->minEndDate->format('Y'));
         return $this;
     }
 

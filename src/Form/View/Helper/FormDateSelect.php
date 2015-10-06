@@ -54,7 +54,7 @@ class FormDateSelect extends ZendFormDateSelect
             empty($attribs['id']) ? ['id' => (empty($elementAttribs['id']) ? $id : $elementAttribs['id']) . '-day' ] : [],
             $attribs
         ));
-        
+
         return parent::render($element);
     }
 }
