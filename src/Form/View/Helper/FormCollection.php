@@ -209,9 +209,9 @@ class FormCollection extends ZendFormCollection
     }
 
     /**
-     * @param Collection $collection
-     * @param bool $wrap                Should 
-     * @param string $partial           Name of the partial view script
+     * @param Collection    $collection
+     * @param bool          $wrap       Should 
+     * @param string        $partial    Name of the partial view script
      * @return string
      */
     protected function renderCollection(Collection $collection, $wrap, $partial)
@@ -243,23 +243,19 @@ class FormCollection extends ZendFormCollection
                 	$fieldset->setOption('allow_remove', false);
                 }
 
-                $vars[$fieldsetKey] = $fieldset;
-                $vars['allowAdd']   = $collection->allowAdd();
-                $vars['counter']    = $this->partialCounter;
-                $vars['legend']     = $this->renderLegend($fieldset);
+                $vars[$fieldsetKey]  = $fieldset;
+                $vars['allowAdd']    = $collection->allowAdd();
+                $vars['counter']     = $this->partialCounter;
+                $vars['legend']      = $this->renderLegend($fieldset);
+                $vars['description'] = $this->renderDescription($fieldset);
 
             } else {
                 $vars = $fieldset;
             }
 
             $fieldsetMarkup = $renderer->render($partial, $vars);
-            if ($wrap) {
-                $markup .= $this->wrap(
-                    $fieldset,
-                    $fieldsetMarkup,
-                    isset($vars['legend']) ? $vars['legend'] : $this->renderLegend($fieldset),
-                    isset($vars['description']) ? $vars['description'] : $this->renderDescription($fieldset)
-                );
+            if ($wrap && is_array($vars)) {
+                $markup .= $this->wrap($fieldset, $fieldsetMarkup, $vars['legend'], $vars['description']);
             } else {
                 $markup .= $fieldsetMarkup;
             }
