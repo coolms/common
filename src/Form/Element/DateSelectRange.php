@@ -136,27 +136,27 @@ class DateSelectRange extends InputFilterProviderFieldset
         }
 
         if (isset($options['start_date'])) {
-            if (isset($options['start_date']['min'])) {
-                $this->setMinStartDate($options['start_date']['min']);
+            if (isset($options['start_date']['min_date'])) {
+                $this->setMinStartDate($options['start_date']['min_date']);
             }
 
-            if (isset($options['start_date']['max'])) {
-                $this->setMaxStartDate($options['start_date']['max']);
+            if (isset($options['start_date']['max_date'])) {
+                $this->setMaxStartDate($options['start_date']['max_date']);
             }
 
-            $this->get('startDate')->setOptions($options['start_date']);
+            $this->elements['startDate']->setOptions($options['start_date']);
         }
 
         if (isset($options['end_date'])) {
-            if (isset($options['end_date']['min'])) {
-                $this->setMinEndDate($options['end_date']['min']);
+            if (isset($options['end_date']['min_date'])) {
+                $this->setMinEndDate($options['end_date']['min_date']);
             }
 
-            if (isset($options['end_date']['max'])) {
-                $this->setMaxEndDate($options['end_date']['max']);
+            if (isset($options['end_date']['max_date'])) {
+                $this->setMaxEndDate($options['end_date']['max_date']);
             }
 
-            $this->get('endDate')->setOptions($options['end_date']);
+            $this->elements['endDate']->setOptions($options['end_date']);
         }
 
         return $this;
@@ -168,15 +168,21 @@ class DateSelectRange extends InputFilterProviderFieldset
     public function get($elementOrFieldset)
     {
         if ($element = parent::get($elementOrFieldset)) {
-            $elementOrFieldset = $element->getName();
+            if (!is_string($elementOrFieldset)) {
+                $elementOrFieldset = $element->getName();
+            }
 
-            if (!$element->hasAttribute('required')) {
-                $element->setAttribute('required', !$this->getInputFilterSpecification()[$elementOrFieldset]['allow_empty']);
+            $inputFilterSpec = $this->getInputFilterSpecification();
+            if (!$element->hasAttribute('required') && isset($inputFilterSpec[$elementOrFieldset]['allow_empty'])) {
+                $element->setAttribute('required', !$inputFilterSpec[$elementOrFieldset]['allow_empty']);
             }
 
             foreach (['min', 'max'] as $type) {
                 $property = $type . ucfirst($elementOrFieldset);
-                if (property_exists($this, $property) && $this->$property) {
+                if (property_exists($this, $property) &&
+                    $this->$property instanceof DateTime &&
+                    null === $element->getOption($type . '_year')
+                ) {
                     $setter = 'set' . ucfirst($type) . 'Year';
                     $element->$setter($this->$property->format('Y'));
                 }
@@ -196,7 +202,7 @@ class DateSelectRange extends InputFilterProviderFieldset
         $spec = [
             'name' => 'startDate',
             'allow_empty' => !!(null === $this->getOption('create_empty_option')
-                ? $this->get('startDate')->getOption('create_empty_option')
+                ? $this->elements['startDate']->getOption('create_empty_option')
                 : $this->getOption('create_empty_option')
             ),
             'required' => true,
@@ -212,7 +218,7 @@ class DateSelectRange extends InputFilterProviderFieldset
         $spec = [
             'name' => 'endDate',
             'allow_empty' => !!(null === $this->getOption('create_empty_option')
-                ? $this->get('endDate')->getOption('create_empty_option')
+                ? $this->elements['startDate']->getOption('create_empty_option')
                 : $this->getOption('create_empty_option')
             ),
             'required' => true,
@@ -416,7 +422,6 @@ class DateSelectRange extends InputFilterProviderFieldset
     public function setMaxEndDate($date)
     {
         $this->maxEndDate = $this->normalizeDateTime($date);
-        $this->get('endDate')->setMaxYear($this->maxEndDate->format('Y'));
         return $this;
     }
 

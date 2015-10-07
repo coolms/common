@@ -8,7 +8,7 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Event;
+namespace CmsCommon\Listener;
 
 use Zend\EventManager\AbstractListenerAggregate,
     Zend\EventManager\EventManagerInterface,
@@ -16,7 +16,8 @@ use Zend\EventManager\AbstractListenerAggregate,
     Zend\Mvc\ModuleRouteListener,
     Zend\Mvc\MvcEvent,
     Zend\Mvc\Router\Http\Literal as LiteralRoute,
-    Zend\Stdlib\AbstractOptions;
+    Zend\Stdlib\AbstractOptions,
+    CmsCommon\Mvc\Router\Options\RouterCacheOptions;
 
 /**
  * Route cache event listener
@@ -60,7 +61,7 @@ class RouterCacheListener extends AbstractListenerAggregate
         // save the route match into the cache.
         $services = $event->getApplication()->getServiceManager();
 
-        $cacheName = $services->get('CmsCommon\\Mvc\\Router\\Options\\RouterCacheOptions')->getCache();
+        $cacheName = $services->get(RouterCacheOptions::class)->getCache();
         $cache = $services->get($cacheName);
 
         $cacheKey = $this->getCacheKey($path);
@@ -110,7 +111,7 @@ class RouterCacheListener extends AbstractListenerAggregate
 
         $services = $event->getApplication()->getServiceManager();
 
-        $cacheName = $services->get('CmsCommon\\Mvc\\Router\\Options\\RouterCacheOptions')->getCache();
+        $cacheName = $services->get(RouterCacheOptions::class)->getCache();
         $cache = $services->get($cacheName);
 
         $cacheKey = $this->getCacheKey($path);

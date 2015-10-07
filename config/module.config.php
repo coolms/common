@@ -150,9 +150,9 @@ return [
         ],
     ],
     'listeners' => [
-        'CmsCommon\Event\ModuleOptionsListener' => 'CmsCommon\Event\ModuleOptionsListener',
-        'CmsCommon\Event\PhpSettingsListener' => 'CmsCommon\Event\PhpSettingsListener',
-        'CmsCommon\Event\RouterCacheListener' => 'CmsCommon\Event\RouterCacheListener',
+        'CmsCommon\Listener\ModuleOptionsListener' => 'CmsCommon\Listener\ModuleOptionsListener',
+        'CmsCommon\Listener\PhpSettingsListener' => 'CmsCommon\Listener\PhpSettingsListener',
+        'CmsCommon\Listener\RouterCacheListener' => 'CmsCommon\Listener\RouterCacheListener',
     ],
     'module_options_suffixes' => [
         'Options\ModuleOptionsInterface',
@@ -210,9 +210,9 @@ return [
         ],
         'invokables' => [
             'CmsCommon\Crypt\PasswordGeneratorInterface' => 'CmsCommon\Crypt\PasswordGenerator',
-            'CmsCommon\Event\ModuleOptionsListener' => 'CmsCommon\Event\ModuleOptionsListener',
-            'CmsCommon\Event\PhpSettingsListener' => 'CmsCommon\Event\PhpSettingsListener',
-            'CmsCommon\Event\RouterCacheListener' => 'CmsCommon\Event\RouterCacheListener',
+            'CmsCommon\Listener\ModuleOptionsListener' => 'CmsCommon\Listener\ModuleOptionsListener',
+            'CmsCommon\Listener\PhpSettingsListener' => 'CmsCommon\Listener\PhpSettingsListener',
+            'CmsCommon\Listener\RouterCacheListener' => 'CmsCommon\Listener\RouterCacheListener',
         ],
     ],
     'translator' => [

@@ -15,11 +15,13 @@ use Zend\Form\ElementInterface,
     Zend\Form\LabelAwareInterface,
     Zend\I18n\Translator\TranslatorAwareInterface,
     Zend\I18n\Translator\TranslatorAwareTrait,
-    CmsCommon\View\Helper\HtmlContainer;
+    CmsCommon\View\Helper\HtmlContainer,
+    CmsCommon\View\Helper\TranslatorTrait;
 
 class Label extends HtmlContainer implements TranslatorAwareInterface
 {
-    use TranslatorAwareTrait;
+    use TranslatorAwareTrait,
+        TranslatorTrait;
 
     /**
      * @var string
@@ -53,17 +55,17 @@ class Label extends HtmlContainer implements TranslatorAwareInterface
         array $attribs = [],
         ElementInterface $element = null
     ) {
+        $fallbackTextDomain = 'default';
+
         if ($content && $content instanceof LabelAwareInterface) {
+            $fallbackTextDomain = $content->getOption('text_domain');
             $content = $content->getLabel();
         } elseif (!$content && $element instanceof LabelAwareInterface) {
+            $fallbackTextDomain = $element->getOption('text_domain');
             $content = $element->getLabel();
         }
 
-        if ($this->isTranslatorEnabled()
-            && null !== ($translator = $this->getTranslator())
-        ) {
-            $content = $translator->translate($content, $this->getTranslatorTextDomain());
-        }
+        $content = $this->translate($content, $fallbackTextDomain);
 
         if ($element instanceof FormInterface
             && ($object = $element->getObject())

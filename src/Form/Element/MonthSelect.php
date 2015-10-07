@@ -15,6 +15,8 @@ use Zend\Form\Element\MonthSelect as ZendMonthSelect,
 
 class MonthSelect extends ZendMonthSelect
 {
+    use MonthSelectYearTrait;
+
     /**
      * {@inheritDoc}
      */

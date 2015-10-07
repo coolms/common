@@ -8,7 +8,7 @@
  * @author    Dmitry Popov <d.popov@altgraphic.com>
  */
 
-namespace CmsCommon\Event;
+namespace CmsCommon\Listener;
 
 use Zend\EventManager\AbstractListenerAggregate,
     Zend\EventManager\EventManagerInterface,
