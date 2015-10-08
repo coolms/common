@@ -39,8 +39,9 @@ class Factory extends InputFilterFactory
 
         if (!is_array($inputFilterSpecification) && !$inputFilterSpecification instanceof Traversable) {
             throw new Exception\InvalidArgumentException(sprintf(
-                '%s expects an array or Traversable; received "%s"',
+                '%s expects an array or %s; received "%s"',
                 __METHOD__,
+                Traversable::class,
                 (is_object($inputFilterSpecification)
                     ? get_class($inputFilterSpecification)
                     : gettype($inputFilterSpecification))
@@ -51,7 +52,7 @@ class Factory extends InputFilterFactory
             $inputFilterSpecification = ArrayUtils::iteratorToArray($inputFilterSpecification);
         }
 
-        $type = 'CmsCommon\\InputFilter\\InputFilter';
+        $type = InputFilter::class;
 
         if (isset($inputFilterSpecification['type']) && is_string($inputFilterSpecification['type'])) {
             $type = $inputFilterSpecification['type'];
@@ -93,8 +94,9 @@ class Factory extends InputFilterFactory
                             throw new Exception\RuntimeException(sprintf(
                                 '%s expects the value associated with "validators" '
                                     . 'to be an array/Traversable of validators or validator specifications, '
-                                    . 'or a ValidatorChain; received "%s"',
+                                    . 'or a %s; received "%s"',
                                 __METHOD__,
+                                ValidatorChain::class,
                                 (is_object($value) ? get_class($value) : gettype($value))
                             ));
                         }
@@ -113,8 +115,9 @@ class Factory extends InputFilterFactory
                             throw new Exception\RuntimeException(sprintf(
                                 '%s expects the value associated with "filters" '
                                     . 'to be an array/Traversable of filters or filter specifications, '
-                                    . 'or a FilterChain; received "%s"',
+                                    . 'or a %s; received "%s"',
                                 __METHOD__,
+                                FilterChain::class,
                                 (is_object($value) ? get_class($value) : gettype($value))
                             ));
                         }

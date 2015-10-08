@@ -34,7 +34,6 @@ trait PasswordServiceProviderTrait
     public function setPasswordService(PasswordInterface $cryptoService)
     {
         $this->passwordService = $cryptoService;
-
         return $this;
     }
 }

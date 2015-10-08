@@ -34,7 +34,6 @@ trait ContainerProviderTrait
     public function setSessionContainer(AbstractContainer $container)
     {
         $this->sessionContainer = $container;
-
         return $this;
     }
 }

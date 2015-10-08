@@ -11,6 +11,8 @@
 namespace CmsCommon\Form\View\Helper;
 
 use Zend\Form\ElementInterface,
+    Zend\Form\Element\Csrf,
+    Zend\Form\Fieldset,
     Zend\Form\FormInterface,
     Zend\Form\View\Helper\FormElement as ZendFormElement,
     Zend\Form\View\Helper\FormInput,
@@ -30,8 +32,8 @@ class FormElement extends ZendFormElement implements
      */
     public function __construct()
     {
-        $this->addClass('Zend\Form\Element\Csrf', 'formcsrf');
-        $this->addClass('Zend\Form\Fieldset', 'formcollection');
+        $this->addClass(Csrf::class, 'formcsrf');
+        $this->addClass(Fieldset::class, 'formcollection');
         $this->addType('static', 'formstatic');
     }
 

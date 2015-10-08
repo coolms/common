@@ -61,8 +61,8 @@ class InputFilter extends ZendInputFilter implements
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an instance of %s or %s as its first argument; received "%s"',
                 __METHOD__,
-                'Zend\InputFilter\InputInterface',
-                'Zend\InputFilter\InputFilterInterface',
+                InputInterface::class,
+                ZendInputFilterInterface::class,
                 (is_object($input) ? get_class($input) : gettype($input))
             ));
         }

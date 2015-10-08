@@ -21,6 +21,8 @@ class RouterCacheOptionsFactory implements FactoryInterface
 {
     /**
      * {@inheritDoc}
+     *
+     * @return RouterCacheOptions
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {

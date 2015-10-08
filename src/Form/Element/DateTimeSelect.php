@@ -34,8 +34,9 @@ class DateTimeSelect extends ZendDateTimeSelect
     {
         $inputSpec = parent::getInputSpecification();
 
-        $inputSpec['filters'] = [
-            ['name' => 'DateTimeSelect', 'options' => ['null_on_empty' => true]],
+        $inputSpec['filters'][] = [
+            'name' => 'DateTimeSelect',
+            'options' => ['null_on_empty' => true]
         ];
 
         return $inputSpec;

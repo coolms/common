@@ -17,9 +17,8 @@ use Zend\ServiceManager\FactoryInterface,
 class FlashMessengerFactory implements FactoryInterface
 {
     /**
-     * Create service
+     * {@inheritDoc}
      *
-     * @param  ServiceLocatorInterface $serviceLocator
      * @return FlashMessenger
      */
     public function createService(ServiceLocatorInterface $serviceLocator)

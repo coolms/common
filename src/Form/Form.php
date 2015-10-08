@@ -835,8 +835,8 @@ class Form extends ZendForm implements
         if (!$this->captchaOptions) {
             $elements = $this->getFormFactory()->getFormElementManager();
             $services = $elements->getServiceLocator();
-            if ($services && $services->has('Zend\\Captcha\\AdapterInterface')) {
-                $this->setCaptchaOptions($services->get('Zend\\Captcha\\AdapterInterface'));
+            if ($services && $services->has(AdapterInterface::class)) {
+                $this->setCaptchaOptions($services->get(AdapterInterface::class));
             }
         }
 

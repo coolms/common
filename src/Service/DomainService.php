@@ -10,7 +10,8 @@
 
 namespace CmsCommon\Service;
 
-use Zend\EventManager\EventManagerAwareInterface,
+use Traversable,
+    Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerAwareTrait,
     Zend\Form\FormElementManager,
     Zend\Form\FormInterface,
@@ -86,7 +87,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
         } elseif ($options instanceof MapperInterface) {
             $this->setMapper($options);
             $this->setClassName($options->getClassName());
-        } elseif ($options instanceof \Traversable) {
+        } elseif ($options instanceof Traversable) {
             $options = ArrayUtils::iteratorToArray($options);
         } elseif (is_object($options) && method_exists($options, 'toArray')) {
             $options = $options->toArray();
@@ -109,10 +110,12 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
 
         if (!$this->getClassName()) {
             throw new InvalidArgumentException(sprintf(
-                'First argument passed to %s::%s must be a string, array, \Traversable '
-                    . 'or an instance of CmsCommon\Persistence\Mapper\MapperInterface, %s given',
+                'First argument passed to %s::%s must be a string, array, %s '
+                    . 'or an instance of %s; %s given',
                 __CLASS__,
                 __METHOD__,
+                Traversable::class,
+                MapperInterface::class,
                 is_object($options) ? get_class($options) : gettype($options)
             ));
         }
@@ -235,7 +238,7 @@ class DomainService implements DomainServiceInterface, EventManagerAwareInterfac
      */
     public function hydrate($data, FormInterface $form = null, $object = null)
     {
-        if ($data instanceof \Traversable) {
+        if ($data instanceof Traversable) {
             $data = ArrayUtils::iteratorToArray($data);
         }
 

@@ -10,12 +10,13 @@
 
 namespace CmsCommon\Factory;
 
-use Zend\Mvc\Service\AbstractPluginManagerFactory;
+use Zend\Mvc\Service\AbstractPluginManagerFactory,
+    CmsCommon\Persistence\MapperPluginManager;
 
 /**
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 class MapperPluginManagerFactory extends AbstractPluginManagerFactory
 {
-    const PLUGIN_MANAGER_CLASS = 'CmsCommon\Persistence\MapperPluginManager';
+    const PLUGIN_MANAGER_CLASS = MapperPluginManager::class;
 }

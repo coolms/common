@@ -36,8 +36,9 @@ class ContainerPluginManager extends AbstractPluginManager
         }
 
         throw new \InvalidArgumentException(sprintf(
-            'Can\'t create session container for %s; Session conatiner must implement Zend\Session\AbstractContainer',
-            (is_object($plugin) ? get_class($plugin) : gettype($plugin))
+            'Can\'t create session container for %s; Session conatiner must implement %s',
+            (is_object($plugin) ? get_class($plugin) : gettype($plugin)),
+            AbstractContainer::class
         ));
     }
 }

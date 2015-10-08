@@ -12,7 +12,8 @@ namespace CmsCommon\Mvc\Service;
 
 use Zend\ServiceManager\ServiceLocatorInterface,
     CmsCommon\Mvc\Controller\RestfulController,
-    CmsCommon\Mvc\Controller\Options\RestfulControllerOptionsInterface;
+    CmsCommon\Mvc\Controller\Options\RestfulControllerOptionsInterface,
+    CmsCommon\Mvc\Controller\Options\RestfulControllerOptions;
 
 class RestfulControllerAbstractServiceFactory extends AbstractControllerAbstractServiceFactory
 {
@@ -41,7 +42,7 @@ class RestfulControllerAbstractServiceFactory extends AbstractControllerAbstract
     {
         $options = $this->getOptions($requestedName, $services);
 
-        $controllerType = $options->getControllerType() ?: 'CmsCommon\Mvc\Controller\RestfulController';
+        $controllerType = $options->getControllerType() ?: RestfulController::class;
 
         return new $controllerType(
             $services->get('DomainServiceManager')->get($requestedName),
@@ -59,7 +60,7 @@ class RestfulControllerAbstractServiceFactory extends AbstractControllerAbstract
         $options = parent::getDefaultOptions($services);
 
         if (!$options instanceof RestfulControllerOptionsInterface) {
-            $optionsType = 'CmsCommon\Mvc\Controller\Options\RestfulControllerOptions';
+            $optionsType = RestfulControllerOptions::class;
             $options = new $optionsType($options ?: []);
         }
 

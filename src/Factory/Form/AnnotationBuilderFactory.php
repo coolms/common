@@ -15,7 +15,8 @@ use RuntimeException,
     Zend\ServiceManager\FactoryInterface,
     Zend\ServiceManager\ServiceLocatorInterface,
     DoctrineModule\Service\AbstractFactory,
-    CmsCommon\Form\Annotation\AnnotationBuilder;
+    CmsCommon\Form\Annotation\AnnotationBuilder,
+    CmsCommon\Form\Options\FormAnnotationBuilder;
 
 /**
  * Factory for {@see AnnotationBuilder}
@@ -26,11 +27,12 @@ class AnnotationBuilderFactory implements FactoryInterface
      * {@inheritDoc}
      *
      * @throws RuntimeException
+     * @return AnnotationBuilder
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        /* @var $options \CmsCommon\Form\Options\FormAnnotationBuilder */
-        $options = $serviceLocator->get('CmsCommon\\Form\\Options\\FormAnnotationBuilder');
+        /* @var $options FormAnnotationBuilder */
+        $options = $serviceLocator->get(FormAnnotationBuilder::class);
 
         $cache = $serviceLocator->has($options->getCache())
             ? $serviceLocator->get($options->getCache())

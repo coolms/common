@@ -21,10 +21,12 @@ class TranslatePluralControllerPluginFactory implements FactoryInterface
 {
     /**
      * {@inheritDoc}
+     *
+     * @return TranslatePlural
      */
-    public function createService(ServiceLocatorInterface $plugins)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $services = $plugins->getServiceLocator();
+        $services = $serviceLocator->getServiceLocator();
         /* @var $translator \Zend\Mvc\I18n\Translator */
         $translator = $services->get('MvcTranslator');
         return new TranslatePlural($translator);

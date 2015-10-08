@@ -12,22 +12,22 @@ namespace CmsCommon\Factory\View;
 
 use Zend\ServiceManager\FactoryInterface,
     Zend\ServiceManager\ServiceLocatorInterface,
+    Zend\View\Renderer\PhpRenderer,
     CmsCommon\View\AcceptStrategy;
 
 class AcceptStrategyFactory implements FactoryInterface
 {
     /**
-     * Create AcceptStrategy
+     * {@inheritDoc}
      *
-     * @param  ServiceLocatorInterface $services
      * @return AcceptStrategy
      */
-    public function createService(ServiceLocatorInterface $services)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
         return new AcceptStrategy(
-            $services->get('Zend\\View\\Renderer\\PhpRenderer'),
-            $services->get('ViewJsonRenderer'),
-            $services->get('ViewFeedRenderer')
+            $serviceLocator->get(PhpRenderer::class),
+            $serviceLocator->get('ViewJsonRenderer'),
+            $serviceLocator->get('ViewFeedRenderer')
         );
     }
 }

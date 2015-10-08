@@ -59,8 +59,9 @@ class MapperPluginManager extends AbstractPluginManager
         }
 
         throw new \InvalidArgumentException(sprintf(
-            'Can\'t create mapper for %s; Mapper must implement CmsCommon\Persistence\MapperInterface',
-            (is_object($plugin) ? get_class($plugin) : gettype($plugin))
+            'Can\'t create mapper for %s; Mapper must implement %s',
+            (is_object($plugin) ? get_class($plugin) : gettype($plugin)),
+            MapperInterface::class
         ));
     }
 }

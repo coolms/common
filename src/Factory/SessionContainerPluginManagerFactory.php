@@ -10,12 +10,13 @@
 
 namespace CmsCommon\Factory;
 
-use Zend\Mvc\Service\AbstractPluginManagerFactory;
+use Zend\Mvc\Service\AbstractPluginManagerFactory,
+    CmsCommon\Session\ContainerPluginManager;
 
 /**
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 class SessionContainerPluginManagerFactory extends AbstractPluginManagerFactory
 {
-    const PLUGIN_MANAGER_CLASS = 'CmsCommon\Session\ContainerPluginManager';
+    const PLUGIN_MANAGER_CLASS = ContainerPluginManager::class;
 }

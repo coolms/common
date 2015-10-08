@@ -37,8 +37,9 @@ class MonthSelect extends ZendMonthSelect
         $inputSpec = parent::getInputSpecification();
 
         $inputSpec['required'] = false;
-        $inputSpec['filters'] = [
-            ['name' => 'MonthSelect', 'options' => ['null_on_empty' => true]],
+        $inputSpec['filters'][] = [
+            'name' => 'MonthSelect',
+            'options' => ['null_on_empty' => true]
         ];
 
         return $inputSpec;

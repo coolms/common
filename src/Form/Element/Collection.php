@@ -10,7 +10,8 @@
 
 namespace CmsCommon\Form\Element;
 
-use Zend\Form\Element\Collection as ZendCollection,
+use Traversable,
+    Zend\Form\Element\Collection as ZendCollection,
     Zend\Form\FieldsetInterface,
     Zend\Form\Exception;
 
@@ -21,10 +22,11 @@ class Collection extends ZendCollection
      */
     public function populateValues($data)
     {
-        if (!is_array($data) && !$data instanceof \Traversable) {
+        if (!is_array($data) && !$data instanceof Traversable) {
             throw new Exception\InvalidArgumentException(sprintf(
-                '%s expects an array or Traversable set of data; received "%s"',
+                '%s expects an array or %s set of data; received "%s"',
                 __METHOD__,
+                Traversable::class,
                 (is_object($data) ? get_class($data) : gettype($data))
             ));
         }

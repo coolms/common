@@ -32,7 +32,6 @@ trait DomainServiceProviderTrait
     public function setDomainService(DomainServiceInterface $service)
     {
         $this->domainService = $service;
-
         return $this;
     }
 }

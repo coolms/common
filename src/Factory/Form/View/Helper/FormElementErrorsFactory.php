@@ -17,9 +17,8 @@ use Zend\Form\View\Helper\FormElementErrors,
 class FormElementErrorsFactory implements FactoryInterface
 {
     /**
-     * Create service
+     * {@inheritDoc}
      *
-     * @param  ServiceLocatorInterface $serviceLocator
      * @return FormElementErrors
      */
     public function createService(ServiceLocatorInterface $serviceLocator)

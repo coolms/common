@@ -33,8 +33,9 @@ trait MessagesTrait
     {
         if (!is_array($messages) && !$messages instanceof Traversable) {
             throw new Exception\InvalidArgumentException(sprintf(
-                '%s expects an array or Traversable object of messages; received "%s"',
+                '%s expects an array or %s object of messages; received "%s"',
                 __METHOD__,
+                Traversable::class,
                 (is_object($messages) ? get_class($messages) : gettype($messages))
             ));
         }

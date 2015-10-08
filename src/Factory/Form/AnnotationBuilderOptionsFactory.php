@@ -21,6 +21,8 @@ class AnnotationBuilderOptionsFactory implements FactoryInterface
 {
     /**
      * {@inheritDoc}
+     *
+     * @return FormAnnotationBuilder
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {

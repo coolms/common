@@ -17,9 +17,8 @@ use Zend\ServiceManager\FactoryInterface,
 class ParamsFactory implements FactoryInterface
 {
     /**
-     * Create service
+     * {@inheritDoc}
      *
-     * @param  ServiceLocatorInterface $viewHelpers
      * @return Params
      */
     public function createService(ServiceLocatorInterface $viewHelpers)

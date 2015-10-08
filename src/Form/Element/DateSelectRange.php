@@ -60,7 +60,7 @@ class DateSelectRange extends InputFilterProviderFieldset
      *
      * @var string
      */
-    protected $allowedObjectBindingClass = 'CmsCommon\\Mapping\\Dateable\\RangeableInterface';
+    protected $allowedObjectBindingClass = RangeableInterface::class;
 
     /**
      * {@inheritDoc}

@@ -24,8 +24,9 @@ class FormDateSelect extends ZendFormDateSelect
     {
         if (!$element instanceof DateSelectElement) {
             throw new Exception\InvalidArgumentException(sprintf(
-                '%s requires that the element is of type Zend\Form\Element\DateSelect',
-                __METHOD__
+                '%s requires that the element is of type %s',
+                __METHOD__,
+                DateSelectElement::class
             ));
         }
 

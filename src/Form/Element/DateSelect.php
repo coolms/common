@@ -41,12 +41,10 @@ class DateSelect extends ZendDateSelect
     {
         $inputSpec = parent::getInputSpecification();
 
-        $inputSpec['filters'] = [
-            [
-                'name' => 'DateSelect',
-                'options' => [
-                    'null_on_empty' => !!$this->shouldCreateEmptyOption(),
-                ],
+        $inputSpec['filters'][] = [
+            'name' => 'DateSelect',
+            'options' => [
+                'null_on_empty' => !!$this->shouldCreateEmptyOption(),
             ],
         ];
 

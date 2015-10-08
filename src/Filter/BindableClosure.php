@@ -26,9 +26,10 @@ class BindableClosure extends Callback
     public function setCallback($callback)
     {
         if (!$callback instanceof Closure) {
-            throw new Exception\InvalidArgumentException(
-                'Invalid parameter for callback: must be Closure'
-            );
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Invalid parameter for callback: must be %s',
+                Closure::class
+            ));
         }
 
         return parent::setCallback($callback);

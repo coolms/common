@@ -17,9 +17,8 @@ use Zend\ServiceManager\FactoryInterface,
 class FormMessagesFactory implements FactoryInterface
 {
     /**
-     * Create service
+     * {@inheritDoc}
      *
-     * @param  ServiceLocatorInterface $serviceLocator
      * @return FormMessages
      */
     public function createService(ServiceLocatorInterface $serviceLocator)

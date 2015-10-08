@@ -17,9 +17,8 @@ use Zend\ServiceManager\FactoryInterface,
 class CookieFactory implements FactoryInterface
 {
     /**
-     * Create Cookie view helper
+     * {@inheritDoc}
      *
-     * @param  ServiceLocatorInterface $viewHelpers
      * @return Cookie
      */
     public function createService(ServiceLocatorInterface $viewHelpers)

@@ -10,14 +10,19 @@
 
 namespace CmsCommon;
 
-use Zend\EventManager\EventInterface,
+use Zend\Loader\ClassMapAutoloader,
+    Zend\Loader\StandardAutoloader,
+    Zend\EventManager\EventInterface,
     Zend\ModuleManager\Feature\AutoloaderProviderInterface,
     Zend\ModuleManager\Feature\BootstrapListenerInterface,
     Zend\ModuleManager\Feature\ConfigProviderInterface,
     Zend\ModuleManager\Feature\InitProviderInterface,
     Zend\ModuleManager\ModuleManagerInterface,
     Zend\Mvc\ModuleRouteListener,
-    Zend\Validator\AbstractValidator;
+    Zend\Validator\AbstractValidator,
+    CmsCommon\Persistence\MapperPluginProviderInterface,
+    CmsCommon\Service\DomainServicePluginProviderInterface,
+    CmsCommon\Session\ContainerPluginProviderInterface;
 
 class Module implements
     AutoloaderProviderInterface,
@@ -43,19 +48,19 @@ class Module implements
         $serviceListener->addServiceManager(
             'MapperManager',
             'mappers',
-            'CmsCommon\Persistence\MapperPluginProviderInterface',
+            MapperPluginProviderInterface::class,
             'getMapperConfig'
         );
         $serviceListener->addServiceManager(
             'DomainServiceManager',
             'domain_services',
-            'CmsCommon\Service\DomainServicePluginProviderInterface',
+            DomainServicePluginProviderInterface::class,
             'getDomainServiceConfig'
         );
         $serviceListener->addServiceManager(
             'SessionContainerManager',
             'session_containers',
-            'CmsCommon\Session\ContainerPluginProviderInterface',
+            ContainerPluginProviderInterface::class,
             'getSessionContainerConfig'
         );
     }
@@ -66,10 +71,10 @@ class Module implements
     public function getAutoloaderConfig()
     {
         return [
-            'Zend\Loader\ClassMapAutoloader' => [
+            ClassMapAutoloader::class => [
                 __DIR__ . '/../autoload_classmap.php',
             ],
-            'Zend\Loader\StandardAutoloader' => [
+            StandardAutoloader::class => [
                 'fallback_autoloader' => true,
                 'namespaces' => [
                     __NAMESPACE__ => __DIR__,

@@ -27,7 +27,7 @@ class MvcTranslatorInitializer implements InitializerInterface
             if ($serviceLocator instanceof AbstractPluginManager) {
                 $serviceLocator = $serviceLocator->getServiceLocator();
             }
-            /* @var $translator Zend\I18n\Translator\TranslatorInterface */
+            /* @var $translator \Zend\I18n\Translator\TranslatorInterface */
             $translator = $serviceLocator->get('MvcTranslator');
             $instance->setTranslator($translator, strstr(get_class($instance), '\\', true));
         }

@@ -32,7 +32,6 @@ trait MapperProviderTrait
     public function setMapper(MapperInterface $mapper)
     {
         $this->mapper = $mapper;
-
         return $this;
     }
 }

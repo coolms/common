@@ -60,8 +60,9 @@ class DomainServicePluginManager extends AbstractPluginManager
 
         throw new \InvalidArgumentException(sprintf(
             'Can\'t create domain service for %s; '
-                . 'Domain Service must implement CmsCommon\Service\DomainServiceInterface',
-            (is_object($plugin) ? get_class($plugin) : gettype($plugin))
+                . 'Domain service must implement %s',
+            (is_object($plugin) ? get_class($plugin) : gettype($plugin)),
+            DomainServiceInterface::class
         ));
     }
 }

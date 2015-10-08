@@ -24,8 +24,9 @@ class FormMonthSelect extends ZendFormMonthSelect
     {
         if (!$element instanceof MonthSelectElement) {
             throw new Exception\InvalidArgumentException(sprintf(
-                '%s requires that the element is of type Zend\Form\Element\MonthSelect',
-                __METHOD__
+                '%s requires that the element is of type %s',
+                __METHOD__,
+                MonthSelectElement::class
             ));
         }
 

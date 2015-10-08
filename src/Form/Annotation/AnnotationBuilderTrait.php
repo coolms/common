@@ -14,6 +14,9 @@ use ArrayObject,
     Zend\Code\Annotation\AnnotationCollection,
     Zend\Code\Reflection\PropertyReflection,
     Zend\EventManager\Event,
+    Zend\Form\Annotation\Input,
+    Zend\Form\Element,
+    Zend\Form\FieldsetInterface,
     Zend\Stdlib\ArrayUtils,
     CmsCommon\Form\Factory;
 
@@ -60,6 +63,7 @@ trait AnnotationBuilderTrait
      * @param  ArrayObject $formSpec
      * @param  ArrayObject $filterSpec
      * @return void
+     *
      * @triggers checkForExclude
      * @triggers discoverName
      * @triggers configureElement
@@ -101,7 +105,7 @@ trait AnnotationBuilderTrait
         // Since "filters", "type", "validators" is a reserved names in the filter specification,
         // we need to add the specification without the name as the key.
         // In all other cases, though, the name is fine.
-        if ($event->getParam('inputSpec')->count() > 1 || $annotations->hasAnnotation('Zend\Form\Annotation\Input')) {
+        if ($event->getParam('inputSpec')->count() > 1 || $annotations->hasAnnotation(Input::class)) {
             if ($name === 'type' || $name === 'filters' || $name === 'validators') {
                 $filterSpec[] = $event->getParam('inputSpec');
             } else {
@@ -112,11 +116,11 @@ trait AnnotationBuilderTrait
         $elementSpec = $event->getParam('elementSpec');
         $type = isset($elementSpec['spec']['type'])
             ? $elementSpec['spec']['type']
-            : 'Zend\Form\Element';
+            : Element::class;
 
         // Compose as a fieldset or an element, based on specification type.
         // If preserve defined order is true, all elements are composed as elements to keep their ordering
-        if (!$this->preserveDefinedOrder() && is_subclass_of($type, 'Zend\Form\FieldsetInterface')) {
+        if (!$this->preserveDefinedOrder() && is_subclass_of($type, FieldsetInterface::class)) {
             if (!isset($formSpec['fieldsets'])) {
                 $formSpec['fieldsets'] = [];
             }

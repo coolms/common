@@ -10,12 +10,13 @@
 
 namespace CmsCommon\Factory;
 
-use Zend\Mvc\Service\AbstractPluginManagerFactory;
+use Zend\Mvc\Service\AbstractPluginManagerFactory,
+    CmsCommon\Service\DomainServicePluginManager;
 
 /**
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 class DomainServicePluginManagerFactory extends AbstractPluginManagerFactory
 {
-    const PLUGIN_MANAGER_CLASS = 'CmsCommon\Service\DomainServicePluginManager';
+    const PLUGIN_MANAGER_CLASS = DomainServicePluginManager::class;
 }

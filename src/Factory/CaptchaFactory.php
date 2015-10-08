@@ -41,10 +41,12 @@ class CaptchaFactory implements FactoryInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @return AdapterInterface
      */
-    public function createService(ServiceLocatorInterface $services)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return Factory::factory($this->getOptions($services));
+        return Factory::factory($this->getOptions($serviceLocator));
     }
 
     /**
