@@ -15,7 +15,7 @@ trait ObjectableTrait
     /**
      * @var object
      * 
-     * @Form\Type("ObjectSelect")
+     * @Form\Exclude()
      */
     protected $object;
 

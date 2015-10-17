@@ -51,6 +51,17 @@ class DateSelectRange extends InputFilterProviderFieldset
     protected $locale;
 
     /**
+     * Default options
+     *
+     * @var array
+     */
+    protected $options = [
+        'label' => 'Select date range',
+        'text_domain' => 'default',
+        'partial' => 'cms-common/date-select-range-fieldset',
+    ];
+
+    /**
      * @var IntlDateFormatter
      */
     protected $dateFormatter;
