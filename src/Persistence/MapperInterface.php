@@ -10,9 +10,11 @@
 
 namespace CmsCommon\Persistence;
 
-use Zend\Paginator\Paginator;
+use Zend\EventManager\EventManagerAwareInterface,
+    Zend\ServiceManager\ServiceLocatorAwareInterface,
+    Zend\Paginator\Paginator;
 
-interface MapperInterface
+interface MapperInterface extends EventManagerAwareInterface, ServiceLocatorAwareInterface
 {
     const OP_AND                    = 'AND';
     const OP_EQUAL                  = 'EQUAL';
@@ -88,6 +90,18 @@ interface MapperInterface
      * @return object
      */
     public function findOneBy(array $criteria);
+
+    /**
+     * @param array $criteria
+     * @return onject
+     */
+    public function findOneOrCreate(array $criteria = null);
+
+    /**
+     * @param array $args
+     * @return object
+     */
+    public function create(array $args = null);
 
     /**
      * @param object $object

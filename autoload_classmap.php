@@ -75,6 +75,7 @@ return array(
     'CmsCommon\Form\View\Helper\FormStatic'                                 => __DIR__ . '/src/Form/View/Helper/FormStatic.php',
     'CmsCommon\Form\View\Helper\TranslatorTrait'                            => __DIR__ . '/src/Form/View/Helper/TranslatorTrait.php',
     'CmsCommon\Initializer\MvcTranslatorInitializer'                        => __DIR__ . '/src/Initializer/MvcTranslatorInitializer.php',
+    'CmsCommon\Initializer\ServiceManagerInitializer'                       => __DIR__ . '/src/Initializer/ServiceManagerInitializer.php',
     'CmsCommon\InputFilter\Factory'                                         => __DIR__ . '/src/InputFilter/Factory.php',
     'CmsCommon\InputFilter\InputFilter'                                     => __DIR__ . '/src/InputFilter/InputFilter.php',
     'CmsCommon\InputFilter\InputFilterInterface'                            => __DIR__ . '/src/InputFilter/InputFilterInterface.php',

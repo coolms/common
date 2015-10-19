@@ -210,6 +210,7 @@ return [
         ],
         'invokables' => [
             'CmsCommon\Crypt\PasswordGeneratorInterface' => 'CmsCommon\Crypt\PasswordGenerator',
+            'CmsCommon\Initializer\ServiceManagerInitializer' => 'CmsCommon\Initializer\ServiceManagerInitializer',
             'CmsCommon\Listener\ModuleOptionsListener' => 'CmsCommon\Listener\ModuleOptionsListener',
             'CmsCommon\Listener\PhpSettingsListener' => 'CmsCommon\Listener\PhpSettingsListener',
             'CmsCommon\Listener\RouterCacheListener' => 'CmsCommon\Listener\RouterCacheListener',

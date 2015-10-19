@@ -10,27 +10,24 @@
 
 namespace CmsCommon\Initializer;
 
-use Zend\I18n\Translator\TranslatorAwareInterface,
-    Zend\I18n\Translator\TranslatorInterface,
-    Zend\ServiceManager\AbstractPluginManager,
+use Zend\ServiceManager\AbstractPluginManager,
     Zend\ServiceManager\InitializerInterface,
+    Zend\ServiceManager\ServiceLocatorAwareInterface,
     Zend\ServiceManager\ServiceLocatorInterface;
 
-class MvcTranslatorInitializer implements InitializerInterface
+class ServiceManagerInitializer implements InitializerInterface
 {
     /**
      * {@inheritDoc}
      */
     public function initialize($instance, ServiceLocatorInterface $serviceLocator)
     {
-        if ($instance instanceof TranslatorAwareInterface) {
+        if ($instance instanceof ServiceLocatorAwareInterface) {
             if ($serviceLocator instanceof AbstractPluginManager) {
                 $serviceLocator = $serviceLocator->getServiceLocator();
             }
 
-            /* @var $translator \Zend\I18n\Translator\TranslatorInterface */
-            $translator = $serviceLocator->get('MvcTranslator');
-            $instance->setTranslator($translator, strstr(get_class($instance), '\\', true));
+            $instance->setServiceLocator($serviceLocator);
         }
     }
 }
