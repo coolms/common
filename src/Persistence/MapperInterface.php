@@ -50,6 +50,14 @@ interface MapperInterface extends EventManagerAwareInterface, ServiceLocatorAwar
     public function hydrate(array $data, $object);
 
     /**
+     * Extract data from provided $object
+     *
+     * @param  object   $object
+     * @return array
+     */
+    public function extract($object);
+
+    /**
      * Retrieves paginator for records
      *
      * @param array $criteria
