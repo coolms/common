@@ -29,7 +29,7 @@ trait QuantifiableTrait
      *      "label":"Quantity",
      *      "text_domain":"default"})
      */
-    protected $quantity = 0;
+    protected $quantity;
 
     /**
      * @param int $quantity
