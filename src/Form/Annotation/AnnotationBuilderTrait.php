@@ -125,13 +125,22 @@ trait AnnotationBuilderTrait
                 $formSpec['fieldsets'] = [];
             }
 
-            $formSpec['fieldsets'][] = $elementSpec;
+            if (isset($formSpec['fieldsets'][$name])) {
+                $formSpec['fieldsets'][] = $elementSpec;
+            } else {
+                $formSpec['fieldsets'][$name] = $elementSpec;
+            }
+
         } else {
             if (!isset($formSpec['elements'])) {
                 $formSpec['elements'] = [];
             }
 
-            $formSpec['elements'][] = $elementSpec;
+            if (isset($formSpec['elements'][$name])) {
+                $formSpec['elements'][] = $elementSpec;
+            } else {
+                $formSpec['elements'][$name] = $elementSpec;
+            }
         }
     }
 }

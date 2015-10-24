@@ -217,4 +217,18 @@ class Menu extends ZendMenu
         $html = '<' . $element . $this->htmlAttribs($attribs) . '>' . $html . '</' . $element . '>';
         return $html;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function __toString()
+    {
+        try {
+            $markup = parent::__toString();
+        } catch (\Exception $e) {
+            $markup = $e->getMessage();
+        }
+
+        return $markup;
+    }
 }
