@@ -11,6 +11,7 @@
 namespace CmsCommon;
 
 return [
+    'annotation_forms' => [],
     'asset_manager' => [
         'resolver_configs' => [
             'paths' => [

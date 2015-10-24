@@ -24,6 +24,11 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
     protected $annotationBuilder;
 
     /**
+     * @var string Top-level configuration key indicating forms configuration
+     */
+    protected $configKey = 'annotation_forms';
+
+    /**
      * @var array
      */
     protected $creationOptions = [];
@@ -69,7 +74,7 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
             $formSpec['options'] = $this->creationOptions;
         }
 
-        // Setting some defaults
+        // Setting up some defaults
         if (!isset($formSpec['options']['merge_input_filter'])) {
             $formSpec['options']['merge_input_filter'] = true;
         }
