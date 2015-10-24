@@ -198,7 +198,8 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface, Tr
         $plugin = $this->getView()->plugin($name);
         if (!$plugin instanceof HtmlContainer) {
             throw new \RuntimeException(sprintf(
-                'Decorator plugin must be of type CmsCommon\View\Helper\HtmlContainer; %s given',
+                'Decorator plugin must be of type %s; %s given',
+                HtmlContainer::class,
                 is_object($plugin) ? get_class($plugin) : gettype($plugin)
             ));
         }
