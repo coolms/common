@@ -125,6 +125,10 @@ class Form extends ZendForm implements
     {
         parent::setOptions($options);
 
+        if (isset($options['element_group'])) {
+            $this->setElementGroup($options['element_group']);
+        }
+
         if (isset($options['use_form_label'])) {
             $this->setUseFormLabel($options['use_form_label']);
         }

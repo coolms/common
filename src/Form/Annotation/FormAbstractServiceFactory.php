@@ -80,6 +80,12 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
             $formSpec['options']['use_input_filter_defaults'] = true;
         }
 
+        foreach ($this->getConfig($services) as $name => $spec) {
+            if (interface_exists($name) && is_subclass_of($requestedName, $name, true)) {
+                $formSpec = array_replace_recursive($formSpec, $spec);
+            }
+        }
+
         $this->config[$requestedName] = $formSpec;
 
         return parent::createServiceWithName($services, $name, $requestedName);
