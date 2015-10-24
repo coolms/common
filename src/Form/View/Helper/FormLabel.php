@@ -61,6 +61,11 @@ class FormLabel extends ZendFormLabel
             }
 
         } else {
+            if (!$element->getLabel() && null === $labelContent) {
+                $labelContent = '';
+                $position = null;
+            }
+
             $markup = parent::__invoke($element, $labelContent, $position);
         }
 
