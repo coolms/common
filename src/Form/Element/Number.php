@@ -22,6 +22,7 @@ class Number extends BaseNumber
         if (strlen($this->getValue()) === 0) {
             return [];
         }
+
         return parent::getValidators();
     }
 
@@ -31,9 +32,7 @@ class Number extends BaseNumber
     public function getInputSpecification()
     {
         $inputSpec = parent::getInputSpecification();
-
-        $inputSpec['required'] = false;
-
+        $inputSpec['allow_empty'] = true;
         return $inputSpec;
     }
 }
