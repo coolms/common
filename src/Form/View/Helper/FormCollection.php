@@ -26,8 +26,7 @@ use Traversable,
  */
 class FormCollection extends ZendFormCollection
 {
-    use FormProviderTrait,
-        TranslatorTrait;
+    use FormProviderTrait;
 
     /**
      * @var string
@@ -78,7 +77,9 @@ class FormCollection extends ZendFormCollection
             return $this;
         }
 
-        if ($element instanceof Collection && ($element->allowRemove() || $element->allowAdd())) {
+        if ($element instanceof Collection &&
+            ($element->allowRemove() || $element->allowAdd())
+        ) {
             $headScript = $this->getView()->plugin('headScript');
             $basePath   = $this->getView()->plugin('basePath');
             $headScript()->appendFile($basePath('assets/cms-common/js/form/collection.js'));
@@ -100,6 +101,15 @@ class FormCollection extends ZendFormCollection
             return '';
         }
 
+        return $this->renderFieldset($element);
+    }
+
+    /**
+     * @param FieldsetInterface $element
+     * @return string
+     */
+    protected function renderFieldset(FieldsetInterface $element)
+    {
         $wrap = $this->shouldWrap();
         $markup = '';
         $templateMarkup = '';
@@ -160,7 +170,13 @@ class FormCollection extends ZendFormCollection
         if ($wrap) {
             $legend = $this->renderLegend($element);
             $description = $this->renderDescription($element);
-        	$markup = $this->wrap($element, $markup, $legend, $description, $templateMarkup);
+        	$markup = $this->wrap(
+            	    $element,
+            	    $markup,
+            	    $legend,
+            	    $description,
+            	    $templateMarkup
+        	    );
         } else {
         	$markup .= $templateMarkup;
         }
@@ -185,22 +201,20 @@ class FormCollection extends ZendFormCollection
         $this->partialCounter = 0;
         $elements = ArrayUtils::iteratorToArray($fieldset, false);
         foreach ($elements as $elementOrFieldset) {
-            if ($elementOrFieldset instanceof FieldsetInterface) {
-                if ($fieldset instanceof Collection) {
-                	$elementOrFieldset->setOption(
-                	    'allow_remove',
-                	    $this->partialCounter >= $fieldset->getOption('count')
-                	       ? $fieldset->allowRemove()
-                	       : false
-                	);
+            if ($elementOrFieldset instanceof FieldsetInterface &&
+                $fieldset instanceof Collection
+            ) {
+            	$elementOrFieldset->setOption(
+            	    'allow_remove',
+            	    $this->partialCounter >= $fieldset->getOption('count')
+            	       ? $fieldset->allowRemove()
+            	       : false
+            	);
 
-                    $this->partialCounter++;
-                }
-
-                $markup .= $this->renderTranslated($this, $elementOrFieldset);
-            } elseif ($elementOrFieldset instanceof ElementInterface) {
-                $markup .= $elementHelper($elementOrFieldset);
+                $this->partialCounter++;
             }
+
+            $markup .= $elementHelper($elementOrFieldset);
         }
 
         $this->reset($fieldset);
@@ -210,7 +224,7 @@ class FormCollection extends ZendFormCollection
 
     /**
      * @param Collection    $collection
-     * @param bool          $wrap       Should 
+     * @param bool          $wrap       
      * @param string        $partial    Name of the partial view script
      * @return string
      */
@@ -255,7 +269,12 @@ class FormCollection extends ZendFormCollection
 
             $fieldsetMarkup = $renderer->render($partial, $vars);
             if ($wrap && is_array($vars)) {
-                $markup .= $this->wrap($fieldset, $fieldsetMarkup, $vars['legend'], $vars['description']);
+                $markup .= $this->wrap(
+                        $fieldset,
+                        $fieldsetMarkup,
+                        $vars['legend'],
+                        $vars['description']
+                    );
             } else {
                 $markup .= $fieldsetMarkup;
             }
@@ -279,7 +298,12 @@ class FormCollection extends ZendFormCollection
             $templateMarkup = $renderer->render($partial, $vars);
 
             if ($wrap) {
-                $templateMarkup = $this->wrap($fieldset, $templateMarkup, $vars['legend'], $vars['description']);
+                $templateMarkup = $this->wrap(
+                        $fieldset,
+                        $templateMarkup,
+                        $vars['legend'],
+                        $vars['description']
+                    );
             }
 
             $escapeHtmlAttrHelper = $this->getEscapeHtmlAttrHelper();
@@ -333,7 +357,9 @@ class FormCollection extends ZendFormCollection
      */
     protected function renderDescription(ElementInterface $element)
     {
-        if (!($this->getDescriptionWrapper() && ($description = $element->getOption('description')))) {
+        if (!($this->getDescriptionWrapper() &&
+            ($description = $element->getOption('description')))
+        ) {
             return '';
         }
 
@@ -382,8 +408,13 @@ class FormCollection extends ZendFormCollection
      * @param string $templateMarkup
      * @return string
      */
-    protected function wrap(ElementInterface $element, $markup, $legend, $description, $templateMarkup = '')
-    {
+    protected function wrap(
+        ElementInterface $element,
+        $markup,
+        $legend,
+        $description,
+        $templateMarkup = ''
+    ) {
         if ($attributes = $element->getAttributes()) {
             unset($attributes['name']);
         }

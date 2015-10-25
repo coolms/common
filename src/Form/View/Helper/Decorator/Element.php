@@ -26,7 +26,7 @@ class Element extends AbstractHtmlContainer
     /**
      * @var string
      */
-    protected $defaultElementHelper = 'form_element';
+    protected $defaultElementHelper = 'formElement';
 
     /**
      * @var AbstractHelper
@@ -36,7 +36,7 @@ class Element extends AbstractHtmlContainer
     /**
      * @var string
      */
-    protected $defaultIdNormalizer = 'id_normalizer';
+    protected $defaultIdNormalizer = 'idNormalizer';
 
     /**
      * @var IdNormalizer

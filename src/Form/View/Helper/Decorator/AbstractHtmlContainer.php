@@ -130,7 +130,7 @@ abstract class AbstractHtmlContainer extends HtmlContainer
         $elementName = $this->normalizeElementName($element->getName());
 
         if ($fieldset->has($elementName) && $fieldset->get($elementName) === $element) {
-            return $fieldset->getElements();
+            return array_merge($fieldset->getElements(), $fieldset->getFieldsets());
         }
 
         if ($fieldset instanceof Element\Collection && (

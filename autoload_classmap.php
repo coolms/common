@@ -59,6 +59,7 @@ return array(
     'CmsCommon\Form\View\Helper\Decorator\Fieldset'                         => __DIR__ . '/src/Form/View/Helper/Decorator/Fieldset.php',
     'CmsCommon\Form\View\Helper\Decorator\Label'                            => __DIR__ . '/src/Form/View/Helper/Decorator/Label.php',
     'CmsCommon\Form\View\Helper\Decorator\Legend'                           => __DIR__ . '/src/Form/View/Helper/Decorator/Legend.php',
+    'CmsCommon\Form\View\Helper\DecoratorTrait'                             => __DIR__ . '/src/Form/View/Helper/DecoratorTrait.php',
     'CmsCommon\Form\View\Helper\Form'                                       => __DIR__ . '/src/Form/View/Helper/Form.php',
     'CmsCommon\Form\View\Helper\FormCaptcha'                                => __DIR__ . '/src/Form/View/Helper/FormCaptcha.php',
     'CmsCommon\Form\View\Helper\FormCollection'                             => __DIR__ . '/src/Form/View/Helper/FormCollection.php',

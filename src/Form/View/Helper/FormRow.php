@@ -11,16 +11,16 @@
 namespace CmsCommon\Form\View\Helper;
 
 use Zend\Form\ElementInterface,
+    Zend\Form\FieldsetInterface,
     Zend\Form\FormInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormRow as ZendFormRow,
-    Zend\I18n\Translator\TranslatorAwareInterface,
-    CmsCommon\View\Helper\Decorator\Decorator,
-    CmsCommon\View\Helper\Decorator\DecoratorProviderInterface;
+    Zend\I18n\Translator\TranslatorAwareInterface;
 
 class FormRow extends ZendFormRow
 {
-    use FormProviderTrait;
+    use FormProviderTrait,
+        DecoratorTrait;
 
     const RENDER_ALL     = 'all';
     const RENDER_STATIC  = 'static';
@@ -30,21 +30,6 @@ class FormRow extends ZendFormRow
      * @var string
      */
     protected $renderMode = self::RENDER_ALL;
-
-    /**
-     * @var string
-     */
-    protected $defaultDecoratorHelper = 'decorator';
-
-    /**
-     * @var Decorator
-     */
-    protected $decoratorHelper;
-
-    /**
-     * @var string
-     */
-    protected $decoratorNamespace = Decorator::OPTION_KEY;
 
     /**
      * {@inheritDoc}
@@ -66,14 +51,6 @@ class FormRow extends ZendFormRow
             $this->setRenderMode($renderMode);
         }
 
-        return parent::__invoke($element, $labelPosition, $renderErrors, $partial);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function render(ElementInterface $element, $labelPosition = null)
-    {
         if ($element->getOption('__rendered__')
             || ($element->getAttribute('type') === 'static'
                 && ($this->getRenderMode() === static::RENDER_DYNAMIC
@@ -82,6 +59,14 @@ class FormRow extends ZendFormRow
             return '';
         }
 
+        return parent::__invoke($element, $labelPosition, $renderErrors, $partial);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function render(ElementInterface $element, $labelPosition = null)
+    {
         $rollbackTextDomain = $this->getTranslatorTextDomain();
         if ((!$rollbackTextDomain || $rollbackTextDomain === 'default') &&
             ($textDomain = $element->getOption('text_domain'))
@@ -104,6 +89,9 @@ class FormRow extends ZendFormRow
                 $decoratorHelper->setTranslatorTextDomain($decoratorRollbackTextDomain);
             }
 
+        } elseif ($element instanceof FieldsetInterface) {
+            $helper = $this->getElementHelper();
+            $markup = $helper($element);
         } else {
             $markup = parent::render($element, $labelPosition);
         }
@@ -130,55 +118,6 @@ class FormRow extends ZendFormRow
         }
 
         return $elementHelper;
-    }
-
-    /**
-     * @return Decorator
-     */
-    protected function getDecoratorHelper()
-    {
-        if ($this->decoratorHelper) {
-            return $this->decoratorHelper;
-        }
-
-        if (method_exists($this->view, 'plugin')) {
-            $this->decoratorHelper = $this->view->plugin($this->defaultDecoratorHelper);
-        }
-
-        if (!$this->decoratorHelper instanceof Decorator) {
-            $this->decoratorHelper = new Decorator();
-            $this->decoratorHelper->setView($this->getView());
-        }
-
-        return $this->decoratorHelper;
-    }
-
-    /**
-     * @param ElementInterface $element
-     * @param FormInterface $form
-     * @return array
-     */
-    protected function getDecorators(ElementInterface $element, FormInterface $form = null)
-    {
-        $decorators = (array) $element->getOption($this->getDecoratorNamespace());
-
-        $helper = $this->getElementHelper();
-        if ($helper instanceof DecoratorProviderInterface) {
-            $decorators = array_replace_recursive(
-                $helper->getDecoratorSpecification($element, $form),
-                $decorators
-            );
-        }
-
-        return $decorators;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDecoratorNamespace()
-    {
-        return $this->decoratorNamespace;
     }
 
     /**
