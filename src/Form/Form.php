@@ -10,7 +10,8 @@
 
 namespace CmsCommon\Form;
 
-use Zend\Captcha\AdapterInterface,
+use Traversable,
+    Zend\Captcha\AdapterInterface,
     Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerAwareTrait,
     Zend\Filter\FilterChain,
@@ -423,8 +424,9 @@ class Form extends ZendForm implements
 
         if (!is_array($data)) {
             throw new Exception\InvalidArgumentException(sprintf(
-                '%s expects an array or Traversable argument; received "%s"',
+                '%s expects an array or %s argument; received "%s"',
                 __METHOD__,
+                Traversable::class,
                 (is_object($data) ? get_class($data) : gettype($data))
             ));
         }

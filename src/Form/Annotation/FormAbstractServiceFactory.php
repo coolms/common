@@ -65,8 +65,18 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
 
         $services   = $formElements->getServiceLocator();
         $builder    = $this->getAnnotationBuilder($services);
+        $formSpec   = ArrayUtils::iteratorToArray($builder->getFormSpecification($requestedName));
+        $config     = $this->getConfig($services);
 
-        $formSpec = ArrayUtils::iteratorToArray($builder->getFormSpecification($requestedName));
+        foreach ($config as $name => $spec) {
+            if (interface_exists($name) && $requestedName instanceof $name) {
+                $formSpec = array_replace_recursive($formSpec, $spec);
+            }
+        }
+
+        if (!empty($config[$requestedName])) {
+            $formSpec = array_replace_recursive($formSpec, (array) $config[$requestedName]);
+        }
 
         if (isset($formSpec['options'])) {
             $formSpec['options'] = array_replace_recursive($formSpec['options'], $this->creationOptions);
@@ -83,12 +93,6 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
         }
         if (!isset($formSpec['options']['use_input_filter_defaults'])) {
             $formSpec['options']['use_input_filter_defaults'] = true;
-        }
-
-        foreach ($this->getConfig($services) as $name => $spec) {
-            if (interface_exists($name) && is_subclass_of($requestedName, $name, true)) {
-                $formSpec = array_replace_recursive($formSpec, $spec);
-            }
         }
 
         $this->config[$requestedName] = $formSpec;
