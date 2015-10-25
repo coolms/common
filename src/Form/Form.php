@@ -78,6 +78,11 @@ class Form extends ZendForm implements
     protected $objectInputFilter;
 
     /**
+     * @var array
+     */
+    protected $elementGroup = [];
+
+    /**
      * @var string
      */
     private $captchaElementName;
@@ -351,9 +356,17 @@ class Form extends ZendForm implements
             }
         }
 
-        $this->removeFieldsetElementGroup($group, $this)->setValidationGroup($group);
+        $this->elementGroup = $group;
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getElementGroup()
+    {
+        return $this->elementGroup;
     }
 
     /**
@@ -389,6 +402,19 @@ class Form extends ZendForm implements
     /**
      * {@inheritDoc}
      */
+    protected function applyElementGroup()
+    {
+        if ($group = $this->getElementGroup()) {
+            $this->removeFieldsetElementGroup($group, $this)
+                ->setValidationGroup($group);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function setData($data)
     {
         if ($data instanceof \Traversable) {
@@ -415,6 +441,16 @@ class Form extends ZendForm implements
     public function hasData()
     {
         return $this->hasData;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function prepare()
+    {
+        $this->applyElementGroup();
+
+        return parent::prepare();
     }
 
     /**
