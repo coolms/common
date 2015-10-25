@@ -93,9 +93,10 @@ class Factory extends InputFilterFactory
                         if (!is_array($value) && !$value instanceof Traversable) {
                             throw new Exception\RuntimeException(sprintf(
                                 '%s expects the value associated with "validators" '
-                                    . 'to be an array/Traversable of validators or validator specifications, '
+                                    . 'to be an array/%s of validators or validator specifications, '
                                     . 'or a %s; received "%s"',
                                 __METHOD__,
+                                Traversable::class,
                                 ValidatorChain::class,
                                 (is_object($value) ? get_class($value) : gettype($value))
                             ));
@@ -114,9 +115,10 @@ class Factory extends InputFilterFactory
                         if (!is_array($value) && !$value instanceof Traversable) {
                             throw new Exception\RuntimeException(sprintf(
                                 '%s expects the value associated with "filters" '
-                                    . 'to be an array/Traversable of filters or filter specifications, '
+                                    . 'to be an array/%s of filters or filter specifications, '
                                     . 'or a %s; received "%s"',
                                 __METHOD__,
+                                Traversable::class,
                                 FilterChain::class,
                                 (is_object($value) ? get_class($value) : gettype($value))
                             ));

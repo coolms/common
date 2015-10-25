@@ -28,9 +28,9 @@ class RouterCacheOptionsFactory implements FactoryInterface
     {
         $config = $serviceLocator->get('Config');
         return new RouterCacheOptions(
-            isset($config['router'])
-                ? $config['router']
-                : null
+                isset($config['router'])
+                    ? $config['router']
+                    : null
             );
     }
 }

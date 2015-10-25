@@ -33,6 +33,7 @@ class Number extends BaseNumber
     {
         $inputSpec = parent::getInputSpecification();
         $inputSpec['allow_empty'] = true;
+
         return $inputSpec;
     }
 }

@@ -95,7 +95,9 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface, Tr
                 );
             }
 
-            if (!array_key_exists('placement', $options) && $plugin instanceof PlacedDecoratorInterface) {
+            if (!array_key_exists('placement', $options) &&
+                $plugin instanceof PlacedDecoratorInterface
+            ) {
                 $options['placement'] = $plugin->getPlacement();
             }
 

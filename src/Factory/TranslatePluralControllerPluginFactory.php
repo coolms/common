@@ -29,6 +29,7 @@ class TranslatePluralControllerPluginFactory implements FactoryInterface
         $services = $serviceLocator->getServiceLocator();
         /* @var $translator \Zend\Mvc\I18n\Translator */
         $translator = $services->get('MvcTranslator');
+
         return new TranslatePlural($translator);
     }
 }

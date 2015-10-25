@@ -65,6 +65,7 @@ class Fieldset extends HtmlContainer implements TranslatorAwareInterface
     ) {
         $legendHelper = $this->getLegendHelper();
         $content = $this->renderTranslated($legendHelper, $element, [], $element, $form) . $content;
+
         return parent::render($content, $attribs);
     }
 

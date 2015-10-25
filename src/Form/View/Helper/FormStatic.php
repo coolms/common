@@ -10,8 +10,9 @@
 
 namespace CmsCommon\Form\View\Helper;
 
-use Zend\Form\ElementInterface as Element;
-use Zend\Form\View\Helper\FormInput;
+use DateTime,
+    Zend\Form\ElementInterface as Element,
+    Zend\Form\View\Helper\FormInput;
 
 class FormStatic extends FormInput
 {
@@ -26,7 +27,7 @@ class FormStatic extends FormInput
 
         if (method_exists($element, '__toString')) {
             $value = $element;
-        } elseif (($value = $element->getValue()) instanceof \DateTime) {
+        } elseif (($value = $element->getValue()) instanceof DateTime) {
             /* @todo Localization */
             $value = $value->format('m-d-Y H:i:s');
         }

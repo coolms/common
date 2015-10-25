@@ -59,7 +59,9 @@ class FormSelect extends ZendFormSelect
                 $selected = true;
             }
 
-            if (empty($optionSpec['translator_disabled']) && null !== ($translator = $this->getTranslator())) {
+            if (empty($optionSpec['translator_disabled']) &&
+                null !== ($translator = $this->getTranslator())
+            ) {
                 $label = $translator->translate(
                     $label,
                     $this->getTranslatorTextDomain()

@@ -70,12 +70,14 @@ trait MessagesTrait
             $messages = $this->messages;
             foreach ($this->iterator as $name => $element) {
                 $messageSet = $element->getMessages();
-                if (!is_array($messageSet)
-                    && !$messageSet instanceof Traversable
-                    || empty($messageSet)) {
-                        continue;
-                    }
-                    $messages[$name] = $messageSet;
+                if (!is_array($messageSet) &&
+                    !$messageSet instanceof Traversable ||
+                    empty($messageSet)
+                ) {
+                    continue;
+                }
+
+                $messages[$name] = $messageSet;
             }
 
             return $messages;

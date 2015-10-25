@@ -79,23 +79,24 @@ trait AnnotationBuilderTrait
         $name   = $this->discoverName($annotations, $reflection);
 
         $elementSpec = new ArrayObject([
-            'flags' => [],
-            'spec'  => [
-                'name' => $name
-            ],
-        ]);
+                'flags' => [],
+                'spec'  => [
+                    'name' => $name
+                ],
+            ]);
+
         $inputSpec = new ArrayObject([
-            'name' => $name,
-        ]);
+                'name' => $name,
+            ]);
 
         $event = new Event();
         $event->setParams([
-            'name'        => $name,
-            'elementSpec' => $elementSpec,
-            'inputSpec'   => $inputSpec,
-            'formSpec'    => $formSpec,
-            'filterSpec'  => $filterSpec,
-        ]);
+                'name'        => $name,
+                'elementSpec' => $elementSpec,
+                'inputSpec'   => $inputSpec,
+                'formSpec'    => $formSpec,
+                'filterSpec'  => $filterSpec,
+            ]);
 
         foreach ($annotations as $annotation) {
             $event->setParam('annotation', $annotation);

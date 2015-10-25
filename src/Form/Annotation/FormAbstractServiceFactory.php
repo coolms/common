@@ -39,7 +39,9 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
     public function canCreateServiceWithName(ServiceLocatorInterface $formElements, $name, $requestedName)
     {
         if (!$formElements instanceof AbstractPluginManager) {
-            throw new \BadMethodCallException('This abstract factory is meant to be used only with a plugin manager');
+            throw new \BadMethodCallException(
+                'This abstract factory is meant to be used only with a plugin manager'
+            );
         }
 
         $services = $formElements->getServiceLocator();
@@ -60,7 +62,10 @@ class FormAbstractServiceFactory extends CommonFormAbstractServiceFactory implem
     public function createServiceWithName(ServiceLocatorInterface $formElements, $name, $requestedName)
     {
         if (!$this->canCreateServiceWithName($formElements, $name, $requestedName)) {
-            throw new \BadMethodCallException("This abstract factory can't create form for $requestedName");
+            throw new \BadMethodCallException(sprintf(
+                'This abstract factory can\'t create form for %s',
+                $requestedName
+            ));
         }
 
         $services   = $formElements->getServiceLocator();

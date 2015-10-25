@@ -28,7 +28,9 @@ class DomainServiceAbstractServiceFactory implements AbstractFactoryInterface, M
     public function canCreateServiceWithName(ServiceLocatorInterface $domainServices, $name, $requestedName)
     {
         if (!$domainServices instanceof AbstractPluginManager) {
-            throw new \BadMethodCallException('Domain service abstract factory is meant to be used only with a plugin manager');
+            throw new \BadMethodCallException(
+                'Domain service abstract factory is meant to be used only with a plugin manager'
+            );
         }
 
         $services = $domainServices->getServiceLocator();
@@ -42,11 +44,14 @@ class DomainServiceAbstractServiceFactory implements AbstractFactoryInterface, M
     public function createServiceWithName(ServiceLocatorInterface $domainServices, $name, $requestedName)
     {
         if (!$this->canCreateServiceWithName($domainServices, $name, $requestedName)) {
-            throw new \BadMethodCallException('Domain service abstract factory can\'t create service for "'
-                . $requestedName . '"');
+            throw new \BadMethodCallException(sprintf(
+                'Domain service abstract factory can\'t create service for "%s"',
+                $requestedName
+            ));
         }
 
         $this->creationOptions['class_name'] = $requestedName;
+
         return new DomainService($this->creationOptions, $domainServices);
     }
 

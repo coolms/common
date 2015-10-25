@@ -31,9 +31,11 @@ class FormElementErrorsFactory implements FactoryInterface
             if (isset($configHelper['message_open_format'])) {
                 $helper->setMessageOpenFormat($configHelper['message_open_format']);
             }
+
             if (isset($configHelper['message_separator_string'])) {
                 $helper->setMessageSeparatorString($configHelper['message_separator_string']);
             }
+
             if (isset($configHelper['message_close_string'])) {
                 $helper->setMessageCloseString($configHelper['message_close_string']);
             }

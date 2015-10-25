@@ -25,6 +25,7 @@ class ParamsFactory implements FactoryInterface
     {
         $services = $viewHelpers->getServiceLocator();
         $app = $services->get('Application');
+
         return new Params($app->getRequest(), $app->getMvcEvent());
     }
 }

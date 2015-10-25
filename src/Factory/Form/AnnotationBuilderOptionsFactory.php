@@ -27,6 +27,7 @@ class AnnotationBuilderOptionsFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get('Config');
+
         return new FormAnnotationBuilder(
             isset($config['form_annotation_builder'])
                 ? $config['form_annotation_builder']

@@ -41,11 +41,10 @@ class AnnotationBuilder extends ZendAnnotationBuilder implements StorageProvider
      */
     public function getFormFactory()
     {
-        if ($this->formFactory) {
-            return $this->formFactory;
+        if (null === $this->formFactory) {
+            $this->setFormFactory(new Factory());
         }
 
-        $this->formFactory = new Factory();
         return $this->formFactory;
     }
 }

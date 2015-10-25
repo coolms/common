@@ -43,7 +43,11 @@ trait TranslatorTrait
                 Translator::EVENT_MISSING_TRANSLATION,
                 function($e) use ($translator, $fallbackTextDomain) {
                     if ($e->getParam('text_domain') !== $fallbackTextDomain) {
-                        return $translator->translate($e->getParam('message'), $fallbackTextDomain, $e->getParam('locale'));
+                        return $translator->translate(
+                                $e->getParam('message'),
+                                $fallbackTextDomain,
+                                $e->getParam('locale')
+                            );
                     }
 
                     return $e->getParam('message');

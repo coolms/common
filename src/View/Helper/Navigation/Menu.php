@@ -56,6 +56,7 @@ class Menu extends ZendMenu
             $container,
             RecursiveIteratorIterator::SELF_FIRST
         );
+
         if (is_int($maxDepth)) {
             $iterator->setMaxDepth($maxDepth);
         }
@@ -78,11 +79,12 @@ class Menu extends ZendMenu
                     } elseif ($foundPage->getParent()->hasPage($page)) {
                         // page is a sibling of the active page...
                         if (!$foundPage->hasPages(!$this->renderInvisible) ||
-                            is_int($maxDepth) && $foundDepth + 1 > $maxDepth) {
-                                // accept if active page has no children, or the
-                                // children are too deep to be rendered
-                                $accept = true;
-                            }
+                            is_int($maxDepth) && $foundDepth + 1 > $maxDepth
+                        ) {
+                            // accept if active page has no children, or the
+                            // children are too deep to be rendered
+                            $accept = true;
+                        }
                     }
                 }
 
@@ -97,11 +99,7 @@ class Menu extends ZendMenu
 
             if ($depth > $prevDepth) {
                 // start new ul tag
-                if ($ulClass) {
-                    $ulClass = ' class="' . $escaper($ulClass) . '"';
-                } else {
-                    $ulClass = '';
-                }
+                $ulClass = $ulClass ? ' class="' . $escaper($ulClass) . '"' : '';
                 $html .= $myIndent . '<ul' . $ulClass . '>' . PHP_EOL;
             } elseif ($prevDepth > $depth) {
                 // close li/ul tags until we're at current depth
@@ -110,6 +108,7 @@ class Menu extends ZendMenu
                     $html .= $ind . '    </li>' . PHP_EOL;
                     $html .= $ind . '</ul>' . PHP_EOL;
                 }
+
                 // close previous li tag
                 $html .= $myIndent . '    </li>' . PHP_EOL;
             } else {
@@ -118,15 +117,17 @@ class Menu extends ZendMenu
             }
 
             // render li tag and page
-            $liClasses = array();
+            $liClasses = [];
             // Is page active?
             if ($isActive) {
                 $liClasses[] = $liActiveClass;
             }
+
             // Add CSS class from page to <li>
             if ($addClassToListItem && $page->getClass()) {
                 $liClasses[] = $page->getClass();
             }
+
             $liClass = empty($liClasses) ? '' : ' class="' . $escaper(implode(' ', $liClasses)) . '"';
 
             $html .= $myIndent . '    <li' . $liClass . '>' . PHP_EOL
@@ -145,6 +146,7 @@ class Menu extends ZendMenu
                 $html .= $myIndent . '    </li>' . PHP_EOL
                 . $myIndent . '</ul>' . PHP_EOL;
             }
+
             $html = rtrim($html, PHP_EOL);
         }
 
@@ -184,6 +186,7 @@ class Menu extends ZendMenu
             if (method_exists($helper, 'setTranslatorTextDomain')) {
                 $helper->setTranslatorTextDomain($page->getTextDomain());
             }
+
             $label = $helper();
         } elseif ($label = $page->getLabel()) {
             $label = $this->translate($label, $page->getTextDomain());
@@ -192,7 +195,7 @@ class Menu extends ZendMenu
         $html = '';
         if ($label) {
             if ($escapeLabel === true) {
-                /** @var \Zend\View\Helper\EscapeHtml $escaper */
+                /* @var $escaper \Zend\View\Helper\EscapeHtml */
                 $escaper = $this->view->plugin('escapeHtml');
                 $html .= $escaper($label);
             } else {
@@ -215,6 +218,7 @@ class Menu extends ZendMenu
         }
 
         $html = '<' . $element . $this->htmlAttribs($attribs) . '>' . $html . '</' . $element . '>';
+
         return $html;
     }
 
