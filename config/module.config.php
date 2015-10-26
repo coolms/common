@@ -238,6 +238,7 @@ return [
         'invokables' => [
             'Callback' => 'CmsCommon\Validator\Callback',
             'Date' => 'CmsCommon\Validator\Date',
+            'LocaleCode' => 'CmsCommon\Validator\LocaleCode',
         ],
     ],
     'view_helpers' => [

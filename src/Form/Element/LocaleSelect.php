@@ -113,7 +113,7 @@ class LocaleSelect extends ZendSelect
     {
         if (null === $this->validator) {
             $this->validator = [
-                //'name' => 'LocaleCode',
+                'name' => 'LocaleCode',
             ];
         }
 

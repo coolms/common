@@ -173,6 +173,7 @@ return array(
     'CmsCommon\Stdlib\OptionsProviderTrait'                                 => __DIR__ . '/src/Stdlib/OptionsProviderTrait.php',
     'CmsCommon\Validator\Callback'                                          => __DIR__ . '/src/Validator/Callback.php',
     'CmsCommon\Validator\Date'                                              => __DIR__ . '/src/Validator/Date.php',
+    'CmsCommon\Validator\LocaleCode'                                        => __DIR__ . '/src/Validator/LocaleCode.php',
     'CmsCommon\View\AcceptStrategy'                                         => __DIR__ . '/src/View/AcceptStrategy.php',
     'CmsCommon\View\Exception\ExceptionInterface'                           => __DIR__ . '/src/View/Exception/ExceptionInterface.php',
     'CmsCommon\View\Exception\InvalidArgumentException'                     => __DIR__ . '/src/View/Exception/InvalidArgumentException.php',
