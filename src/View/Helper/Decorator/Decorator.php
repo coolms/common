@@ -17,6 +17,7 @@ use Zend\View\Helper\AbstractHelper,
     Zend\I18n\Translator\TranslatorAwareTrait,
     Zend\Stdlib\ArrayUtils,
     CmsCommon\View\Helper\HtmlContainer;
+use Zend\ServiceManager\Exception\ServiceNotFoundException;
 
 class Decorator extends AbstractHelper implements EventManagerAwareInterface, TranslatorAwareInterface
 {
@@ -197,7 +198,12 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface, Tr
      */
     protected function getDecoratorHelper($name)
     {
-        $plugin = $this->getView()->plugin($name);
+        try {
+            $plugin = $this->getView()->plugin($name);
+        } catch (ServiceNotFoundException $e) {
+            return null;
+        }
+
         if (!$plugin instanceof HtmlContainer) {
             throw new \RuntimeException(sprintf(
                 'Decorator plugin must be of type %s; %s given',

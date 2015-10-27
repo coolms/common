@@ -10,19 +10,19 @@ CmsCommon.Form = {};
 		addFieldset: function(button, placement) {
 			var fieldset = $(button).closest("fieldset"),
 				template = fieldset.find(">span").data("template"),
-				elements = fieldset.find(">[data-counter]");
+				elements = fieldset.find(">[data-counter]"),
+				minMax = this.minMaxCounter(elements);
 
-			if (!elements.length) {
-				return false;
-			}
-
-			var minMax = this.minMaxCounter(elements);
-
+			console.log(minMax);
 			template = template.replace(/__index__|--index--/g, minMax.max === null ? 0 : minMax.max + 1);
 			if (!placement || placement === "append") {
 				fieldset.append(template);
 			} else {
-				var prepended = $(">input[type=hidden]", fieldset) || $(">legend", fieldset);
+				var prepended = $(">input[type=hidden]", fieldset);
+				if (!prepended.length) {
+					prepended = $(">legend", fieldset);
+				}
+
 				if (prepended) {
 					prepended.after(template);
 				} else {
@@ -41,11 +41,13 @@ CmsCommon.Form = {};
 
 		minMaxCounter: function(selector)  {
 			var min = null, max = null;
-			$(selector).each(function() {
-				var id = parseInt($(this).data("counter"), 10);
-			    if ((min===null) || (id < min)) { min = id; }
-			    if ((max===null) || (id > max)) { max = id; }
-			});
+			if (selector.length) {
+				$(selector).each(function() {
+					var id = parseInt($(this).data("counter"), 10);
+				    if ((min===null) || (id < min)) { min = id; }
+				    if ((max===null) || (id > max)) { max = id; }
+				});
+			}
 
 			return {min: min, max: max};
 		}

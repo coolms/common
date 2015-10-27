@@ -170,7 +170,7 @@ class Form extends ZendForm implements
         }
 
         if (isset($options['element_group'])) {
-            $this->setElementGroup($options['element_group']);
+            $this->setElementGroup($options['element_group'], false);
         }
 
         return $this;
@@ -328,8 +328,19 @@ class Form extends ZendForm implements
             ));
         }
 
+        $applyElementGroup = true;
+
         $argv = func_get_args();
-        $group = $argc > 1 ? $argv : array_shift($argv);
+        if ($argc > 1) {
+            if (is_bool($argv[1])) {
+                $group = $argv[0];
+                $applyElementGroup = $argv[1];
+            } else {
+                $group = $argv;
+            }
+        } else {
+            $group = array_shift($argv);
+        }
 
         if ($this->has($this->getCaptchaElementName())) {
             $name = $this->getCaptchaElementName();
@@ -359,6 +370,10 @@ class Form extends ZendForm implements
 
         $this->elementGroup = $group;
 
+        if ($applyElementGroup) {
+            $this->applyElementGroup();
+        }
+
         return $this;
     }
 
@@ -368,6 +383,21 @@ class Form extends ZendForm implements
     public function getElementGroup()
     {
         return $this->elementGroup;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function applyElementGroup()
+    {
+        if ($group = $this->getElementGroup()) {
+            $this->removeFieldsetElementGroup($group, $this)
+                ->setValidationGroup($group);
+
+            $this->elementGroup = [];
+        }
+
+        return $this;
     }
 
     /**
@@ -395,19 +425,6 @@ class Form extends ZendForm implements
             if (!in_array($name, $group) && !array_key_exists($name, $group)) {
                 $fieldset->remove($name);
             }
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function applyElementGroup()
-    {
-        if ($group = $this->getElementGroup()) {
-            $this->removeFieldsetElementGroup($group, $this)
-                ->setValidationGroup($group);
         }
 
         return $this;
