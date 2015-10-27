@@ -10,7 +10,13 @@ CmsCommon.Form = {};
 		addFieldset: function(button, placement) {
 			var fieldset = $(button).closest("fieldset"),
 				template = fieldset.find(">span").data("template"),
-				minMax = this.minMaxCounter(fieldset.find(">[data-counter]"));
+				elements = fieldset.find(">[data-counter]");
+
+			if (!elements.length) {
+				return false;
+			}
+
+			var minMax = this.minMaxCounter(elements);
 
 			template = template.replace(/__index__|--index--/g, minMax.max === null ? 0 : minMax.max + 1);
 			if (!placement || placement === "append") {

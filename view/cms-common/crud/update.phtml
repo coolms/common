@@ -16,4 +16,5 @@ $options = $this->options;
 $this->form->setOption('render_mode', 'dynamic');
 
 ?>
-<?= $this->render($options->getFormTemplate());
+<?= $this->formPanel($this->form);
+//$this->render($options->getFormTemplate());
