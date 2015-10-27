@@ -194,14 +194,14 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface, Tr
     /**
      * @param string $name
      * @throws \RuntimeException
-     * @return HtmlContainer
+     * @return null|HtmlContainer
      */
     protected function getDecoratorHelper($name)
     {
         try {
             $plugin = $this->getView()->plugin($name);
         } catch (ServiceNotFoundException $e) {
-            return null;
+            return;
         }
 
         if (!$plugin instanceof HtmlContainer) {
