@@ -33,6 +33,7 @@ use Traversable,
     Zend\Stdlib\PriorityList,
     CmsCommon\Form\Element\StaticElement,
     CmsCommon\Form\Options\Traits\FormOptionsTrait;
+use Zend\Form\FormInterface as ZendFormInterface;
 
 class Form extends ZendForm implements
         FormInterface,
@@ -468,8 +469,44 @@ class Form extends ZendForm implements
     public function prepare()
     {
         $this->applyElementGroup();
+        $this->replaceUploadableElement($this, $this->getInputFilter());
 
         return parent::prepare();
+    }
+
+    /**
+     * @param FieldsetInterface $fieldset
+     * @param InputFilterInterface $inputFilter
+     */
+    protected function replaceUploadableElement(FieldsetInterface $fieldset, InputFilterInterface $inputFilter = null)
+    {
+        foreach ($fieldset as $name => $elementOrFieldset) {
+            if ($elementOrFieldset instanceof Collection) {
+                $elementOrFieldset = $elementOrFieldset->getTargetElement();
+            }
+
+            if (!$elementOrFieldset->getValue() && ($spec = $elementOrFieldset->getOption('uploadElement'))) {
+                $flags['priority'] = $fieldset->getIterator()->toArray(PriorityList::EXTR_PRIORITY)[$name];
+                $fieldset->remove($name);
+                if ($inputFilter && $inputFilter->has($name)) {
+                    $inputFilter->remove($name);
+                }
+
+                if (is_string($spec)) {
+                    $spec = [
+                        'type' => $spec,
+                    ];
+                }
+
+                $spec['name'] = $name;
+                $fieldset->add($spec, $flags);
+            }
+
+            if ($elementOrFieldset instanceof FieldsetInterface) {
+                $filter = $inputFilter && $inputFilter->has($name) ? $inputFilter->get($name) : null;
+                $this->replaceUploadableElement($elementOrFieldset, $filter);
+            }
+        }
     }
 
     /**
