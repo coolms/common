@@ -451,8 +451,12 @@ class Form extends ZendForm implements
 
         $this->hasData = true;
 
+        $this->applyElementGroup();
+
         $data = self::filterFormData($this, $data);
-        return parent::setData($data);
+        parent::setData($data);
+
+        return $this;
     }
 
     /**
@@ -481,32 +485,41 @@ class Form extends ZendForm implements
     protected function replaceUploadableElement(FieldsetInterface $fieldset, InputFilterInterface $inputFilter = null)
     {
         foreach ($fieldset as $name => $elementOrFieldset) {
-            if ($elementOrFieldset instanceof Collection) {
-                $elementOrFieldset = $elementOrFieldset->getTargetElement();
+            if ($elementOrFieldset instanceof FieldsetInterface) {
+                if ($elementOrFieldset instanceof Collection) {
+                    foreach ($elementOrFieldset as $collection) {
+                        $this->replaceUploadableElement($elementOrFieldset);
+                    }
+
+                    $elementOrFieldset = $elementOrFieldset->getTargetElement();
+                }
+
+                $filter = $inputFilter && $inputFilter->has($name) ? $inputFilter->get($name) : null;
+                $this->replaceUploadableElement($elementOrFieldset, $filter);
             }
 
-            if (!$elementOrFieldset->getValue() && ($spec = $elementOrFieldset->getOption('uploadElement'))) {
-                $flags['priority'] = $fieldset->getIterator()->toArray(PriorityList::EXTR_PRIORITY)[$name];
+            $uploadElement = $elementOrFieldset->getOption('uploadElement');
+            if ($fieldset->has($uploadElement)) {
+                $value = $fieldset->get($uploadElement)->getValue();
+                if ($value && array_filter($value)) {
+                    $name = $uploadElement;
+                }
+
                 $fieldset->remove($name);
                 if ($inputFilter && $inputFilter->has($name)) {
                     $inputFilter->remove($name);
                 }
-
-                if (is_string($spec)) {
-                    $spec = [
-                        'type' => $spec,
-                    ];
-                }
-
-                $spec['name'] = $name;
-                $fieldset->add($spec, $flags);
-            }
-
-            if ($elementOrFieldset instanceof FieldsetInterface) {
-                $filter = $inputFilter && $inputFilter->has($name) ? $inputFilter->get($name) : null;
-                $this->replaceUploadableElement($elementOrFieldset, $filter);
             }
         }
+    }
+
+    public function bindValues(array $values = [])
+    {
+        parent::bindValues($values);
+        
+        $this->replaceUploadableElement($this, $this->getInputFilter());
+        
+        return $this;
     }
 
     /**
