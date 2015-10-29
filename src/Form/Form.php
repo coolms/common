@@ -35,6 +35,7 @@ use Traversable,
     CmsCommon\Form\Options\Traits\FormOptionsTrait;
 use Zend\Form\FormInterface as ZendFormInterface;
 use Zend\Stdlib\Hydrator\ClassMethods;
+use Zend\Stdlib\Hydrator\ObjectProperty;
 
 class Form extends ZendForm implements
         FormInterface,
@@ -450,16 +451,27 @@ class Form extends ZendForm implements
             ));
         }
 
-        $this->hasData = true;
-
-        $this->applyElementGroup();
+        if (!$this->hasData) {
+            $this->applyElementGroup();
+            //$this->replaceUploadableElement($this, $this->getInputFilter());
+        }
 
         $data = self::filterFormData($this, $data);
         parent::setData($data);
 
         $this->replaceUploadableElement($this, $this->getInputFilter());
+        
+        $this->hasData = true;
 
         return $this;
+    }
+
+    public function getData($flag = FormInterface::VALUES_NORMALIZED)
+    {
+        //$this->replaceUploadableElement($this, $this->getInputFilter());
+        $data = parent::getData($flag);
+        
+        return $data;
     }
 
     /**
@@ -476,7 +488,7 @@ class Form extends ZendForm implements
     public function prepare()
     {
         $this->applyElementGroup();
-        $this->replaceUploadableElement($this, $this->getInputFilter());
+        //$this->replaceUploadableElement($this, $this->getInputFilter());
 
         return parent::prepare();
     }
@@ -485,44 +497,51 @@ class Form extends ZendForm implements
      * @param FieldsetInterface $fieldset
      * @param InputFilterInterface $inputFilter
      */
-    protected function replaceUploadableElement(FieldsetInterface $fieldset, InputFilterInterface $inputFilter = null)
+    protected function replaceUploadableElement(FieldsetInterface $fieldset, InputFilterInterface $inputFilter)
     {
-        foreach ($fieldset as $name => $elementOrFieldset) {
+        /*foreach ($fieldset as $name => $elementOrFieldset) {
             if ($elementOrFieldset instanceof FieldsetInterface) {
                 if ($elementOrFieldset instanceof Collection) {
-                    foreach ($elementOrFieldset as $collection) {
-                        $this->replaceUploadableElement($elementOrFieldset);
+                    $filter = $inputFilter->get($name)->getInputFilter();
+                    foreach ($elementOrFieldset as $key => $collection) {
+                        $this->replaceUploadableElement($collection, $filter);
                     }
 
-                    $elementOrFieldset = $elementOrFieldset->getTargetElement();
+                    $target = $elementOrFieldset->getTargetElement();
+                    $this->replaceUploadableElement($target, $filter);
+                } elseif ($inputFilter->has($name)) {
+                    $filter = $inputFilter->get($name);
+                    $this->replaceUploadableElement($elementOrFieldset, $filter);
                 }
-
-                $filter = $inputFilter && $inputFilter->has($name) ? $inputFilter->get($name) : null;
-                $this->replaceUploadableElement($elementOrFieldset, $filter);
             }
 
-            $uploadElement = $elementOrFieldset->getOption('uploadElement');
-            if ($fieldset->has($uploadElement) && ($object = $fieldset->getObject())) {
-                //$objectData = $hydrator->extract($object);
-                //$value = $fieldset->get($uploadElement)->getValue();
-                if ($object->getImage()) {
-                    exit;
+            if ($uploadElement = $elementOrFieldset->getOption('uploadElement')) {
+                $objectData = $inputFilter->getValues();
+                if (!empty($objectData[$name]['name'])) {
                     $name = $uploadElement;
                 }
 
-                $fieldset->remove($name);
-                if ($inputFilter && $inputFilter->has($name)) {
+                if ($inputFilter->has($name)) {
                     $inputFilter->remove($name);
                 }
+                if ($fieldset->has($name)) {
+                    $fieldset->remove($name);
+                }
             }
-        }
+        }*/
+    }
+
+    public function rm(ElementInterface $el, FieldsetInterface $fl, InputFilterInterface $if = null)
+    {
+        
     }
 
     public function bindValues(array $values = [])
     {
+        $this->replaceUploadableElement($this, $this->getInputFilter());
         parent::bindValues($values);
         
-        $this->replaceUploadableElement($this, $this->getInputFilter());
+        //$this->replaceUploadableElement($this, $this->getInputFilter());
         
         return $this;
     }
