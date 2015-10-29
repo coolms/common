@@ -34,6 +34,7 @@ use Traversable,
     CmsCommon\Form\Element\StaticElement,
     CmsCommon\Form\Options\Traits\FormOptionsTrait;
 use Zend\Form\FormInterface as ZendFormInterface;
+use Zend\Stdlib\Hydrator\ClassMethods;
 
 class Form extends ZendForm implements
         FormInterface,
@@ -456,6 +457,8 @@ class Form extends ZendForm implements
         $data = self::filterFormData($this, $data);
         parent::setData($data);
 
+        $this->replaceUploadableElement($this, $this->getInputFilter());
+
         return $this;
     }
 
@@ -499,9 +502,11 @@ class Form extends ZendForm implements
             }
 
             $uploadElement = $elementOrFieldset->getOption('uploadElement');
-            if ($fieldset->has($uploadElement)) {
-                $value = $fieldset->get($uploadElement)->getValue();
-                if ($value && array_filter($value)) {
+            if ($fieldset->has($uploadElement) && ($object = $fieldset->getObject())) {
+                //$objectData = $hydrator->extract($object);
+                //$value = $fieldset->get($uploadElement)->getValue();
+                if ($object->getImage()) {
+                    exit;
                     $name = $uploadElement;
                 }
 
