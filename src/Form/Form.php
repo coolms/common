@@ -372,65 +372,173 @@ class Form extends ZendForm implements
         }
 
         $this->elementGroup = $group;
+        $this->setValidationGroup($group);
 
         if ($applyElementGroup) {
-            $this->applyElementGroup();
+            $this->applyElementGroup($group, $this);
         }
 
         return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getElementGroup()
-    {
-        return $this->elementGroup;
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function applyElementGroup()
+    protected function prepareValidationGroup(FieldsetInterface $formOrFieldset, array $data, array &$validationGroup)
     {
-        if ($group = $this->getElementGroup()) {
-            $this->removeFieldsetElementGroup($group, $this)
-                ->setValidationGroup($group);
-
-            $this->elementGroup = [];
-        }
-
-        return $this;
+        $validationGroup = $this->normalizeValidationGroup($formOrFieldset, $validationGroup);
+        return parent::prepareValidationGroup($formOrFieldset, $data, $validationGroup);
     }
 
     /**
-     * @param array $group
      * @param FieldsetInterface $fieldset
-     * @return self
+     * @param array $group
+     * @return array
      */
-    private function removeFieldsetElementGroup(array $group, FieldsetInterface $fieldset)
+    protected function normalizeValidationGroup(FieldsetInterface $fieldset, array $group)
     {
         $elements = ArrayUtils::iteratorToArray($fieldset, false);
+        if (!$group) {
+            $group = array_keys($elements);
+        }
+
         foreach ($elements as $name => $fieldsetOrElement) {
+            if ($uploadElement = $fieldsetOrElement->getOption('uploadElement')) {
+                $element = $fieldsetOrElement->getValue() ? $uploadElement : $name;
+            } elseif ($fieldsetOrElement instanceof StaticElement) {
+                $element = $name;
+            } else {
+                $element = null;
+            }
+
+            if (null !== $element) {
+                if (isset($group[$element])) {
+                    unset($group[$element]);
+                }
+
+                foreach (array_keys($group, $element, true) as $key) {
+                    unset($group[$key]);
+                }
+            }
+
             if ($fieldsetOrElement instanceof Collection) {
-                if (!empty($group[$name]) && $fieldsetOrElement->shouldCreateTemplate()) {
-                    $this->removeFieldsetElementGroup($group[$name], $fieldsetOrElement->getTemplateElement());
+                if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
+                    foreach ($keys as $key) {
+                        unset($group[$key]);
+                    }
+
+                    $group[$name] = [];
+                }
+
+                if (isset($group[$name]) && $fieldsetOrElement->shouldCreateTemplate()) {
+                    $group[$name] = $this->normalizeValidationGroup(
+                        $fieldsetOrElement->getTemplateElement(),
+                        $group[$name]
+                    );
                 }
 
                 $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
             }
 
-            if (!empty($group[$name]) && $fieldsetOrElement instanceof FieldsetInterface) {
-                $this->removeFieldsetElementGroup($group[$name], $fieldsetOrElement);
-                continue;
-            }
+            if ($fieldsetOrElement instanceof FieldsetInterface) {
+                if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
+                    foreach ($keys as $key) {
+                        unset($group[$key]);
+                    }
 
-            if (!in_array($name, $group) && !array_key_exists($name, $group)) {
-                $fieldset->remove($name);
+                    $group[$name] = [];
+                }
+
+                if (isset($group[$name])) {
+                    $group[$name] = $this->normalizeValidationGroup(
+                        $fieldsetOrElement,
+                        $group[$name]
+                    );
+                }
             }
         }
 
-        return $this;
+        return $group;
+    }
+
+    /**
+     * @param array $group
+     * @param FieldsetInterface $fieldset
+     */
+    protected function applyElementGroup(array $group, FieldsetInterface $fieldset)
+    {
+        $elements = ArrayUtils::iteratorToArray($fieldset, false);
+
+        if (empty($group)) {
+            $group = array_keys($elements);
+        } else {
+            $step = 10;
+            $priority = count($group) * $step;
+            foreach ($group as $key => $val) {
+                $fieldset->getIterator()->setPriority(
+                    is_string($val) ? $val : $key,
+                    $priority
+                );
+
+                $priority -= $step;
+            }
+        }
+
+        foreach ($elements as $name => $fieldsetOrElement) {
+            if ($uploadElement = $fieldsetOrElement->getOption('uploadElement')) {
+                $element = $fieldsetOrElement->getValue() ? $uploadElement : $name;
+
+                if (isset($group[$element])) {
+                    unset($group[$element]);
+                }
+
+                foreach (array_keys($group, $element, true) as $key) {
+                    unset($group[$key]);
+                }
+            }
+
+            if ($fieldsetOrElement instanceof Collection) {
+                if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
+                    foreach ($keys as $key) {
+                        unset($group[$key]);
+                    }
+
+                    $group[$name] = [];
+                }
+
+                if (isset($group[$name]) && $fieldsetOrElement->shouldCreateTemplate()) {
+                    $this->applyElementGroup(
+                        $group[$name],
+                        $fieldsetOrElement->getTemplateElement()
+                    );
+                }
+
+                $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
+            }
+
+            if ($fieldsetOrElement instanceof FieldsetInterface) {
+                if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
+                    foreach ($keys as $key) {
+                        unset($group[$key]);
+                    }
+
+                    $group[$name] = [];
+                }
+
+                if (isset($group[$name])) {
+                    $this->applyElementGroup(
+                        $group[$name],
+                        $fieldsetOrElement
+                    );
+
+                    continue;
+                }
+            }
+
+            if (!isset($group[$name]) && !in_array($name, $group, true)) {
+                $fieldset->remove($name);
+            }
+        }
     }
 
     /**
@@ -451,27 +559,11 @@ class Form extends ZendForm implements
             ));
         }
 
-        if (!$this->hasData) {
-            $this->applyElementGroup();
-            //$this->replaceUploadableElement($this, $this->getInputFilter());
-        }
-
-        $data = self::filterFormData($this, $data);
-        parent::setData($data);
-
-        $this->replaceUploadableElement($this, $this->getInputFilter());
-        
         $this->hasData = true;
 
-        return $this;
-    }
+        $data = self::filterFormData($this, $data);
 
-    public function getData($flag = FormInterface::VALUES_NORMALIZED)
-    {
-        //$this->replaceUploadableElement($this, $this->getInputFilter());
-        $data = parent::getData($flag);
-        
-        return $data;
+        return parent::setData($data);
     }
 
     /**
@@ -487,63 +579,8 @@ class Form extends ZendForm implements
      */
     public function prepare()
     {
-        $this->applyElementGroup();
-        //$this->replaceUploadableElement($this, $this->getInputFilter());
-
+        $this->applyElementGroup($this->elementGroup, $this);
         return parent::prepare();
-    }
-
-    /**
-     * @param FieldsetInterface $fieldset
-     * @param InputFilterInterface $inputFilter
-     */
-    protected function replaceUploadableElement(FieldsetInterface $fieldset, InputFilterInterface $inputFilter)
-    {
-        /*foreach ($fieldset as $name => $elementOrFieldset) {
-            if ($elementOrFieldset instanceof FieldsetInterface) {
-                if ($elementOrFieldset instanceof Collection) {
-                    $filter = $inputFilter->get($name)->getInputFilter();
-                    foreach ($elementOrFieldset as $key => $collection) {
-                        $this->replaceUploadableElement($collection, $filter);
-                    }
-
-                    $target = $elementOrFieldset->getTargetElement();
-                    $this->replaceUploadableElement($target, $filter);
-                } elseif ($inputFilter->has($name)) {
-                    $filter = $inputFilter->get($name);
-                    $this->replaceUploadableElement($elementOrFieldset, $filter);
-                }
-            }
-
-            if ($uploadElement = $elementOrFieldset->getOption('uploadElement')) {
-                $objectData = $inputFilter->getValues();
-                if (!empty($objectData[$name]['name'])) {
-                    $name = $uploadElement;
-                }
-
-                if ($inputFilter->has($name)) {
-                    $inputFilter->remove($name);
-                }
-                if ($fieldset->has($name)) {
-                    $fieldset->remove($name);
-                }
-            }
-        }*/
-    }
-
-    public function rm(ElementInterface $el, FieldsetInterface $fl, InputFilterInterface $if = null)
-    {
-        
-    }
-
-    public function bindValues(array $values = [])
-    {
-        $this->replaceUploadableElement($this, $this->getInputFilter());
-        parent::bindValues($values);
-        
-        //$this->replaceUploadableElement($this, $this->getInputFilter());
-        
-        return $this;
     }
 
     /**
