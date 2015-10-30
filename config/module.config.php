@@ -79,12 +79,17 @@ return [
         'aliases' => [
             'translate' => 'CmsCommon\Mvc\Controller\Plugin\Translate',
             'translatePlural' => 'CmsCommon\Mvc\Controller\Plugin\TranslatePlural',
+            'Zend\Mvc\Controller\Plugin\FilePostRedirectGet'
+                => 'CmsCommon\Mvc\Controller\Plugin\FilePostRedirectGet',
         ],
         'factories' => [
             'CmsCommon\Mvc\Controller\Plugin\Translate'
                 => 'CmsCommon\Factory\TranslateControllerPluginFactory',
             'CmsCommon\Mvc\Controller\Plugin\TranslatePlural'
                 => 'CmsCommon\Factory\TranslatePluralControllerPluginFactory',
+        ],
+        'invokables' => [
+            'filePRG' => 'CmsCommon\Mvc\Controller\Plugin\FilePostRedirectGet',
         ],
     ],
     'controllers' => [

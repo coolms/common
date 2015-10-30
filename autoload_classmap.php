@@ -132,6 +132,7 @@ return array(
     'CmsCommon\Mvc\Controller\Options\Traits\ControllerOptionsTrait'        => __DIR__ . '/src/Mvc/Controller/Options/Traits/ControllerOptionsTrait.php',
     'CmsCommon\Mvc\Controller\Options\Traits\CrudControllerOptionsTrait'    => __DIR__ . '/src/Mvc/Controller/Options/Traits/CrudControllerOptionsTrait.php',
     'CmsCommon\Mvc\Controller\Options\Traits\RestfulControllerOptionsTrait' => __DIR__ . '/src/Mvc/Controller/Options/Traits/RestfulControllerOptionsTrait.php',
+    'CmsCommon\Mvc\Controller\Plugin\FilePostRedirectGet'                   => __DIR__ . '/src/Mvc/Controller/Plugin/FilePostRedirectGet.php',
     'CmsCommon\Mvc\Controller\Plugin\Translate'                             => __DIR__ . '/src/Mvc/Controller/Plugin/Translate.php',
     'CmsCommon\Mvc\Controller\Plugin\TranslatePlural'                       => __DIR__ . '/src/Mvc/Controller/Plugin/TranslatePlural.php',
     'CmsCommon\Mvc\Controller\RestfulController'                            => __DIR__ . '/src/Mvc/Controller/RestfulController.php',
