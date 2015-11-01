@@ -41,7 +41,7 @@ class FilePostRedirectGet extends ZendFilePostRedirectGet
             if ($input instanceof InputFilterInterface && is_array($value)) {
                 if ($input instanceof CollectionInputFilter) {
                     foreach ($value as $key => $subValue) {
-                        $returnValues[$name][$key] = $this->traverseInputs(
+                        $returnValues[$name][$key] = (array) $this->traverseInputs(
                             $input->getInputFilter(),
                             $subValue,
                             $callback

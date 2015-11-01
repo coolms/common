@@ -38,8 +38,8 @@ class Collection extends ZendCollection
 
         if (!$this->allowRemove && count($data) < $this->count) {
             throw new Exception\DomainException(sprintf(
-                'There are fewer elements than specified in the collection (%s). Either set the allow_remove option '
-                . 'to true, or re-submit the form.',
+                'There are fewer elements than specified in the collection (%s). ' .
+                'Either set the allow_remove option to true, or re-submit the form.',
                 get_class($this)
             ));
         }

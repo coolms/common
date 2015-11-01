@@ -159,7 +159,7 @@ class CrudController extends AbstractCrudController implements
 
             try {
                 $this->getEventManager()->trigger(static::ACTION_CREATE, $this, $params);
-                $this->getDomainService()->getMapper()->add($object)->save();
+                $this->getDomainService()->getMapper()->add($object)->save($object);
                 $form->bind($object);
             } catch (\Exception $e) {
                 $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_ERROR)
@@ -223,7 +223,7 @@ class CrudController extends AbstractCrudController implements
 
             try {
                 $this->getEventManager()->trigger(static::ACTION_UPDATE, $this, $params);
-                $this->getDomainService()->getMapper()->add($object)->save();
+                $this->getDomainService()->getMapper()->add($object)->save($object);
                 $form->bind($object);
             } catch (\Exception $e) {
                 $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_ERROR)
@@ -259,7 +259,7 @@ class CrudController extends AbstractCrudController implements
 
         try {
             $this->getEventManager()->trigger(static::ACTION_DELETE, $this, $params);
-            $service->getMapper()->remove($object)->save();
+            $service->getMapper()->remove($object)->save($object);
         } catch(\Exception $e) {
             $fm->addErrorMessage($e->getMessage());
             return $this->redirectToBaseRoute();
