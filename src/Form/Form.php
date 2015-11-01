@@ -433,7 +433,7 @@ class Form extends ZendForm implements
         $this->setValidationGroup($group);
 
         if ($applyElementGroup) {
-            //$this->prepareElementGroup($this, $group);
+            $this->prepareElementGroup($this, $group);
         }
 
         return $this;
@@ -444,7 +444,11 @@ class Form extends ZendForm implements
      */
     protected function prepareValidationGroup(FieldsetInterface $formOrFieldset, array $data, array &$validationGroup)
     {
+        //echo '<pre>';
+        /*var_dump($data);*/
         $validationGroup = $this->normalizeValidationGroup($formOrFieldset, $data, $validationGroup);
+        //var_dump($validationGroup);
+        //exit;
         /*parent::prepareValidationGroup($formOrFieldset, $data, $validationGroup);*/
         return $this;
     }
@@ -457,6 +461,7 @@ class Form extends ZendForm implements
     protected function normalizeValidationGroup(FieldsetInterface $fieldset, array $data, array $group)
     {
         $elements = ArrayUtils::iteratorToArray($fieldset, false);
+
         if (!$group) {
             $group = array_keys($elements);
         }
@@ -473,13 +478,16 @@ class Form extends ZendForm implements
 
                 if (isset($group[$name])) {
                     if ($fieldsetOrElement instanceof Collection) {
+                        $fieldsets = [];
                         foreach ($fieldsetOrElement as $key => $field) {
-                            $group[$name][$key] = $this->normalizeValidationGroup(
+                            $fieldsets[$key] = $this->normalizeValidationGroup(
                                 $field,
                                 isset($data[$name][$key]) ? $data[$name][$key] : [],
                                 $group[$name]
                             );
                         }
+
+                        $group[$name] = $fieldsets;
 
                         $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
                     }
