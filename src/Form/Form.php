@@ -33,7 +33,6 @@ use Traversable,
     Zend\Stdlib\PriorityList,
     CmsCommon\Form\Element\StaticElement,
     CmsCommon\Form\Options\Traits\FormOptionsTrait;
-use Zend\Form\FormInterface as ZendFormInterface;
 use Zend\Stdlib\Hydrator\ClassMethods;
 use Zend\Stdlib\Hydrator\ObjectProperty;
 
@@ -82,14 +81,65 @@ class Form extends ZendForm implements
     protected $objectInputFilter;
 
     /**
+     * @var int
+     */
+    protected $priorityStep = 10;
+
+    /**
      * @var array
      */
     protected $elementGroup = [];
 
     /**
+     * @var array
+     */
+    protected $submitElementSpec = [
+        'name' => 'submit',
+        'type' => 'Submit',
+        'attributes' => [
+            'type' => 'submit',
+            'value' => 'Submit',
+        ],
+    ];
+
+    /**
+     * @var array
+     */
+    protected $resetElementSpec = [
+        'name' => 'reset',
+        'type' => 'Submit',
+        'attributes' => [
+            'type'  => 'reset',
+            'value' => 'Reset',
+        ],
+    ];
+
+    /**
+     * @var array
+     */
+    protected $captchaElementSpec = [
+        'type' => 'Captcha',
+        'attributes' => [
+            'autocomplete' => 'off',
+            'required' => true,
+        ],
+        'options' => [
+            'label' => 'Verify you are human',
+            'text_domain' => 'default',
+        ],
+    ];
+
+    /**
      * @var string
      */
     private $captchaElementName;
+
+    /**
+     * @var array
+     */
+    protected $csrfElementSpec = [
+        'type' => 'Csrf',
+    ];
 
     /**
      * @var string
@@ -111,19 +161,19 @@ class Form extends ZendForm implements
         parent::init();
 
         if ($this->getOption('use_captcha')) {
-            $this->setupCaptchaElement();
+            $this->addCaptchaElement();
         }
 
         if ($this->getOption('use_csrf')) {
-            $this->setupCsrfElement();
+            $this->addCsrfElement();
         }
 
         if ($this->getOption('use_submit_element')) {
-            $this->setupSubmitElement();
+            $this->addSubmitElement();
         }
 
         if ($this->getOption('use_reset_element')) {
-            $this->setupResetElement();
+            $this->addResetElement();
         }
     }
 
@@ -170,6 +220,10 @@ class Form extends ZendForm implements
 
         if (isset($options['merge_input_filter'])) {
             $this->setMergeInputFilter($options['merge_input_filter']);
+        }
+
+        if (isset($options['priority_step'])) {
+            $this->setPriorityStep($options['priority_step']);
         }
 
         if (isset($options['element_group'])) {
@@ -314,12 +368,16 @@ class Form extends ZendForm implements
     }
 
     /**
-     * Set the validation group (set of values to validate)
-     *
-     * Typically, proxies to the composed input filter
-     *
-     * @throws Exception\InvalidArgumentException
-     * @return self
+     * {@inheritDoc}
+     */
+    public function setPriorityStep($step)
+    {
+        $this->priorityStep = (int) $step;
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function setElementGroup()
     {
@@ -331,7 +389,7 @@ class Form extends ZendForm implements
             ));
         }
 
-        $applyElementGroup = true;
+        $applyElementGroup = false;
 
         $argv = func_get_args();
         if ($argc > 1) {
@@ -375,7 +433,7 @@ class Form extends ZendForm implements
         $this->setValidationGroup($group);
 
         if ($applyElementGroup) {
-            $this->applyElementGroup($group, $this);
+            //$this->prepareElementGroup($this, $group);
         }
 
         return $this;
@@ -386,8 +444,9 @@ class Form extends ZendForm implements
      */
     protected function prepareValidationGroup(FieldsetInterface $formOrFieldset, array $data, array &$validationGroup)
     {
-        $validationGroup = $this->normalizeValidationGroup($formOrFieldset, $validationGroup);
-        return parent::prepareValidationGroup($formOrFieldset, $data, $validationGroup);
+        $validationGroup = $this->normalizeValidationGroup($formOrFieldset, $data, $validationGroup);
+        /*parent::prepareValidationGroup($formOrFieldset, $data, $validationGroup);*/
+        return $this;
     }
 
     /**
@@ -395,7 +454,7 @@ class Form extends ZendForm implements
      * @param array $group
      * @return array
      */
-    protected function normalizeValidationGroup(FieldsetInterface $fieldset, array $group)
+    protected function normalizeValidationGroup(FieldsetInterface $fieldset, array $data, array $group)
     {
         $elements = ArrayUtils::iteratorToArray($fieldset, false);
         if (!$group) {
@@ -403,43 +462,6 @@ class Form extends ZendForm implements
         }
 
         foreach ($elements as $name => $fieldsetOrElement) {
-            if ($uploadElement = $fieldsetOrElement->getOption('uploadElement')) {
-                $element = $fieldsetOrElement->getValue() ? $uploadElement : $name;
-            } elseif ($fieldsetOrElement instanceof StaticElement) {
-                $element = $name;
-            } else {
-                $element = null;
-            }
-
-            if (null !== $element) {
-                if (isset($group[$element])) {
-                    unset($group[$element]);
-                }
-
-                foreach (array_keys($group, $element, true) as $key) {
-                    unset($group[$key]);
-                }
-            }
-
-            if ($fieldsetOrElement instanceof Collection) {
-                if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
-                    foreach ($keys as $key) {
-                        unset($group[$key]);
-                    }
-
-                    $group[$name] = [];
-                }
-
-                if (isset($group[$name]) && $fieldsetOrElement->shouldCreateTemplate()) {
-                    $group[$name] = $this->normalizeValidationGroup(
-                        $fieldsetOrElement->getTemplateElement(),
-                        $group[$name]
-                    );
-                }
-
-                $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
-            }
-
             if ($fieldsetOrElement instanceof FieldsetInterface) {
                 if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
                     foreach ($keys as $key) {
@@ -450,11 +472,40 @@ class Form extends ZendForm implements
                 }
 
                 if (isset($group[$name])) {
+                    if ($fieldsetOrElement instanceof Collection) {
+                        foreach ($fieldsetOrElement as $key => $field) {
+                            $group[$name][$key] = $this->normalizeValidationGroup(
+                                $field,
+                                isset($data[$name][$key]) ? $data[$name][$key] : [],
+                                $group[$name]
+                            );
+                        }
+
+                        $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
+                    }
+
                     $group[$name] = $this->normalizeValidationGroup(
                         $fieldsetOrElement,
+                        isset($data[$name]) ? $data[$name] : [],
                         $group[$name]
                     );
                 }
+            }
+
+            if ($source = $fieldsetOrElement->getOption('source')) {
+                if (!empty($data[$name])) {
+                    $name = $source;
+                }
+            } elseif (!$fieldsetOrElement instanceof StaticElement) {
+                continue;
+            }
+
+            if (isset($group[$name])) {
+                unset($group[$name]);
+            }
+
+            foreach (array_keys($group, $name, true) as $key) {
+                unset($group[$key]);
             }
         }
 
@@ -464,58 +515,27 @@ class Form extends ZendForm implements
     /**
      * @param array $group
      * @param FieldsetInterface $fieldset
+     * @return self
      */
-    protected function applyElementGroup(array $group, FieldsetInterface $fieldset)
+    protected function prepareElementGroup(FieldsetInterface $fieldset, array $data, array $group)
     {
         $elements = ArrayUtils::iteratorToArray($fieldset, false);
 
         if (empty($group)) {
             $group = array_keys($elements);
         } else {
-            $step = 10;
-            $priority = count($group) * $step;
+            $priority = count($group) * $this->priorityStep;
             foreach ($group as $key => $val) {
-                $fieldset->getIterator()->setPriority(
+                $fieldset->setPriority(
                     is_string($val) ? $val : $key,
                     $priority
                 );
 
-                $priority -= $step;
+                $priority -= $this->priorityStep;
             }
         }
 
         foreach ($elements as $name => $fieldsetOrElement) {
-            if ($uploadElement = $fieldsetOrElement->getOption('uploadElement')) {
-                $element = $fieldsetOrElement->getValue() ? $uploadElement : $name;
-
-                if (isset($group[$element])) {
-                    unset($group[$element]);
-                }
-
-                foreach (array_keys($group, $element, true) as $key) {
-                    unset($group[$key]);
-                }
-            }
-
-            if ($fieldsetOrElement instanceof Collection) {
-                if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
-                    foreach ($keys as $key) {
-                        unset($group[$key]);
-                    }
-
-                    $group[$name] = [];
-                }
-
-                if (isset($group[$name]) && $fieldsetOrElement->shouldCreateTemplate()) {
-                    $this->applyElementGroup(
-                        $group[$name],
-                        $fieldsetOrElement->getTemplateElement()
-                    );
-                }
-
-                $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
-            }
-
             if ($fieldsetOrElement instanceof FieldsetInterface) {
                 if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
                     foreach ($keys as $key) {
@@ -526,12 +546,39 @@ class Form extends ZendForm implements
                 }
 
                 if (isset($group[$name])) {
-                    $this->applyElementGroup(
-                        $group[$name],
-                        $fieldsetOrElement
-                    );
+                    if ($fieldsetOrElement instanceof Collection) {
+                        foreach ($fieldsetOrElement as $key => $field) {
+                            if (isset($group[$name])) {
+                                $this->prepareElementGroup(
+                                    $field,
+                                    isset($data[$name][$key]) ? $data[$name][$key] : [],
+                                    $group[$name]
+                                );
+                            }
+                        }
 
-                    continue;
+                        $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
+                    }
+
+                    $this->prepareElementGroup(
+                        $fieldsetOrElement,
+                        isset($data[$name]) ? $data[$name] : [],
+                        $group[$name]
+                    );
+                }
+            }
+
+            if ($source = $fieldsetOrElement->getOption('source')) {
+                if (!empty($data[$name])) {
+                    $name = $source;
+                }
+
+                if (isset($group[$name])) {
+                    unset($group[$name]);
+                }
+
+                foreach (array_keys($group, $name, true) as $key) {
+                    unset($group[$key]);
                 }
             }
 
@@ -539,6 +586,8 @@ class Form extends ZendForm implements
                 $fieldset->remove($name);
             }
         }
+
+        return $this;
     }
 
     /**
@@ -579,7 +628,7 @@ class Form extends ZendForm implements
      */
     public function prepare()
     {
-        $this->applyElementGroup($this->elementGroup, $this);
+        $this->prepareElementGroup($this, $this->extract(), $this->elementGroup);
         return parent::prepare();
     }
 
@@ -656,6 +705,7 @@ class Form extends ZendForm implements
     public function setMergeInputFilter($flag)
     {
         $this->mergeInputFilter = (bool) $flag;
+
         return $this;
     }
 
@@ -939,7 +989,7 @@ class Form extends ZendForm implements
     private function setUseCaptcha($flag)
     {
         if ($flag) {
-            $this->setupCaptchaElement();
+            $this->addCaptchaElement();
         } elseif (!$flag && $this->has('captcha')) {
             /* @var $element \Zend\Form\Element\Captcha */
             $element = $this->get('captcha');
@@ -951,34 +1001,27 @@ class Form extends ZendForm implements
         }
 
         $this->useCaptcha = (bool) $flag;
+
         return $this;
     }
 
     /**
      * Setup CAPTCHA protection
      */
-    protected function setupCaptchaElement()
+    protected function addCaptchaElement()
     {
         if (!$this->getCaptchaOptions() || $this->has('captcha')) {
             return;
         }
 
-        $this->add(
-            [
+        $spec = array_replace_recursive($this->captchaElementSpec, [
                 'name' => $this->getCaptchaElementName(),
-                'type' => 'Captcha',
-                'attributes' => [
-                    'autocomplete' => 'off',
-                    'required' => true,
-                ],
                 'options' => [
                     'captcha' => $this->getCaptchaOptions(),
-                    'label' => 'Verify you are human',
-                    'text_domain' => 'default',
                 ],
-            ],
-            ['priority' => -970]
-        );
+            ]);
+
+        $this->add($spec, ['priority' => -970]);
     }
 
     /**
@@ -994,6 +1037,7 @@ class Form extends ZendForm implements
         }
 
         $this->captchaOptions = $options;
+
         return $this;
     }
     
@@ -1044,6 +1088,7 @@ class Form extends ZendForm implements
         }
 
         $this->formTimeout = $ttl;
+
         return $this;
     }
 
@@ -1054,7 +1099,7 @@ class Form extends ZendForm implements
     private function setUseCsrf($flag)
     {
         if ($flag) {
-            $this->setupCsrfElement();
+            $this->addCsrfElement();
         } elseif (!$flag && $this->has('csrf')) {
             /* @var $element \Zend\Form\Element\Csrf */
             $element = $this->get('csrf');
@@ -1063,30 +1108,29 @@ class Form extends ZendForm implements
         }
 
         $this->useCsrf = (bool) $flag;
+
         return $this;
     }
 
     /**
      * Setup CSRF protection
      */
-    protected function setupCsrfElement()
+    protected function addCsrfElement()
     {
         if ($this->has('csrf')) {
             return;
         }
 
-        $this->add(
-            [
+        $spec = array_replace_recursive($this->csrfElementSpec, [
                 'name' => $this->getCsrfElementName(),
-                'type' => 'Csrf',
                 'options' => [
                     'csrf_options' => [
                         'timeout' => $this->getFormTimeout(),
                     ],
                 ],
-            ],
-            ['priority' => -980]
-        );
+            ]);
+
+        $this->add($spec, ['priority' => -980]);
     }
 
     /**
@@ -1114,35 +1158,26 @@ class Form extends ZendForm implements
     private function setUseSubmitElement($flag)
     {
         if ($flag) {
-            $this->setupSubmitElement();
+            $this->addSubmitElement();
         } elseif($this->has('submit')) {
             $this->remove('submit');
         }
 
         $this->useSubmitElement = (bool) $flag;
+
         return $this;
     }
 
     /**
      * Setup submit element
      */
-    protected function setupSubmitElement()
+    protected function addSubmitElement()
     {
         if ($this->has('submit')) {
             return;
         }
 
-        $this->add(
-            [
-                'name' => 'submit',
-                'type' => 'Submit',
-                'attributes' => [
-                    'type' => 'submit',
-                    'value' => 'Submit',
-                ],
-            ],
-            ['priority' => -990]
-        );
+        $this->add($this->submitElementSpec, ['priority' => -990]);
     }
 
     /**
@@ -1152,35 +1187,26 @@ class Form extends ZendForm implements
     private function setUseResetElement($flag)
     {
         if ($flag) {
-            $this->setupResetElement();
+            $this->addResetElement();
         } elseif($this->has('reset')) {
             $this->remove('reset');
         }
 
         $this->useResetElement = (bool) $flag;
+
         return $this;
     }
 
     /**
      * Setup reset element
      */
-    protected function setupResetElement()
+    protected function addResetElement()
     {
         if ($this->has('reset')) {
             return;
         }
 
-        $this->add(
-            [
-                'name' => 'reset',
-                'type' => 'Submit',
-                'attributes' => [
-                    'type'  => 'reset',
-                    'value' => 'Reset',
-                ],
-            ],
-            ['priority' => -1000]
-        );
+        $this->add($this->resetElementSpec, ['priority' => -1000]);
     }
 
     /**

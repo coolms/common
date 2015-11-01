@@ -15,9 +15,14 @@ use Zend\Form\FormInterface as ZendFormInterface;
 interface FormInterface extends ZendFormInterface
 {
     /**
+     * @param int $step
+     * @return self
+     */
+    public function setPriorityStep($step);
+
+    /**
      * Set the element group (set of fields to display and validate)
      *
-     * @return FormInterface
      * @return self
      */
     public function setElementGroup();
