@@ -468,7 +468,7 @@ class Form extends ZendForm implements
                                 $validationGroup[$name][$key] = [];
                             }
 
-                            $this->normalizeValidationGroup(
+                            $this->prepareValidationGroup(
                                 $fieldset,
                                 isset($data[$name][$key]) ? $data[$name][$key] : [],
                                 $validationGroup[$name][$key]
@@ -478,7 +478,7 @@ class Form extends ZendForm implements
                         $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
                     }
 
-                    $this->normalizeValidationGroup(
+                    $this->prepareValidationGroup(
                         $fieldsetOrElement,
                         isset($data[$name]) ? $data[$name] : [],
                         $validationGroup[$name]
