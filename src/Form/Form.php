@@ -444,58 +444,44 @@ class Form extends ZendForm implements
      */
     protected function prepareValidationGroup(FieldsetInterface $formOrFieldset, array $data, array &$validationGroup)
     {
-        //echo '<pre>';
-        /*var_dump($data);*/
-        $validationGroup = $this->normalizeValidationGroup($formOrFieldset, $data, $validationGroup);
-        //var_dump($validationGroup);
-        //exit;
-        /*parent::prepareValidationGroup($formOrFieldset, $data, $validationGroup);*/
-        return $this;
-    }
+        $elements = ArrayUtils::iteratorToArray($formOrFieldset, false);
 
-    /**
-     * @param FieldsetInterface $fieldset
-     * @param array $group
-     * @return array
-     */
-    protected function normalizeValidationGroup(FieldsetInterface $fieldset, array $data, array $group)
-    {
-        $elements = ArrayUtils::iteratorToArray($fieldset, false);
-
-        if (!$group) {
-            $group = array_keys($elements);
+        if (!$validationGroup) {
+            $validationGroup = array_keys($elements);
         }
 
         foreach ($elements as $name => $fieldsetOrElement) {
             if ($fieldsetOrElement instanceof FieldsetInterface) {
-                if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
+                if (!isset($validationGroup[$name]) && ($keys = array_keys($validationGroup, $name, true))) {
                     foreach ($keys as $key) {
-                        unset($group[$key]);
+                        unset($validationGroup[$key]);
                     }
 
-                    $group[$name] = [];
+                    $validationGroup[$name] = [];
                 }
 
-                if (isset($group[$name])) {
+                if (isset($validationGroup[$name])) {
                     if ($fieldsetOrElement instanceof Collection) {
                         $fieldsets = [];
-                        foreach ($fieldsetOrElement as $key => $field) {
-                            $fieldsets[$key] = $this->normalizeValidationGroup(
-                                $field,
+                        foreach ($fieldsetOrElement as $key => $fieldset) {
+                            if (!isset($validationGroup[$name][$key])) {
+                                $validationGroup[$name][$key] = [];
+                            }
+
+                            $this->normalizeValidationGroup(
+                                $fieldset,
                                 isset($data[$name][$key]) ? $data[$name][$key] : [],
-                                $group[$name]
+                                $validationGroup[$name][$key]
                             );
                         }
-
-                        $group[$name] = $fieldsets;
 
                         $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
                     }
 
-                    $group[$name] = $this->normalizeValidationGroup(
+                    $this->normalizeValidationGroup(
                         $fieldsetOrElement,
                         isset($data[$name]) ? $data[$name] : [],
-                        $group[$name]
+                        $validationGroup[$name]
                     );
                 }
             }
@@ -508,33 +494,31 @@ class Form extends ZendForm implements
                 continue;
             }
 
-            if (isset($group[$name])) {
-                unset($group[$name]);
+            if (isset($validationGroup[$name])) {
+                unset($validationGroup[$name]);
             }
 
-            foreach (array_keys($group, $name, true) as $key) {
-                unset($group[$key]);
+            foreach (array_keys($validationGroup, $name, true) as $key) {
+                unset($validationGroup[$key]);
             }
         }
-
-        return $group;
     }
 
     /**
-     * @param array $group
      * @param FieldsetInterface $fieldset
-     * @return self
+     * @param array $data
+     * @param array $elementGroup
      */
-    protected function prepareElementGroup(FieldsetInterface $fieldset, array $data, array $group)
+    protected function prepareElementGroup(FieldsetInterface $formOrFieldset, array $data, array $elementGroup)
     {
-        $elements = ArrayUtils::iteratorToArray($fieldset, false);
+        $elements = ArrayUtils::iteratorToArray($formOrFieldset, false);
 
-        if (empty($group)) {
-            $group = array_keys($elements);
+        if (empty($elementGroup)) {
+            $elementGroup = array_keys($elements);
         } else {
-            $priority = count($group) * $this->priorityStep;
-            foreach ($group as $key => $val) {
-                $fieldset->setPriority(
+            $priority = count($elementGroup) * $this->priorityStep;
+            foreach ($elementGroup as $key => $val) {
+                $formOrFieldset->setPriority(
                     is_string($val) ? $val : $key,
                     $priority
                 );
@@ -545,22 +529,22 @@ class Form extends ZendForm implements
 
         foreach ($elements as $name => $fieldsetOrElement) {
             if ($fieldsetOrElement instanceof FieldsetInterface) {
-                if (!isset($group[$name]) && ($keys = array_keys($group, $name, true))) {
+                if (!isset($elementGroup[$name]) && ($keys = array_keys($elementGroup, $name, true))) {
                     foreach ($keys as $key) {
-                        unset($group[$key]);
+                        unset($elementGroup[$key]);
                     }
 
-                    $group[$name] = [];
+                    $elementGroup[$name] = [];
                 }
 
-                if (isset($group[$name])) {
+                if (isset($elementGroup[$name])) {
                     if ($fieldsetOrElement instanceof Collection) {
-                        foreach ($fieldsetOrElement as $key => $field) {
-                            if (isset($group[$name])) {
+                        foreach ($fieldsetOrElement as $key => $fieldset) {
+                            if (isset($elementGroup[$name])) {
                                 $this->prepareElementGroup(
-                                    $field,
+                                    $fieldset,
                                     isset($data[$name][$key]) ? $data[$name][$key] : [],
-                                    $group[$name]
+                                    $elementGroup[$name]
                                 );
                             }
                         }
@@ -571,7 +555,7 @@ class Form extends ZendForm implements
                     $this->prepareElementGroup(
                         $fieldsetOrElement,
                         isset($data[$name]) ? $data[$name] : [],
-                        $group[$name]
+                        $elementGroup[$name]
                     );
                 }
             }
@@ -581,21 +565,19 @@ class Form extends ZendForm implements
                     $name = $source;
                 }
 
-                if (isset($group[$name])) {
-                    unset($group[$name]);
+                if (isset($elementGroup[$name])) {
+                    unset($elementGroup[$name]);
                 }
 
-                foreach (array_keys($group, $name, true) as $key) {
-                    unset($group[$key]);
+                foreach (array_keys($elementGroup, $name, true) as $key) {
+                    unset($elementGroup[$key]);
                 }
             }
 
-            if (!isset($group[$name]) && !in_array($name, $group, true)) {
-                $fieldset->remove($name);
+            if (!isset($elementGroup[$name]) && !in_array($name, $elementGroup, true)) {
+                $formOrFieldset->remove($name);
             }
         }
-
-        return $this;
     }
 
     /**
