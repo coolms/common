@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common;
 
 /**
  * Interface for the model having an identity
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface IdentifiableInterface
@@ -24,6 +24,7 @@ interface IdentifiableInterface
 
     /**
      * @param mixed $id
+     * @return self
      */
     public function setId($id);
 }

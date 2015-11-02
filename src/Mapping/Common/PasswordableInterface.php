@@ -24,6 +24,7 @@ interface PasswordableInterface
 
     /**
      * @param string $annotation
-    */
+     * @return self
+     */
     public function setPassword($password);
 }

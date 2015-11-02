@@ -14,17 +14,19 @@ trait ObjectableTrait
 {
     /**
      * @var object
-     * 
+     *
      * @Form\Exclude()
      */
     protected $object;
 
     /**
      * @param object $object
+     * @return self
      */
     public function setObject($object)
     {
         $this->object = $object;
+        return $this;
     }
 
     /**

@@ -21,6 +21,7 @@ interface UpdatableInterface
 
     /**
      * @param DateTime $updatedAt
+     * @return self
      */
     public function setUpdatedAt(DateTime $updatedAt);
 }

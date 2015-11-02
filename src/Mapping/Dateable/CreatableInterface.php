@@ -21,6 +21,7 @@ interface CreatableInterface
 
     /**
      * @param DateTime $createdAt
+     * @return self
      */
     public function setCreatedAt(DateTime $createdAt);
 }

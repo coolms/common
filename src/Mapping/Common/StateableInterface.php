@@ -12,21 +12,22 @@ namespace CmsCommon\Mapping\Common;
 
 /**
  * Stateable interface
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface StateableInterface
 {
     /**
      * Set state
-     * 
+     *
      * @param mixed $state
+     * @return self
      */
     public function setState($state);
 
     /**
      * Get state
-     * 
+     *
      * @return mixed
      */
     public function getState();

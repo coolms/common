@@ -12,30 +12,31 @@ namespace CmsCommon\Mapping\Common\Traits;
 
 /**
  * Trait for the model to have a different states
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait StateableTrait
 {
     /**
      * @var mixed
-     * 
+     *
      * @Form\Type("Select")
      * @Form\Attributes({"options":{}})
      * @Form\Options({
      *      "empty_option":"Select state",
      *      "label":"Select state",
-     *      "text_domain":"default",
-     *      })
+     *      "text_domain":"default"})
      */
     protected $state;
 
     /**
      * @param mixed $state
+     * @return self
      */
     public function setState($state)
     {
         $this->state = $state;
+        return $this;
     }
 
     /**

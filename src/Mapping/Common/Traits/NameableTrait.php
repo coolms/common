@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common\Traits;
 
 /**
  * Trait for the model to have a name
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait NameableTrait
@@ -35,17 +35,18 @@ trait NameableTrait
      * @Form\Attributes({"required":true})
      * @Form\Options({
      *      "label":"Name",
-     *      "text_domain":"default",
-     *      })
+     *      "text_domain":"default"})
      */
     protected $name;
 
     /**
      * @param string $name
+     * @return self
      */
     public function setName($name)
     {
         $this->name = $name;
+        return $this;
     }
 
     /**

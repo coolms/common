@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common;
 
 /**
  * Interface for the model that have a description
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface DescribableInterface
@@ -24,6 +24,7 @@ interface DescribableInterface
 
     /**
      * @param string $description
+     * @return self
      */
     public function setDescription($description);
 }

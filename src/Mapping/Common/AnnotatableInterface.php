@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common;
 
 /**
  * Interface for the entity having an annotation
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface AnnotatableInterface
@@ -24,6 +24,7 @@ interface AnnotatableInterface
 
     /**
      * @param string $annotation
-    */
+     * @return self
+     */
     public function setAnnotation($annotation);
 }

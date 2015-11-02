@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common;
 
 /**
  * Interface for the model that has value
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface ValuableInterface
@@ -24,6 +24,7 @@ interface ValuableInterface
 
     /**
      * @param mixed $value
+     * @return self
      */
     public function setValue($value);
 }

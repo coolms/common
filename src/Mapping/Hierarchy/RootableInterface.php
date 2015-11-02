@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Hierarchy;
 
 /**
  * Interface for the model that is part of the hierarchy with multiple roots
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface RootableInterface
@@ -24,6 +24,7 @@ interface RootableInterface
 
     /**
      * @param string $root
+     * @return self
      */
     public function setRoot($root);
 }

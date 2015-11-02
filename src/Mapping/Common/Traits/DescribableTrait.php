@@ -12,14 +12,14 @@ namespace CmsCommon\Mapping\Common\Traits;
 
 /**
  * Trait for the model to have a description
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait DescribableTrait
 {
     /**
      * @var string
-     * 
+     *
      * @Form\Type("Text")
      * @Form\Filter({"name":"StripTags"})
      * @Form\Filter({"name":"StringTrim"})
@@ -35,17 +35,18 @@ trait DescribableTrait
      *      }})
      * @Form\Options({
      *      "label":"Description",
-     *      "text_domain":"default",
-     *      })
+     *      "text_domain":"default"})
      */
     protected $description;
 
     /**
      * @param string $description
+     * @return self
      */
     public function setDescription($description)
     {
         $this->description = $description;
+        return $this;
     }
 
     /**

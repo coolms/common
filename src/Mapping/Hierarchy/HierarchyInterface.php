@@ -19,6 +19,7 @@ interface HierarchyInterface
 {
     /**
      * @param int $level
+     * @return self
      */
     public function setLevel($level);
 
@@ -34,6 +35,7 @@ interface HierarchyInterface
 
     /**
      * @param HierarchyInterface $parent
+     * @return self
      */
     public function setParent(HierarchyInterface $parent = null);
 
@@ -49,26 +51,31 @@ interface HierarchyInterface
 
     /**
      * @param HierarchyInterface[] $children
+     * @return self
      */
     public function setChildren($children);
 
     /**
      * @param HierarchyInterface[] $children
+     * @return self
      */
     public function addChildren($children);
 
     /**
      * @param HierarchyInterface $child
+     * @return self
      */
     public function addChild(HierarchyInterface $child);
 
     /**
      * @param HierarchyInterface[] $children
+     * @return self
      */
     public function removeChildren($children);
 
     /**
      * @param HierarchyInterface $child
+     * @return self
      */
     public function removeChild(HierarchyInterface $child);
 
@@ -80,6 +87,8 @@ interface HierarchyInterface
 
     /**
      * Removes all children
+     *
+     * @return self
      */
     public function clearChildren();
 }

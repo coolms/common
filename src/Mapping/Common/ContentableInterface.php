@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common;
 
 /**
  * Interface for the model that have a content
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface ContentableInterface
@@ -24,6 +24,7 @@ interface ContentableInterface
 
     /**
      * @param string $content
+     * @return self
      */
     public function setContent($content);
 }

@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common\Traits;
 
 /**
  * Trait for the model to have an annotation
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait AnnotatableTrait
@@ -24,10 +24,12 @@ trait AnnotatableTrait
 
     /**
      * @param string $annotation
+     * @return self
      */
     public function setAnnotation($annotation)
     {
         $this->annotation = $annotation;
+        return $this;
     }
 
     /**

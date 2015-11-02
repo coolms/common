@@ -12,14 +12,14 @@ namespace CmsCommon\Mapping\Hierarchy\Traits;
 
 /**
  * Trait for the model to be a part of the hierarchy with multiple roots
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait RootableTrait
 {
     /**
      * @var string
-     * 
+     *
      * @Form\Type("Text")
      * @Form\Filter({"name":"StripTags"})
      * @Form\Filter({"name":"StringTrim"})
@@ -36,17 +36,18 @@ trait RootableTrait
      * @Form\Attributes({"required":true})
      * @Form\Options({
      *      "label":"Hierarchy root",
-     *      "text_domain":"default",
-     *      })
+     *      "text_domain":"default"})
      */
     protected $root;
 
     /**
      * @param string $root
+     * @return self
      */
     public function setRoot($root)
     {
         $this->root = $root;
+        return $this;
     }
 
     /**

@@ -12,14 +12,14 @@ namespace CmsCommon\Mapping\Common\Traits;
 
 /**
  * Trait for the model to have a title
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait TitleableTrait
 {
     /**
      * @var string
-     * 
+     *
      * @Form\Type("Text")
      * @Form\Filter({"name":"StringTrim"})
      * @Form\Required(true)
@@ -34,17 +34,18 @@ trait TitleableTrait
      * @Form\Attributes({"required":true})
      * @Form\Options({
      *      "label":"Title",
-     *      "text_domain":"default",
-     *      })
+     *      "text_domain":"default"})
      */
     protected $title;
 
     /**
      * @param string $title
+     * @return self
      */
     public function setTitle($title)
     {
         $this->title = $title;
+        return $this;
     }
 
     /**

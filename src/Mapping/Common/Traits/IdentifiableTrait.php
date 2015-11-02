@@ -12,14 +12,14 @@ namespace CmsCommon\Mapping\Common\Traits;
 
 /**
  * Trait for the model to have an identity
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait IdentifiableTrait
 {
     /**
      * @var mixed
-     * 
+     *
      * @Form\Type("Text")
      * @Form\Filter({"name":"StripTags"})
      * @Form\Filter({"name":"StringTrim"})
@@ -27,17 +27,18 @@ trait IdentifiableTrait
      * @Form\AllowEmpty(true)
      * @Form\Options({
      *      "label":"Identity",
-     *      "text_domain":"default",
-     *      })
+     *      "text_domain":"default"})
      */
     protected $id;
 
     /**
      * @param mixed $id
+     * @return self
      */
     public function setId($id)
     {
         $this->id = $id;
+        return $this;
     }
 
     /**

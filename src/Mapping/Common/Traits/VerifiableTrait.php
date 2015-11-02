@@ -12,14 +12,14 @@ namespace CmsCommon\Mapping\Common\Traits;
 
 /**
  * Trait for the model to be verifiable
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait VerifiableTrait
 {
     /**
      * @var bool
-     * 
+     *
      * @Form\Type("Checkbox")
      * @Form\Filter({"name":"Boolean"})
      * @Form\Required(false)
@@ -27,17 +27,18 @@ trait VerifiableTrait
      *      "label":"Verified",
      *      "text_domain":"default",
      *      "checked_value":true,
-     *      "unchecked_value":false,
-     *      })
+     *      "unchecked_value":false})
      */
     protected $verified = false;
 
     /**
      * @param bool $verified
+     * @return self
      */
     public function setVerified($verified)
     {
         $this->verified = (bool) $verified;
+        return $this;
     }
 
     /**

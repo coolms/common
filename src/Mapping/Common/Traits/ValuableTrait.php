@@ -12,14 +12,14 @@ namespace CmsCommon\Mapping\Common\Traits;
 
 /**
  * Trait for the model to have a value
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait ValuableTrait
 {
     /**
      * @var mixed
-     * 
+     *
      * @Form\Type("Text")
      * @Form\Filter({"name":"StripTags"})
      * @Form\Filter({"name":"StringTrim"})
@@ -35,17 +35,18 @@ trait ValuableTrait
      * @Form\Attributes({"required":true})
      * @Form\Options({
      *      "label":"Value",
-     *      "text_domain":"default",
-     *      })
+     *      "text_domain":"default"})
      */
     protected $value;
 
     /**
      * @param mixed $value
+     * @return self
      */
     public function setValue($value)
     {
         $this->value = $value;
+        return $this;
     }
 
     /**

@@ -22,6 +22,7 @@ interface ObjectableInterface
 
     /**
      * @param object $object
+     * @return self
      */
     public function setObject($object);
 }

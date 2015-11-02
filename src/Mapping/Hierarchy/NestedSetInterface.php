@@ -12,13 +12,14 @@ namespace CmsCommon\Mapping\Hierarchy;
 
 /**
  * Interface for the model that is part of the hierarchy
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface NestedSetInterface extends HierarchyInterface
 {
     /**
      * @param int $lft
+     * @return self
      */
     public function setLeft($lft);
 
@@ -29,6 +30,7 @@ interface NestedSetInterface extends HierarchyInterface
 
     /**
      * @param int $rgt
+     * @return self
      */
     public function setRight($rgt);
 

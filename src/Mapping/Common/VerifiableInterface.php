@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common;
 
 /**
  * Interface for the model that can be verified
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface VerifiableInterface
@@ -24,6 +24,7 @@ interface VerifiableInterface
 
     /**
      * @param bool $verified
+     * @return self
      */
     public function setVerified($verified);
 }

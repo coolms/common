@@ -30,6 +30,7 @@ interface ExpirableInterface
      * Set expiration datetime
      *
      * @param DateTime $expireAt
+     * @return self
      */
     public function setExpireAt(DateTime $expireAt = null);
 }

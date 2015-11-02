@@ -17,6 +17,7 @@ interface QuantifiableInterface
 {
     /**
      * @param int $quantity
+     * @return self
      */
     public function setQuantity($quantity);
 

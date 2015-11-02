@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common;
 
 /**
  * Interface for the model that have a title
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface TitleableInterface
@@ -24,6 +24,7 @@ interface TitleableInterface
 
     /**
      * @param string $title
+     * @return self
      */
     public function setTitle($title);
 }

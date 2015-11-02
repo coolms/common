@@ -14,7 +14,7 @@ use CmsCommon\Mapping\Hierarchy\HierarchyInterface;
 
 /**
  * Trait for the model to be a part of the hierarchy
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait HierarchyTrait
@@ -27,14 +27,16 @@ trait HierarchyTrait
     /**
      * @var HierarchyInterface[]
      */
-    protected $children;
+    protected $children = [];
 
     /**
      * @param HierarchyInterface $parent
+     * @return self
      */
     public function setParent(HierarchyInterface $parent = null)
     {
         $this->parent = $parent;
+        return $this;
     }
 
     /**
@@ -47,61 +49,93 @@ trait HierarchyTrait
 
     /**
      * @param HierarchyInterface[] $children
+     * @return self
      */
     public function setChildren($children)
     {
         $this->clearChildren();
         $this->addChildren($children);
+
+        return $this;
     }
 
     /**
      * @param HierarchyInterface[] $children
+     * @return self
      */
     public function addChildren($children)
     {
         foreach ($children as $child) {
             $this->addChild($child);
         }
+
+        return $this;
     }
 
     /**
      * @param HierarchyInterface $child
+     * @return self
      */
     public function addChild(HierarchyInterface $child)
     {
         $this->children[] = child;
+        return $this;
     }
 
     /**
      * @param HierarchyInterface[] $children
+     * @return self
      */
     public function removeChildren($children)
     {
         foreach ($children as $child) {
             $this->removeChild($child);
         }
+
+        return $this;
     }
 
     /**
-     * @abstract
      * @param HierarchyInterface $child
+     * @return self
      */
-    abstract public function removeChild(HierarchyInterface $child);
+    public function removeChild(HierarchyInterface $child)
+    {
+        foreach ($this->children as $key => $entity) {
+            if ($child === $entity) {
+                unset($this->children[$key]);
+                break;
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * Removes all children
+     *
+     * @return self
      */
     public function clearChildren()
     {
-        $this->children = [];
+        $this->removeChildren($this->children);
+        return $this;
     }
 
     /**
-     * @abstract
      * @param HierarchyInterface $child
      * @return bool
      */
-    abstract public function hasChild(HierarchyInterface $child);
+    public function hasChild(HierarchyInterface $child)
+    {
+        foreach ($this->children as $entity) {
+            if ($child === $entity) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * @return HierarchyInterface[]

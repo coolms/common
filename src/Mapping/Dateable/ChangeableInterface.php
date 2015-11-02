@@ -26,6 +26,7 @@ interface ChangeableInterface
 
     /**
      * @param DateTime $changedAt
+     * @return self
      */
     public function setChangedAt(DateTime $changedAt);
 }

@@ -12,14 +12,14 @@ namespace CmsCommon\Mapping\Common\Traits;
 
 /**
  * Trait for the model to have a content
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 trait ContentableTrait
 {
     /**
      * @var string
-     * 
+     *
      * @Form\Type("Textarea")
      * @Form\Filter({"name":"StringTrim"})
      * @Form\Required(true)
@@ -34,17 +34,18 @@ trait ContentableTrait
      * @Form\Attributes({"required":true})
      * @Form\Options({
      *      "label":"Content",
-     *      "text_domain":"default",
-     *      })
+     *      "text_domain":"default"})
      */
     protected $content;
 
     /**
      * @param string $content
+     * @return self
      */
     public function setContent($content)
     {
         $this->content = $content;
+        return $this;
     }
 
     /**

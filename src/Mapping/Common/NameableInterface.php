@@ -12,7 +12,7 @@ namespace CmsCommon\Mapping\Common;
 
 /**
  * Interface for the model that have a name
- * 
+ *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
 interface NameableInterface
@@ -24,6 +24,7 @@ interface NameableInterface
 
     /**
      * @param string $name
+     * @return self
      */
     public function setName($name);
 }
