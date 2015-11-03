@@ -518,12 +518,11 @@ class Form extends ZendForm implements
         } else {
             $priority = count($elementGroup) * $this->priorityStep;
             foreach ($elementGroup as $key => $val) {
-                $formOrFieldset->setPriority(
-                    is_string($val) ? $val : $key,
-                    $priority
-                );
-
-                $priority -= $this->priorityStep;
+                $name = is_string($val) ? $val : $key;
+                if ($this->has($name)) {
+                    $formOrFieldset->setPriority($name, $priority);
+                    $priority -= $this->priorityStep;
+                }
             }
         }
 
