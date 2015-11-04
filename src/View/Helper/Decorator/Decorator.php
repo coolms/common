@@ -15,9 +15,9 @@ use Zend\View\Helper\AbstractHelper,
     Zend\EventManager\EventManagerAwareTrait,
     Zend\I18n\Translator\TranslatorAwareInterface,
     Zend\I18n\Translator\TranslatorAwareTrait,
+    Zend\ServiceManager\Exception\ServiceNotFoundException,
     Zend\Stdlib\ArrayUtils,
     CmsCommon\View\Helper\HtmlContainer;
-use Zend\ServiceManager\Exception\ServiceNotFoundException;
 
 class Decorator extends AbstractHelper implements EventManagerAwareInterface, TranslatorAwareInterface
 {
