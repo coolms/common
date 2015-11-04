@@ -194,6 +194,7 @@ return array(
     'CmsCommon\View\Helper\Hierarchy'                                       => __DIR__ . '/src/View/Helper/Hierarchy.php',
     'CmsCommon\View\Helper\HtmlContainer'                                   => __DIR__ . '/src/View/Helper/HtmlContainer.php',
     'CmsCommon\View\Helper\IdNormalizer'                                    => __DIR__ . '/src/View/Helper/IdNormalizer.php',
+    'CmsCommon\View\Helper\Img'                                             => __DIR__ . '/src/View/Helper/Img.php',
     'CmsCommon\View\Helper\JsonExpr'                                        => __DIR__ . '/src/View/Helper/JsonExpr.php',
     'CmsCommon\View\Helper\Map'                                             => __DIR__ . '/src/View/Helper/Map.php',
     'CmsCommon\View\Helper\Messages'                                        => __DIR__ . '/src/View/Helper/Messages.php',

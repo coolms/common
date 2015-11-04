@@ -291,6 +291,7 @@ return [
             'htmlContainer' => 'CmsCommon\View\Helper\HtmlContainer',
             'jsonExpr' => 'CmsCommon\View\Helper\JsonExpr',
             'idNormalizer' => 'CmsCommon\View\Helper\IdNormalizer',
+            'img' => 'CmsCommon\View\Helper\Img',
             'label' => 'CmsCommon\Form\View\Helper\Decorator\Label',
             'legend' => 'CmsCommon\Form\View\Helper\Decorator\Legend',
             'locale' => 'CmsCommon\View\Helper\DefaultLocale',
