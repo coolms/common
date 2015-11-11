@@ -14,14 +14,14 @@ interface HierarchyMapperInterface extends MapperInterface
 {
     /**
      * @param object $node
-     * @param bool $direct
+     * @param array|bool $criteria
      * @param array $options
      * @param bool $includeNode
-     * @return string
+     * @return array
      */
     public function childrenHierarchy(
         $node = null,
-        $direct = false,
+        $criteria = false,
         array $options = [],
         $includeNode = false
     );

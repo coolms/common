@@ -12,7 +12,7 @@ namespace CmsCommon\Persistence;
 
 use Zend\EventManager\EventManagerAwareInterface,
     Zend\ServiceManager\ServiceLocatorAwareInterface,
-    Zend\Paginator\Paginator;
+    Zend\Paginator\Adapter\AdapterInterface;
 
 interface MapperInterface extends EventManagerAwareInterface, ServiceLocatorAwareInterface
 {
@@ -34,6 +34,8 @@ interface MapperInterface extends EventManagerAwareInterface, ServiceLocatorAwar
     const OP_CONTAIN                = 'CONTAIN';
     const OP_NOT_CONTAIN            = 'NOT_CONTAIN';
     const OP_OR                     = 'OR';
+    const OP_NOT                    = 'NOT';
+    const OP_INSTANCE_OF            = 'INSTANCE_OF';
 
     /**
      * @return string
@@ -58,20 +60,13 @@ interface MapperInterface extends EventManagerAwareInterface, ServiceLocatorAwar
     public function extract($object);
 
     /**
-     * Retrieves paginator for records
+     * Retrieves paginator adapter
      *
      * @param array $criteria
      * @param array $orderBy
-     * @param int $currentPageNumber
-     * @param int $itemCountPerPage
-     * @return Paginator
+     * @return AdapterInterface
      */
-    public function getPaginator(
-        array $criteria = [],
-        array $orderBy = [],
-        $currentPageNumber = null,
-        $itemCountPerPage = null
-    );
+    public function getPaginatorAdapter(array $criteria = [], array $orderBy = []);
     
     /**
      * @param mixed $id

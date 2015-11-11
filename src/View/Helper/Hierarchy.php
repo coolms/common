@@ -53,14 +53,14 @@ class Hierarchy extends AbstractHelper implements MapperProviderInterface
 
     /**
      * @param HierarchyInterface $node
-     * @param bool $direct
+     * @param array|bool $criteria
      * @param array $options
      * @param bool $includeNode
      * @return self|string
      */
     public function __invoke(
         HierarchyInterface $node = null,
-        $direct = null,
+        $criteria = null,
         $options = [],
         $includeNode = null
     ) {
@@ -68,23 +68,23 @@ class Hierarchy extends AbstractHelper implements MapperProviderInterface
             return $this;
         }
 
-        return $this->render($node, $direct, $options, $includeNode);
+        return $this->render($node, $criteria, $options, $includeNode);
     }
 
     /**
      * Render node's hierarchy
      *
      * @param HierarchyInterface $node
-     * @param bool $direct
+     * @param array|bool $criteria
      * @param array $options
      * @param bool $includeNode
      * @return string
      */
-    public function render(HierarchyInterface $node = null, $direct = null, $options = [], $includeNode = null)
+    public function render(HierarchyInterface $node = null, $criteria = null, $options = [], $includeNode = null)
     {
         return $this->getMapper()->childrenHierarchy(
             $node, // if node is null starting from root nodes
-            null === $direct ? $this->direct() : $direct, // true: load all children, false: only direct
+            null === $criteria ? $this->direct() : $criteria, // true: load all children, false: only direct, array: criteria
             array_replace_recursive($this->getOptions(), $options),
             null === $includeNode ? $this->includeNode() : $includeNode
         );
