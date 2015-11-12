@@ -12,9 +12,10 @@ namespace CmsCommon\Persistence;
 
 use Zend\EventManager\EventManagerAwareInterface,
     Zend\ServiceManager\ServiceLocatorAwareInterface,
-    Zend\Paginator\Adapter\AdapterInterface;
+    Zend\Paginator\Adapter\AdapterInterface,
+    CmsCommon\Persistence\Filter\FilterProviderInterface;
 
-interface MapperInterface extends EventManagerAwareInterface, ServiceLocatorAwareInterface
+interface MapperInterface extends EventManagerAwareInterface, ServiceLocatorAwareInterface, FilterProviderInterface
 {
     const OP_AND                    = 'AND';
     const OP_EQUAL                  = 'EQUAL';

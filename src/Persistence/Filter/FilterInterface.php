@@ -10,24 +10,23 @@
 
 namespace CmsCommon\Persistence\Filter;
 
-use Zend\Stdlib\ArraySerializableInterface;
-
-interface FilterInterface extends ArraySerializableInterface
+interface FilterInterface
 {
     const ANDX                   = 'andX';
     const ORX                    = 'orX';
 
     const EQUAL                  = 'equal';
     const NOT_EQUAL              = 'notEqual';
-    const LESS_THAN              = 'lessThan';
-    const LESS_THAN_OR_EQUAL     = 'lessThanOrEqual';
     const GREATER_THAN           = 'greaterThan';
     const GREATER_THAN_OR_EQUAL  = 'greaterThanOrEqual';
+    const LESS_THAN              = 'lessThan';
+    const LESS_THAN_OR_EQUAL     = 'lessThanOrEqual';
     const IN                     = 'in';
     const NOT_IN                 = 'notIn';
     const NOT                    = 'not';
     const NULL                   = 'isNull';
     const NOT_NULL               = 'isNotNull';
+    const BETWEEN                = 'between';
 
     const BEGIN_WITH             = 'beginWith';
     const NOT_BEGIN_WITH         = 'notBeginWith';
@@ -35,7 +34,7 @@ interface FilterInterface extends ArraySerializableInterface
     const NOT_END_WITH           = 'notEndWith';
     const CONTAIN                = 'contain';
     const NOT_CONTAIN            = 'notContain';
-    const INSTANCE_OF            = 'instanceOfX';
+    const INSTANCE_OF            = 'isInstanceOf';
 
     public function andX();
 
@@ -75,5 +74,5 @@ interface FilterInterface extends ArraySerializableInterface
 
     public function notContain($field, $value);
 
-    public function instanceOfX($field, $value);
+    public function isInstanceOf($field, $value);
 }
