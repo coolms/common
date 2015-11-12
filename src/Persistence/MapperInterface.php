@@ -17,27 +17,6 @@ use Zend\EventManager\EventManagerAwareInterface,
 
 interface MapperInterface extends EventManagerAwareInterface, ServiceLocatorAwareInterface, FilterProviderInterface
 {
-    const OP_AND                    = 'AND';
-    const OP_EQUAL                  = 'EQUAL';
-    const OP_NOT_EQUAL              = 'NOT_EQUAL';
-    const OP_LESS_THAN              = 'LESS_THAN';
-    const OP_LESS_THAN_OR_EQUAL     = 'LESS_THAN_OR_EQUAL';
-    const OP_GREATER_THAN           = 'GREATER_THAN';
-    const OP_GREATER_THAN_OR_EQUAL  = 'GREATER_THAN_OR_EQUAL';
-    const OP_BEGIN_WITH             = 'BEGIN_WITH';
-    const OP_NOT_BEGIN_WITH         = 'NOT_BEGIN_WITH';
-    const OP_IN                     = 'IN';
-    const OP_NOT_IN                 = 'NOT_IN';
-    const OP_NULL                   = 'NULL';
-    const OP_NOT_NULL               = 'NOT_NULL';
-    const OP_END_WITH               = 'END_WITH';
-    const OP_NOT_END_WITH           = 'NOT_END_WITH';
-    const OP_CONTAIN                = 'CONTAIN';
-    const OP_NOT_CONTAIN            = 'NOT_CONTAIN';
-    const OP_OR                     = 'OR';
-    const OP_NOT                    = 'NOT';
-    const OP_INSTANCE_OF            = 'INSTANCE_OF';
-
     /**
      * @return string
      */

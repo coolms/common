@@ -144,6 +144,8 @@ return array(
     'CmsCommon\Permissions\Acl\AclAwareInterface'                           => __DIR__ . '/src/Permissions/Acl/AclAwareInterface.php',
     'CmsCommon\Permissions\Acl\AclAwareTrait'                               => __DIR__ . '/src/Permissions/Acl/AclAwareTrait.php',
     'CmsCommon\Permissions\Acl\AclProviderInterface'                        => __DIR__ . '/src/Permissions/Acl/AclProviderInterface.php',
+    'CmsCommon\Persistence\Filter\FilterInterface'                          => __DIR__ . '/src/Persistence/Filter/FilterInterface.php',
+    'CmsCommon\Persistence\Filter\FilterProviderInterface'                  => __DIR__ . '/src/Persistence/Filter/FilterProviderInterface.php',
     'CmsCommon\Persistence\HierarchyMapperInterface'                        => __DIR__ . '/src/Persistence/HierarchyMapperInterface.php',
     'CmsCommon\Persistence\MapperInterface'                                 => __DIR__ . '/src/Persistence/MapperInterface.php',
     'CmsCommon\Persistence\MapperPluginManager'                             => __DIR__ . '/src/Persistence/MapperPluginManager.php',
