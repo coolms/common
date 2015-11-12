@@ -24,8 +24,8 @@ interface FilterInterface
     const IN                     = 'in';
     const NOT_IN                 = 'notIn';
     const NOT                    = 'not';
-    const NULL                   = 'isNull';
-    const NOT_NULL               = 'isNotNull';
+    const IS_NULL                = 'isNull';
+    const IS_NOT_NULL            = 'isNotNull';
     const BETWEEN                = 'between';
 
     const BEGIN_WITH             = 'beginWith';
