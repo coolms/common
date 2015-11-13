@@ -51,7 +51,7 @@ abstract class AbstractCrudController extends AbstractActionController
      *
      * @return ViewModel
      */
-    public function listAction()
+    public function listAction($data)
     {
         return $this->forward()->dispatch(
             $this->getEvent()->getRouteMatch()->getParam('controller'),

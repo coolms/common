@@ -13,6 +13,7 @@ namespace CmsCommon\Mvc\Controller;
 use RuntimeException,
     Zend\Http\Request as HttpRequest,
     Zend\Mvc\MvcEvent,
+    Zend\Stdlib\Parameters,
     Zend\Stdlib\ResponseInterface,
     Zend\View\Model\ViewModel,
     CmsCommon\Form\FormInterface,
@@ -22,7 +23,11 @@ use RuntimeException,
     CmsCommon\Service\DomainServiceProviderTrait,
     CmsCommon\Mvc\Controller\Options\CrudControllerOptionsInterface,
     CmsCommon\Stdlib\OptionsProviderInterface,
-    CmsCommon\Stdlib\OptionsProviderTrait;
+    CmsCommon\Stdlib\OptionsProviderTrait,
+    CmsDatagrid\Column\Select;
+use CmsDatagrid\Column\Formatter\GenerateLink;
+use CmsDatagrid\Column\Action;
+use CmsDatagrid\Column\Action\Button;
 
 /**
  * @author Dmitry Popov <d.popov@altgraphic.com>
@@ -125,11 +130,54 @@ class CrudController extends AbstractCrudController implements
     /**
      * {@inheritDoc}
      */
-    public function listAction()
+    public function listAction($data)
     {
         $form       = $this->getForm();
         $options    = $this->getOptions();
         $service    = $this->getDomainService();
+
+        if ($data) {
+            $this->getRequest()->setPost(new Parameters($data));
+        }
+
+        /* @var $datagrid \CmsDatagrid\Datagrid */
+        $datagrid   = $this->getServiceLocator()->get('CmsDatagrid');
+        $datagrid->setDataSource($service->getMapper());
+
+        $col = new Select('id');
+        $col->setIdentity(true);
+        $datagrid->addColumn($col);
+
+        $col = new Select('name');
+        $col->setLabel('Name');
+        $col->setWidth(85);
+        $datagrid->addColumn($col);
+
+        $updateAction = new Button();
+        $updateAction->setLabel('Update');
+        $updateAction->addClass('btn-primary');
+        $rowId = $updateAction->getRowIdPlaceholder();
+        $updateAction->setLink('update/' . $rowId);
+
+        $col = new Action();
+        $col->setLabel('');
+        $col->setWidth(15);
+        $col->addAction($updateAction);
+        
+        $datagrid->addColumn($col);
+
+        /*$col->addFormatter(new GenerateLink(
+            $this->getServiceLocator(),
+            $this->getEvent()->getRouteMatch()->getMatchedRouteName(),
+            'id',
+            ['controller' => 'hunting-farm', 'action' => 'update']
+        ));*/
+
+        
+
+        $datagrid->render();
+
+        return $datagrid->getResponse();
 
         $viewModel = new ViewModel(compact('form', 'options', 'service'));
         $viewModel->setTemplate($options->getListTemplate());
