@@ -20,8 +20,7 @@ use Zend\Form\ElementInterface,
 
 class Label extends HtmlContainer implements TranslatorAwareInterface
 {
-    use TranslatorAwareTrait,
-        TranslatorTrait;
+    use TranslatorAwareTrait;
 
     /**
      * @var string
@@ -55,28 +54,26 @@ class Label extends HtmlContainer implements TranslatorAwareInterface
         array $attribs = [],
         ElementInterface $element = null
     ) {
-        $fallbackTextDomain = 'default';
-
-        if ($content && $content instanceof LabelAwareInterface) {
-            $fallbackTextDomain = $content->getOption('text_domain');
+        if ($content instanceof LabelAwareInterface) {
             $content = $content->getLabel();
-        } elseif (!$content && $element instanceof LabelAwareInterface) {
-            $fallbackTextDomain = $element->getOption('text_domain');
+        } elseif ($element instanceof LabelAwareInterface) {
             $content = $element->getLabel();
         }
 
-        $content = $this->translate($content, $fallbackTextDomain);
+        if (is_string($content) && $this->hasTranslator() && $this->isTranslatorEnabled()) {
+            $content = $this->getTranslator()->translate($content, $this->getTranslatorTextDomain());
+        }
 
-        if ($element instanceof FormInterface
-            && ($object = $element->getObject())
-            && method_exists($object, '__toString')
+        if ($element instanceof FormInterface &&
+            ($object = $element->getObject()) &&
+            method_exists($object, '__toString')
         ) {
             $content = sprintf($content, $object);
         }
 
         if ($element
-            && (!$element instanceof LabelAwareInterface
-                || !$element->getLabelOption('disable_html_escape'))
+            && (!$element instanceof LabelAwareInterface ||
+                !$element->getLabelOption('disable_html_escape'))
         ) {
             $escapeHtmlHelper = $this->getEscapeHtmlHelper();
             $content = $escapeHtmlHelper($content);

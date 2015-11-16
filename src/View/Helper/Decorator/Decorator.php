@@ -72,12 +72,11 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface, Tr
             }
 
             $plugin = $this->getDecoratorHelper($decorator);
+
             $rollbackTextDomain = null;
             if ($plugin instanceof TranslatorAwareInterface) {
                 $rollbackTextDomain = $plugin->getTranslatorTextDomain();
-                if (!$rollbackTextDomain || $rollbackTextDomain === 'default') {
-                    $plugin->setTranslatorTextDomain($this->getTranslatorTextDomain());
-                }
+                $plugin->setTranslatorTextDomain($this->getTranslatorTextDomain());
             }
 
             $param_arr[0] = isset($options['content']) ? $options['content'] : '';

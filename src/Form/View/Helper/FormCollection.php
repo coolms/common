@@ -44,7 +44,7 @@ class FormCollection extends ZendFormCollection
     protected $fieldsetKey = 'fieldset';
 
     /**
-     * @var integer
+     * @var int
      */
     protected $partialCounter;
 
@@ -132,6 +132,7 @@ class FormCollection extends ZendFormCollection
                     'counter'               => null,
                     'wrap'                  => $wrap,
                 ]);
+
                 $wrap = false;
             }
         } else {

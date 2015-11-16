@@ -31,7 +31,7 @@ class Form extends ZendForm
      *
      * @var string
      */
-    protected $defaultFieldsetHelper = 'form_collection';
+    protected $defaultFieldsetHelper = 'formCollection';
 
     /**
      * The view helper used to render form elements.
@@ -45,7 +45,7 @@ class Form extends ZendForm
      *
      * @var string
      */
-    protected $defaultFormMessagesHelper = 'form_messages';
+    protected $defaultFormMessagesHelper = 'formMessages';
 
     /**
      * The view helper used to render form messages.

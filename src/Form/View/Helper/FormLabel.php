@@ -46,30 +46,20 @@ class FormLabel extends ZendFormLabel
         }
 
         if ($decorators = $this->getDecorators($element)) {
-            $decoratorHelper = $this->getDecoratorHelper();
-            if ($decoratorHelper instanceof TranslatorAwareInterface) {
-                $decoratorRollbackTextDomain = $decoratorHelper->getTranslatorTextDomain();
-                if (!$decoratorRollbackTextDomain || $decoratorRollbackTextDomain === 'default') {
-                    $decoratorHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
-                }
-            }
-
-            $markup = $decoratorHelper($labelContent, $decorators, $element);
-
-            if (isset($decoratorRollbackTextDomain)) {
-                $decoratorHelper->setTranslatorTextDomain($decoratorRollbackTextDomain);
-            }
-
+            $helper = $this->getDecoratorHelper();
+            $args   = [$labelContent, $decorators, $element];
         } else {
             if (!$element->getLabel() && null === $labelContent) {
                 $labelContent = '';
                 $position = null;
             }
 
-            $markup = parent::__invoke($element, $labelContent, $position);
+            $helper = [__CLASS__, 'parent::' . __FUNCTION__];
+            $args   = [$element, $labelContent, $position];
         }
 
-        return $markup;
+        //echo $this->getTranslatorTextDomain() . ' ' . $element->getLabel() . "<br>";
+        return call_user_func_array($helper, $args);
     }
 
     /**

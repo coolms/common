@@ -19,8 +19,7 @@ use Zend\Form\ElementInterface,
 
 class Fieldset extends HtmlContainer implements TranslatorAwareInterface
 {
-    use TranslatorAwareTrait,
-        TranslatorTrait;
+    use TranslatorAwareTrait;
 
     /**
      * @var string
@@ -64,7 +63,12 @@ class Fieldset extends HtmlContainer implements TranslatorAwareInterface
         FormInterface $form = null
     ) {
         $legendHelper = $this->getLegendHelper();
-        $content = $this->renderTranslated($legendHelper, $element, [], $element, $form) . $content;
+        $content = $legendHelper(
+                $element,
+                [],
+                $element,
+                $form
+            ) . $content;
 
         return parent::render($content, $attribs);
     }

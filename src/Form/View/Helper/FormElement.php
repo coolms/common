@@ -20,12 +20,9 @@ use Zend\Form\ElementInterface,
     Zend\I18n\Translator\TranslatorAwareTrait,
     CmsCommon\View\Helper\Decorator\DecoratorProviderInterface;
 
-class FormElement extends ZendFormElement implements
-        DecoratorProviderInterface,
-        TranslatorAwareInterface
+class FormElement extends ZendFormElement implements DecoratorProviderInterface, TranslatorAwareInterface
 {
-    use TranslatorAwareTrait,
-        TranslatorTrait;
+    use TranslatorAwareTrait;
 
     /**
      * __construct
@@ -79,6 +76,18 @@ class FormElement extends ZendFormElement implements
     protected function renderHelper($name, ElementInterface $element)
     {
         $helper = $this->getView()->plugin($name);
-        return $this->renderTranslated($helper, $element);
+
+        if ($helper instanceof TranslatorAwareInterface) {
+            $rollbackTextDomain = $this->getTranslatorTextDomain();
+            $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+        }
+
+        $markup = $helper($element);
+
+        if (isset($rollbackTextDomain)) {
+            $helper->setTranslatorTextDomain($rollbackTextDomain);
+        }
+
+        return $markup;
     }
 }

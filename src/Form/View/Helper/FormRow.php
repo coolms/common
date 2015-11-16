@@ -15,6 +15,7 @@ use Zend\Form\ElementInterface,
     Zend\Form\FormInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormRow as ZendFormRow,
+    Zend\I18n\Translator\Translator,
     Zend\I18n\Translator\TranslatorAwareInterface;
 
 class FormRow extends ZendFormRow
@@ -30,6 +31,11 @@ class FormRow extends ZendFormRow
      * @var string
      */
     protected $renderMode = self::RENDER_ALL;
+
+    /**
+     * @var string
+     */
+    private $defaultTextDomain = 'default';
 
     /**
      * {@inheritDoc}
@@ -51,10 +57,10 @@ class FormRow extends ZendFormRow
             $this->setRenderMode($renderMode);
         }
 
-        if ($element->getOption('__rendered__')
-            || ($element->getAttribute('type') === 'static'
-                && ($this->getRenderMode() === static::RENDER_DYNAMIC
-                    || null === $element->getValue()))
+        if ($element->getOption('__rendered__') ||
+            ($element->getAttribute('type') === 'static' &&
+                ($this->getRenderMode() === static::RENDER_DYNAMIC ||
+                    null === $element->getValue()))
         ) {
             return '';
         }
@@ -67,33 +73,87 @@ class FormRow extends ZendFormRow
      */
     public function render(ElementInterface $element, $labelPosition = null)
     {
+        if ($decorators = $this->getDecorators($element, $this->getForm())) {
+            $helper = $this->getDecoratorHelper();
+            $args   = [$element, $decorators, $element, $this->getForm()];
+        } elseif ($element instanceof FieldsetInterface) {
+            $helper = $this->getElementHelper();
+            $args   = [$element];
+        } else {
+            $helper = [__CLASS__, 'parent::' . __FUNCTION__];
+            $args   = func_get_args();
+        }
+
         $rollbackTextDomain = $this->getTranslatorTextDomain();
-        if ((!$rollbackTextDomain || $rollbackTextDomain === 'default') &&
-            ($textDomain = $element->getOption('text_domain'))
-        ) {
+        $textDomain = $element->getOption('text_domain');
+        if ($rollbackTextDomain === $this->defaultTextDomain && $textDomain) {
             $this->setTranslatorTextDomain($textDomain);
         }
 
-        if ($decorators = $this->getDecorators($element, $this->getForm())) {
-            $decoratorHelper = $this->getDecoratorHelper();
-            if ($decoratorHelper instanceof TranslatorAwareInterface) {
-                $decoratorRollbackTextDomain = $decoratorHelper->getTranslatorTextDomain();
-                if (!$decoratorRollbackTextDomain || $decoratorRollbackTextDomain === 'default') {
-                    $decoratorHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+            $translator = $this->getTranslator();
+            if (!($isEventManagerEnabled = $translator->isEventManagerEnabled())) {
+                $translator->enableEventManager();
+            }
+
+            static $count = 0;
+            $translatorEventManager = $translator->getEventManager();
+            $callbackHandler = $translatorEventManager->attach(
+                Translator::EVENT_MISSING_TRANSLATION,
+                function($e) use ($translator, $textDomain, $rollbackTextDomain, &$count) {
+
+                    $textDomain = $textDomain ?: $rollbackTextDomain;
+                    //echo "{$e->getParam('text_domain')} :: $textDomain :: $rollbackTextDomain {$e->getParam('message')} <br>";
+                    if ($e->getParam('text_domain') !== $textDomain) {
+                        if ($count > 100) {
+                            //exit;
+                        }
+
+                        $count++;
+                        return $translator->translate(
+                            $e->getParam('message'),
+                            $textDomain,
+                            $e->getParam('locale')
+                        );
+                    }
                 }
+            );
+
+        if ($helper instanceof TranslatorAwareInterface) {
+            $helperRollbackTextDomain = $helper->getTranslatorTextDomain();
+            $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+        }
+
+        $elementHelper = $this->getElementHelper();
+        if ($elementHelper instanceof TranslatorAwareInterface) {
+            $elementRollbackTextDomain = $elementHelper->getTranslatorTextDomain();
+            $elementHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+        }
+
+        $labelHelper = $this->getLabelHelper();
+        if ($labelHelper instanceof TranslatorAwareInterface) {
+            $labelRollbackTextDomain = $labelHelper->getTranslatorTextDomain();
+            $labelHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+        }
+
+        $markup = call_user_func_array($helper, $args);
+
+        if (isset($callbackHandler)) {
+            $translatorEventManager->detach($callbackHandler);
+            if (!$isEventManagerEnabled) {
+                $translator->disableEventManager();
             }
+        }
 
-            $markup = $decoratorHelper($element, $decorators, $element, $this->getForm());
+        if (isset($helperRollbackTextDomain)) {
+            $helper->setTranslatorTextDomain($helperRollbackTextDomain);
+        }
 
-            if (isset($decoratorRollbackTextDomain)) {
-                $decoratorHelper->setTranslatorTextDomain($decoratorRollbackTextDomain);
-            }
+        if (isset($elementRollbackTextDomain)) {
+            $elementHelper->setTranslatorTextDomain($elementRollbackTextDomain);
+        }
 
-        } elseif ($element instanceof FieldsetInterface) {
-            $helper = $this->getElementHelper();
-            $markup = $helper($element);
-        } else {
-            $markup = parent::render($element, $labelPosition);
+        if (isset($labelRollbackTextDomain)) {
+            $elementHelper->setTranslatorTextDomain($labelRollbackTextDomain);
         }
 
         $this->setTranslatorTextDomain($rollbackTextDomain);
@@ -108,16 +168,10 @@ class FormRow extends ZendFormRow
     {
         $renderer = $this->getView();
         if ($this->getRenderMode() === static::RENDER_STATIC && method_exists($renderer, 'plugin')) {
-            $elementHelper = $renderer->plugin('form_static');
+            return $renderer->plugin('form_static');
         } else {
-            $elementHelper = parent::getElementHelper();
+            return parent::getElementHelper();
         }
-
-        if ($elementHelper instanceof TranslatorAwareInterface) {
-            $elementHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
-        }
-
-        return $elementHelper;
     }
 
     /**

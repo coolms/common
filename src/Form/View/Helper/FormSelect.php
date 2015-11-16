@@ -15,6 +15,8 @@ use Zend\Form\View\Helper\FormSelect as ZendFormSelect,
 
 class FormSelect extends ZendFormSelect
 {
+    protected $translatorEnabled = false;
+
     /**
      * {@inheritDoc}
      */

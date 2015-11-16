@@ -35,23 +35,9 @@ class ElementLabel extends Label
         }
 
         $element->setLabelAttributes($this->mergeAttributes($attribs));
-
         $labelHelper = $this->getLabelHelper();
 
-        if ($labelHelper instanceof TranslatorAwareInterface
-            && ($textDomain = $element->getOption('text_domain'))
-        ) {
-            $rollbackTextDomain = $labelHelper->getTranslatorTextDomain();
-            $labelHelper->setTranslatorTextDomain($textDomain);
-        }
-
-        $markup = $labelHelper($element, $content ?: null, $this->getLabelPosition($element));
-
-        if ($textDomain) {
-            $labelHelper->setTranslatorTextDomain($rollbackTextDomain);
-        }
-
-        return $markup;
+        return $labelHelper($element, $content ?: null, $this->getLabelPosition($element));
     }
 
     /**
@@ -64,7 +50,7 @@ class ElementLabel extends Label
         }
 
         if (method_exists($this->view, 'plugin')) {
-            $this->labelHelper = $this->view->plugin('form_label');
+            $this->labelHelper = $this->view->plugin('formLabel');
         }
 
         if (!$this->labelHelper instanceof FormLabel) {
