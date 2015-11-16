@@ -86,37 +86,31 @@ class FormRow extends ZendFormRow
 
         $rollbackTextDomain = $this->getTranslatorTextDomain();
         $textDomain = $element->getOption('text_domain');
-        if ($rollbackTextDomain === $this->defaultTextDomain && $textDomain) {
+        if ($textDomain && $rollbackTextDomain === $this->defaultTextDomain) {
             $this->setTranslatorTextDomain($textDomain);
         }
 
-            $translator = $this->getTranslator();
-            if (!($isEventManagerEnabled = $translator->isEventManagerEnabled())) {
-                $translator->enableEventManager();
-            }
+        $translator = $this->getTranslator();
+        if (!($isEventManagerEnabled = $translator->isEventManagerEnabled())) {
+            $translator->enableEventManager();
+        }
 
-            static $count = 0;
-            $translatorEventManager = $translator->getEventManager();
-            $callbackHandler = $translatorEventManager->attach(
-                Translator::EVENT_MISSING_TRANSLATION,
-                function($e) use ($translator, $textDomain, $rollbackTextDomain, &$count) {
-
-                    $textDomain = $textDomain ?: $rollbackTextDomain;
-                    //echo "{$e->getParam('text_domain')} :: $textDomain :: $rollbackTextDomain {$e->getParam('message')} <br>";
-                    if ($e->getParam('text_domain') !== $textDomain) {
-                        if ($count > 100) {
-                            //exit;
-                        }
-
-                        $count++;
-                        return $translator->translate(
-                            $e->getParam('message'),
-                            $textDomain,
-                            $e->getParam('locale')
-                        );
-                    }
+        $translatorEventManager = $translator->getEventManager();
+        $callbackHandler = $translatorEventManager->attach(
+            Translator::EVENT_MISSING_TRANSLATION,
+            function($e) use ($translator, $textDomain, $rollbackTextDomain) {
+                $textDomain = $textDomain ?: $rollbackTextDomain;
+                if ($e->getParam('text_domain') !== $textDomain &&
+                    $textDomain !== $rollbackTextDomain
+                ) {
+                    return $translator->translate(
+                        $e->getParam('message'),
+                        $textDomain,
+                        $e->getParam('locale')
+                    );
                 }
-            );
+            }
+        );
 
         if ($helper instanceof TranslatorAwareInterface) {
             $helperRollbackTextDomain = $helper->getTranslatorTextDomain();
@@ -167,11 +161,13 @@ class FormRow extends ZendFormRow
     protected function getElementHelper()
     {
         $renderer = $this->getView();
-        if ($this->getRenderMode() === static::RENDER_STATIC && method_exists($renderer, 'plugin')) {
+        if ($this->getRenderMode() === static::RENDER_STATIC &&
+            method_exists($renderer, 'plugin')
+        ) {
             return $renderer->plugin('form_static');
-        } else {
-            return parent::getElementHelper();
         }
+
+        return parent::getElementHelper();
     }
 
     /**

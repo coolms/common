@@ -15,22 +15,20 @@ use Zend\Form\View\Helper\FormSelect as ZendFormSelect,
 
 class FormSelect extends ZendFormSelect
 {
-    protected $translatorEnabled = false;
-
     /**
      * {@inheritDoc}
      */
     public function renderOptions(array $options, array $selectedOptions = [])
     {
-        $template      = '<option %s>%s</option>';
-        $optionStrings = [];
-        $escapeHtml    = $this->getEscapeHtmlHelper();
+        $template       = '<option %s>%s</option>';
+        $optionStrings  = [];
+        $escapeHtml     = $this->getEscapeHtmlHelper();
 
         foreach ($options as $key => $optionSpec) {
-            $value    = '';
-            $label    = '';
-            $selected = false;
-            $disabled = false;
+            $value      = '';
+            $label      = '';
+            $selected   = false;
+            $disabled   = false;
 
             if (is_scalar($optionSpec)) {
                 $optionSpec = [

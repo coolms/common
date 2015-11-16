@@ -20,7 +20,9 @@ use Zend\Form\ElementInterface,
     Zend\I18n\Translator\TranslatorAwareTrait,
     CmsCommon\View\Helper\Decorator\DecoratorProviderInterface;
 
-class FormElement extends ZendFormElement implements DecoratorProviderInterface, TranslatorAwareInterface
+class FormElement extends ZendFormElement implements
+        DecoratorProviderInterface,
+        TranslatorAwareInterface
 {
     use TranslatorAwareTrait;
 

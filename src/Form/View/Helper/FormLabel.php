@@ -14,7 +14,6 @@ use Zend\Form\ElementInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormLabel as ZendFormLabel,
     CmsCommon\View\Helper\Decorator\Decorator;
-use Zend\I18n\Translator\TranslatorAwareInterface;
 
 class FormLabel extends ZendFormLabel
 {
@@ -58,7 +57,6 @@ class FormLabel extends ZendFormLabel
             $args   = [$element, $labelContent, $position];
         }
 
-        //echo $this->getTranslatorTextDomain() . ' ' . $element->getLabel() . "<br>";
         return call_user_func_array($helper, $args);
     }
 
@@ -89,8 +87,7 @@ class FormLabel extends ZendFormLabel
      */
     protected function getDecorators(LabelAwareInterface $element)
     {
-        $decorators = (array) $element->getLabelOption($this->getDecoratorNamespace());
-        return $decorators;
+        return (array) $element->getLabelOption($this->getDecoratorNamespace());
     }
 
     /**

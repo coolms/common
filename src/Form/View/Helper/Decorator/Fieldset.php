@@ -63,12 +63,22 @@ class Fieldset extends HtmlContainer implements TranslatorAwareInterface
         FormInterface $form = null
     ) {
         $legendHelper = $this->getLegendHelper();
+
+        if ($legendHelper instanceof TranslatorAwareInterface) {
+            $rollbackTextDomain = $legendHelper->getTranslatorTextDomain();
+            $legendHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+        }
+
         $content = $legendHelper(
                 $element,
                 [],
                 $element,
                 $form
             ) . $content;
+
+        if (isset($rollbackTextDomain)) {
+            $legendHelper->setTranslatorTextDomain($rollbackTextDomain);
+        }
 
         return parent::render($content, $attribs);
     }
