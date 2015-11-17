@@ -110,10 +110,10 @@ class FormRow extends ZendFormRow
                                 $textDomain,
                                 $e->getParam('locale')
                             );
-    
+
                             return $translated === $message ? null : $translated;
                         }
-    
+
                         return $message;
                     }
                 },

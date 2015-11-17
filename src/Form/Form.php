@@ -33,8 +33,6 @@ use Traversable,
     Zend\Stdlib\PriorityList,
     CmsCommon\Form\Element\StaticElement,
     CmsCommon\Form\Options\Traits\FormOptionsTrait;
-use Zend\Stdlib\Hydrator\ClassMethods;
-use Zend\Stdlib\Hydrator\ObjectProperty;
 
 class Form extends ZendForm implements
         FormInterface,
@@ -100,6 +98,9 @@ class Form extends ZendForm implements
             'type' => 'submit',
             'value' => 'Submit',
         ],
+        'options' => [
+            'text_domain' => 'default',
+        ],
     ];
 
     /**
@@ -111,6 +112,9 @@ class Form extends ZendForm implements
         'attributes' => [
             'type'  => 'reset',
             'value' => 'Reset',
+        ],
+        'options' => [
+            'text_domain' => 'default',
         ],
     ];
 

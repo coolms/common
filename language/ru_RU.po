@@ -82,3 +82,9 @@ msgstr "По"
 
 msgid "to"
 msgstr "по"
+
+msgid "Submit"
+msgstr "Отправить"
+
+msgid "Reset"
+msgstr "Сброс"
