@@ -15,8 +15,7 @@ use Zend\Form\ElementInterface,
     Zend\Form\FormInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormRow as ZendFormRow,
-    Zend\I18n\Translator\Translator,
-    Zend\I18n\Translator\TranslatorAwareInterface;
+    Zend\I18n\Translator;
 
 class FormRow extends ZendFormRow
 {
@@ -100,7 +99,7 @@ class FormRow extends ZendFormRow
             }
 
             $callbackHandler = $translator->getEventManager()->attach(
-                Translator::EVENT_MISSING_TRANSLATION,
+                Translator\Translator::EVENT_MISSING_TRANSLATION,
                 function($e) use ($translator, $textDomain, $rollbackTextDomain) {
                     $textDomain = $textDomain ?: $rollbackTextDomain;
                     if ($textDomain !== $rollbackTextDomain) {
@@ -122,19 +121,19 @@ class FormRow extends ZendFormRow
             );
         }
 
-        if ($helper instanceof TranslatorAwareInterface) {
+        if ($helper instanceof Translator\TranslatorAwareInterface) {
             $helperRollbackTextDomain = $helper->getTranslatorTextDomain();
             $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
         }
 
         $elementHelper = $this->getElementHelper();
-        if ($elementHelper instanceof TranslatorAwareInterface) {
+        if ($elementHelper instanceof Translator\TranslatorAwareInterface) {
             $elementRollbackTextDomain = $elementHelper->getTranslatorTextDomain();
             $elementHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
         }
 
         $labelHelper = $this->getLabelHelper();
-        if ($labelHelper instanceof TranslatorAwareInterface) {
+        if ($labelHelper instanceof Translator\TranslatorAwareInterface) {
             $labelRollbackTextDomain = $labelHelper->getTranslatorTextDomain();
             $labelHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
         }
