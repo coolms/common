@@ -23,6 +23,8 @@ class FormRow extends ZendFormRow
     use FormProviderTrait,
         DecoratorTrait;
 
+    const DEFAULT_TEXT_DOMAIN = 'default';
+
     const RENDER_ALL     = 'all';
     const RENDER_STATIC  = 'static';
     const RENDER_DYNAMIC = 'dynamic';
@@ -31,11 +33,6 @@ class FormRow extends ZendFormRow
      * @var string
      */
     protected $renderMode = self::RENDER_ALL;
-
-    /**
-     * @var string
-     */
-    private $defaultTextDomain = 'default';
 
     /**
      * {@inheritDoc}
@@ -73,12 +70,18 @@ class FormRow extends ZendFormRow
      */
     public function render(ElementInterface $element, $labelPosition = null)
     {
+        static $priority = 10;
+
         if ($decorators = $this->getDecorators($element, $this->getForm())) {
             $helper = $this->getDecoratorHelper();
             $args   = [$element, $decorators, $element, $this->getForm()];
         } elseif ($element instanceof FieldsetInterface) {
-            $helper = $this->getElementHelper();
-            $args   = [$element];
+            $helper    = $this->getElementHelper();
+            $args      = [$element];
+            if (!$element->getOption('translation_priority')) {
+                $priority += 10;
+                $element->setOption('translation_priority', $priority);
+            }
         } else {
             $helper = [__CLASS__, 'parent::' . __FUNCTION__];
             $args   = func_get_args();
@@ -86,36 +89,38 @@ class FormRow extends ZendFormRow
 
         $rollbackTextDomain = $this->getTranslatorTextDomain();
         $textDomain = $element->getOption('text_domain');
-        if ($textDomain && $rollbackTextDomain === $this->defaultTextDomain) {
+
+        if ($textDomain && $rollbackTextDomain === static::DEFAULT_TEXT_DOMAIN) {
             $this->setTranslatorTextDomain($textDomain);
         }
 
-        $translator = $this->getTranslator();
-        if (!($isEventManagerEnabled = $translator->isEventManagerEnabled())) {
-            $translator->enableEventManager();
-        }
-
-        $translatorEventManager = $translator->getEventManager();
-        $callbackHandler = $translatorEventManager->attach(
-            Translator::EVENT_MISSING_TRANSLATION,
-            function($e) use ($translator, $textDomain, $rollbackTextDomain) {
-                $textDomain = $textDomain ?: $rollbackTextDomain;
-                if ($textDomain !== $rollbackTextDomain) {
-                    $message = $e->getParam('message');
-                    if ($e->getParam('text_domain') !== $textDomain) {
-                        $translated = $translator->translate(
-                            $message,
-                            $textDomain,
-                            $e->getParam('locale')
-                        );
-
-                        return $translated === $message ? null : $translated;
-                    }
-
-                    return $message;
-                }
+        if (null !== ($translator = $this->getTranslator())) {
+            if (!($isEventManagerEnabled = $translator->isEventManagerEnabled())) {
+                $translator->enableEventManager();
             }
-        );
+
+            $callbackHandler = $translator->getEventManager()->attach(
+                Translator::EVENT_MISSING_TRANSLATION,
+                function($e) use ($translator, $textDomain, $rollbackTextDomain) {
+                    $textDomain = $textDomain ?: $rollbackTextDomain;
+                    if ($textDomain !== $rollbackTextDomain) {
+                        $message = $e->getParam('message');
+                        if ($e->getParam('text_domain') !== $textDomain) {
+                            $translated = $translator->translate(
+                                $message,
+                                $textDomain,
+                                $e->getParam('locale')
+                            );
+    
+                            return $translated === $message ? null : $translated;
+                        }
+    
+                        return $message;
+                    }
+                },
+                $element->getOption('translation_priority')
+            );
+        }
 
         if ($helper instanceof TranslatorAwareInterface) {
             $helperRollbackTextDomain = $helper->getTranslatorTextDomain();
@@ -136,8 +141,8 @@ class FormRow extends ZendFormRow
 
         $markup = call_user_func_array($helper, $args);
 
-        if (isset($callbackHandler)) {
-            $translatorEventManager->detach($callbackHandler);
+        if (null !== $translator && isset($callbackHandler)) {
+            $translator->getEventManager()->detach($callbackHandler);
             if (!$isEventManagerEnabled) {
                 $translator->disableEventManager();
             }

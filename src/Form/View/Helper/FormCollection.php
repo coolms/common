@@ -287,6 +287,7 @@ class FormCollection extends ZendFormCollection
             $templatePlaceholder = $collection->getTemplatePlaceholder();
 
             $fieldset = $collection->getTemplateElement();
+            //echo "{$this->getTranslatorTextDomain()} {$fieldset->getOption('text_domain')}";
             $fieldset->setOption('allow_remove', $collection->allowRemove());
             $fieldset->setAttribute('data-counter', $templatePlaceholder);
 
