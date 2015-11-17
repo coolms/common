@@ -13,14 +13,13 @@ namespace CmsCommon\Form\View\Helper\Decorator;
 use Zend\Form\ElementInterface,
     Zend\Form\FormInterface,
     Zend\Form\LabelAwareInterface,
-    Zend\I18n\Translator\TranslatorAwareInterface,
-    Zend\I18n\Translator\TranslatorAwareTrait,
+    Zend\I18n\Translator,
     CmsCommon\View\Helper\HtmlContainer,
     CmsCommon\View\Helper\TranslatorTrait;
 
-class Label extends HtmlContainer implements TranslatorAwareInterface
+class Label extends HtmlContainer implements Translator\TranslatorAwareInterface
 {
-    use TranslatorAwareTrait;
+    use Translator\TranslatorAwareTrait;
 
     /**
      * @var string
