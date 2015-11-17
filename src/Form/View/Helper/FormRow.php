@@ -22,11 +22,11 @@ class FormRow extends ZendFormRow
     use FormProviderTrait,
         DecoratorTrait;
 
-    const DEFAULT_TEXT_DOMAIN = 'default';
+    const DEFAULT_TEXT_DOMAIN   = 'default';
 
-    const RENDER_ALL     = 'all';
-    const RENDER_STATIC  = 'static';
-    const RENDER_DYNAMIC = 'dynamic';
+    const RENDER_ALL            = 'all';
+    const RENDER_STATIC         = 'static';
+    const RENDER_DYNAMIC        = 'dynamic';
 
     /**
      * @var string

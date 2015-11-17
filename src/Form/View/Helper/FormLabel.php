@@ -13,6 +13,7 @@ namespace CmsCommon\Form\View\Helper;
 use Zend\Form\ElementInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormLabel as ZendFormLabel,
+    Zend\I18n\Translator\TranslatorAwareInterface,
     CmsCommon\View\Helper\Decorator\Decorator;
 
 class FormLabel extends ZendFormLabel
@@ -57,7 +58,18 @@ class FormLabel extends ZendFormLabel
             $args   = [$element, $labelContent, $position];
         }
 
-        return call_user_func_array($helper, $args);
+        if ($helper instanceof TranslatorAwareInterface) {
+            $rollbackTextDomain = $helper->getTranslatorTextDomain();
+            $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+        }
+
+        $markup = call_user_func_array($helper, $args);
+
+        if (isset($rollbackTextDomain)) {
+            $helper->setTranslatorTextDomain($rollbackTextDomain);
+        }
+
+        return $markup;
     }
 
     /**
