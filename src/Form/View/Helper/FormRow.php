@@ -67,7 +67,7 @@ class FormRow extends ZendFormRow
     /**
      * {@inheritDoc}
      */
-    public function render(ElementInterface $element, $labelPosition = null)
+    public function render(ElementInterface $element, $labelPositionOrWrap = null)
     {
         static $priority = 10;
 
@@ -75,8 +75,13 @@ class FormRow extends ZendFormRow
             $helper = $this->getDecoratorHelper();
             $args   = [$element, $decorators, $element, $this->getForm()];
         } elseif ($element instanceof FieldsetInterface) {
-            $helper    = $this->getElementHelper();
-            $args      = [$element];
+            $helper = $this->getElementHelper();
+            $args   = func_get_args();
+
+            if (!isset($args[1])) {
+                $args[1] = false;
+            }
+
             if (!$element->getOption('translation_priority')) {
                 $priority += 10;
                 $element->setOption('translation_priority', $priority);

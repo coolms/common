@@ -12,19 +12,17 @@ namespace CmsCommon\Form\View\Helper;
 
 use Zend\Form\ElementInterface,
     Zend\Form\Element\Csrf,
-    Zend\Form\Fieldset,
+    Zend\Form\FieldsetInterface,
     Zend\Form\FormInterface,
     Zend\Form\View\Helper\FormElement as ZendFormElement,
-    Zend\Form\View\Helper\FormInput,
-    Zend\I18n\Translator\TranslatorAwareInterface,
-    Zend\I18n\Translator\TranslatorAwareTrait,
+    Zend\I18n\Translator,
     CmsCommon\View\Helper\Decorator\DecoratorProviderInterface;
 
 class FormElement extends ZendFormElement implements
         DecoratorProviderInterface,
-        TranslatorAwareInterface
+        Translator\TranslatorAwareInterface
 {
-    use TranslatorAwareTrait;
+    use Translator\TranslatorAwareTrait;
 
     /**
      * __construct
@@ -32,8 +30,44 @@ class FormElement extends ZendFormElement implements
     public function __construct()
     {
         $this->addClass(Csrf::class, 'formcsrf');
-        $this->addClass(Fieldset::class, 'formcollection');
+        $this->addClass(FieldsetInterface::class, 'formcollection');
         $this->addType('static', 'formstatic');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function __invoke(ElementInterface $element = null)
+    {
+        if (!$element) {
+            return $this;
+        }
+
+        return call_user_func_array([$this, 'render'], func_get_args());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function render(ElementInterface $element)
+    {
+        $renderer = $this->getView();
+        if (!method_exists($renderer, 'plugin')) {
+            // Bail early if renderer is not pluggable
+            return '';
+        }
+
+        $renderedInstance = call_user_func_array([$this, 'renderInstance'], func_get_args());
+        if ($renderedInstance !== null) {
+            return $renderedInstance;
+        }
+
+        $renderedType = call_user_func_array([$this, 'renderType'], func_get_args());
+        if ($renderedType !== null) {
+            return $renderedType;
+        }
+
+        return $this->renderHelper($this->defaultHelper, $element);
     }
 
     /**
@@ -52,7 +86,7 @@ class FormElement extends ZendFormElement implements
     }
 
     /**
-     * @return FormInput
+     * @return ZendFormElement
      */
     protected function getElementHelper(ElementInterface $element)
     {
@@ -79,17 +113,56 @@ class FormElement extends ZendFormElement implements
     {
         $helper = $this->getView()->plugin($name);
 
-        if ($helper instanceof TranslatorAwareInterface) {
+        if ($helper instanceof Translator\TranslatorAwareInterface) {
             $rollbackTextDomain = $this->getTranslatorTextDomain();
             $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
         }
 
-        $markup = $helper($element);
+        if ($element instanceof FieldsetInterface) {
+            $markup = call_user_func_array($helper, array_slice(func_get_args(), 1));
+        } else {
+            $markup = $helper($element);
+        }
 
         if (isset($rollbackTextDomain)) {
             $helper->setTranslatorTextDomain($rollbackTextDomain);
         }
 
         return $markup;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function renderInstance(ElementInterface $element)
+    {
+        $args = func_get_args();
+
+        foreach ($this->classMap as $class => $pluginName) {
+            if ($element instanceof $class) {
+                array_unshift($args, $pluginName);
+
+                return call_user_func_array([$this, 'renderHelper'], $args);
+            }
+        }
+
+        return;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function renderType(ElementInterface $element)
+    {
+        $type = $element->getAttribute('type');
+
+        if (isset($this->typeMap[$type])) {
+            $args = func_get_args();
+            array_unshift($args, $this->typeMap[$type]);
+
+            return call_user_func_array([$this, 'renderHelper'], $args);
+        }
+
+        return;
     }
 }
