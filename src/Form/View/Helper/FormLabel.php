@@ -60,7 +60,9 @@ class FormLabel extends ZendFormLabel
 
         if ($helper instanceof TranslatorAwareInterface) {
             $rollbackTextDomain = $helper->getTranslatorTextDomain();
-            $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+            if ($rollbackTextDomain === 'default') {
+                $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+            }
         }
 
         $markup = call_user_func_array($helper, $args);
