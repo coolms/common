@@ -100,14 +100,19 @@ class FormRow extends ZendFormRow
             Translator::EVENT_MISSING_TRANSLATION,
             function($e) use ($translator, $textDomain, $rollbackTextDomain) {
                 $textDomain = $textDomain ?: $rollbackTextDomain;
-                if ($e->getParam('text_domain') !== $textDomain &&
-                    $textDomain !== $rollbackTextDomain
-                ) {
-                    return $translator->translate(
-                        $e->getParam('message'),
-                        $textDomain,
-                        $e->getParam('locale')
-                    );
+                if ($textDomain !== $rollbackTextDomain) {
+                    $message = $e->getParam('message');
+                    if ($e->getParam('text_domain') !== $textDomain) {
+                        $translated = $translator->translate(
+                            $message,
+                            $textDomain,
+                            $e->getParam('locale')
+                        );
+
+                        return $translated === $message ? null : $translated;
+                    }
+
+                    return $message;
                 }
             }
         );
