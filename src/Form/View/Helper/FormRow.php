@@ -116,10 +116,10 @@ class FormRow extends ZendFormRow
                                 $e->getParam('locale')
                             );
 
-                            return $translated === $message ? null : $translated;
+                            return $translated == $message ? null : (string) $translated;
                         }
 
-                        return $message;
+                        return (string) $message;
                     }
                 },
                 $element->getOption('translation_priority')
