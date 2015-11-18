@@ -14,7 +14,6 @@ use Zend\Form\ElementInterface,
     Zend\Form\FormInterface,
     Zend\I18n\Translator\TranslatorAwareInterface,
     Zend\I18n\Translator\TranslatorAwareTrait,
-    CmsCommon\Form\View\Helper\TranslatorTrait,
     CmsCommon\View\Helper\HtmlContainer;
 
 class Fieldset extends HtmlContainer implements TranslatorAwareInterface

@@ -29,9 +29,9 @@ class FormElement extends ZendFormElement implements
      */
     public function __construct()
     {
-        $this->addClass(Csrf::class, 'formcsrf');
-        $this->addClass(FieldsetInterface::class, 'formcollection');
-        $this->addType('static', 'formstatic');
+        $this->addClass(Csrf::class, 'formCsrf');
+        $this->addClass(FieldsetInterface::class, 'formCollection');
+        $this->addType('static', 'formStatic');
     }
 
     /**
@@ -164,5 +164,17 @@ class FormElement extends ZendFormElement implements
         }
 
         return;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addClass($class, $plugin)
+    {
+        $classMap = array_reverse($this->classMap, true);
+        $classMap[$class] = $plugin;
+        $this->classMap = array_reverse($classMap, true);
+
+        return $this;
     }
 }

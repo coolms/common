@@ -14,10 +14,9 @@ use Zend\Form\Element as ZendElement,
     Zend\Form\ElementInterface,
     Zend\Form\FormInterface,
     Zend\Form\View\Helper\FormElement,
+    Zend\I18n\Translator\TranslatorAwareInterface,
+    Zend\I18n\Translator\TranslatorAwareTrait,
     CmsCommon\View\Helper\IdNormalizer;
-use CmsCommon\Form\View\Helper\TranslatorTrait;
-use Zend\I18n\Translator\TranslatorAwareInterface;
-use Zend\I18n\Translator\TranslatorAwareTrait;
 
 class Element extends AbstractHtmlContainer implements TranslatorAwareInterface
 {
@@ -34,7 +33,7 @@ class Element extends AbstractHtmlContainer implements TranslatorAwareInterface
     protected $defaultElementHelper = 'formElement';
 
     /**
-     * @var AbstractHelper
+     * @var FormElement
      */
     protected $elementHelper;
 
