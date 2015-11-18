@@ -98,8 +98,7 @@ class CrudController extends AbstractCrudController implements
                 return $this->redirectToBaseRoute();
             }
 
-            $object = $this->getDomainService()->getMapper()->find($id);
-            if (!$object) {
+            if (!($object = $this->getDomainService()->getMapper()->find($id))) {
                 $this->flashMessenger()->addWarningMessage($this->translate('An object cannot be found'));
                 return $this->redirectToBaseRoute();
             }

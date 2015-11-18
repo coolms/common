@@ -467,16 +467,19 @@ class Form extends ZendForm implements
                 if (isset($validationGroup[$name])) {
                     if ($fieldsetOrElement instanceof Collection) {
                         $fieldsets = [];
-                        foreach ($fieldsetOrElement as $key => $fieldset) {
-                            if (!isset($validationGroup[$name][$key])) {
-                                $validationGroup[$name][$key] = [];
-                            }
+                        $group = [];
 
+                        foreach ($fieldsetOrElement as $key => $fieldset) {
+                            $group[$key] = isset($validationGroup[$name]) ? $validationGroup[$name] : [];
                             $this->prepareValidationGroup(
                                 $fieldset,
                                 isset($data[$name][$key]) ? $data[$name][$key] : [],
-                                $validationGroup[$name][$key]
+                                $group[$key]
                             );
+                        }
+
+                        if ($group) {
+                            $validationGroup[$name] = $group;
                         }
 
                         $fieldsetOrElement = $fieldsetOrElement->getTargetElement();
