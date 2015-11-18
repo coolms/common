@@ -17,6 +17,84 @@ class Number extends BaseNumber
     /**
      * {@inheritDoc}
      */
+    public function setOptions($options)
+    {
+        parent::setOptions($options);
+
+        if ($options instanceof Traversable) {
+            $options = ArrayUtils::iteratorToArray($options);
+        }
+
+        if (isset($options['max'])) {
+            $this->setMax($options['max']);
+        }
+
+        if (isset($options['min'])) {
+            $this->setMin($options['min']);
+        }
+
+        if (isset($options['step'])) {
+            $this->setStep($options['step']);
+        }
+    }
+
+    /**
+     * @param number $max
+     * @return self
+     */
+    public function setMax($max)
+    {
+        $this->setAttribute('max', (float) $max);
+        return $this;
+    }
+
+    /**
+     * @return number
+     */
+    public function getMax()
+    {
+        return $this->getAttribute('max');
+    }
+
+    /**
+     * @param number $min
+     * @return self
+     */
+    public function setMin($min)
+    {
+        $this->setAttribute('min', (float) $min);
+        return $this;
+    }
+
+    /**
+     * @return number
+     */
+    public function getMin()
+    {
+        return $this->getAttribute('min');
+    }
+
+    /**
+     * @param number $step
+     * @return self
+     */
+    public function setStep($step)
+    {
+        $this->setAttribute('step', (float) $step);
+        return $this;
+    }
+
+    /**
+     * @return number
+     */
+    public function getStep()
+    {
+        return $this->getAttribute('step');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function getValidators()
     {
         if (strlen($this->getValue()) === 0) {

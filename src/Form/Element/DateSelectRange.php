@@ -320,6 +320,7 @@ class DateSelectRange extends InputFilterProviderFieldset
         if ($value instanceof RangeableInterface) {
             $this->get('startDate')->setValue($value->getStartDate());
             $this->get('endDate')->setValue($value->getEndDate());
+
             return $this;
         }
 
