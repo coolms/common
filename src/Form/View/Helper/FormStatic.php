@@ -11,31 +11,129 @@
 namespace CmsCommon\Form\View\Helper;
 
 use DateTime,
-    Zend\Form\ElementInterface as Element,
+    Zend\Form\ElementInterface,
     Zend\Form\View\Helper\FormInput;
 
 class FormStatic extends FormInput
 {
     /**
+     * Instance map to view helper
+     *
+     * @var array
+     */
+    protected $classMap = [
+        DateTime::class => 'typeDateTime',
+    ];
+
+    /**
+     * Type map to view helper
+     *
+     * @var array
+     */
+    protected $typeMap = [
+        'float'     => 'typeNumeric',
+        'int'       => 'typeNumeric',
+        'integer'   => 'typeNumeric',
+        'null'      => 'typeString',
+        'object'    => 'typeObject',
+        'string'    => 'typeString',
+    ];
+
+    /**
      * {@inheritDoc}
      */
-    public function render(Element $element)
+    public function render(ElementInterface $element)
     {
         if ($element->getAttribute('type') === 'hidden') {
             return '';
         }
 
-        if (method_exists($element, '__toString')) {
-            $value = $element;
-        } elseif (($value = $element->getValue()) instanceof DateTime) {
-            /* @todo Localization */
-            $value = $value->format('m-d-Y H:i:s');
+        $value = $this->renderInstance($element);
+        if ($value === null) {
+            $value = $this->renderType($element);
         }
 
-        $attributes = $element->getAttributes();
+        $attributes = $this->createAttributesString($element->getAttributes());
+        return sprintf('<p %s>%s</p>', $attributes, $value);
+    }
 
-        return sprintf('<p %s', $this->createAttributesString($attributes)) . '>'
-            . $value
-            . '</p>';
+    /**
+     * Add form element type to plugin map
+     *
+     * @param string $type
+     * @param string $plugin
+     * @return self
+     */
+    public function addType($type, $plugin)
+    {
+        $this->typeMap[$type] = $plugin;
+
+        return $this;
+    }
+
+    /**
+     * Add instance class to plugin map
+     *
+     * @param string $class
+     * @param string $plugin
+     * @return self
+     */
+    public function addClass($class, $plugin)
+    {
+        $classMap = array_reverse($this->classMap, true);
+        $classMap[$class] = $plugin;
+        $this->classMap = array_reverse($classMap, true);
+
+        return $this;
+    }
+
+    /**
+     * Render value by helper name
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return string
+     */
+    protected function renderHelper($name, $value)
+    {
+        $helper = $this->getView()->plugin($name);
+        return $helper($value);
+    }
+
+    /**
+     * Render element by instance map
+     *
+     * @param ElementInterface $element
+     * @return string|null
+     */
+    protected function renderInstance(ElementInterface $element)
+    {
+        $value = $element->getValue();
+
+        foreach ($this->classMap as $class => $pluginName) {
+            if ($value instanceof $class) {
+                return $this->renderHelper($pluginName, $value);
+            }
+        }
+
+        return;
+    }
+
+    /**
+     * Render element by type map
+     *
+     * @param ElementInterface $element
+     * @return string|null
+     */
+    protected function renderType(ElementInterface $element)
+    {
+        $value = $element->getValue();
+        $type = gettype($value);
+
+        if (isset($this->typeMap[$type])) {
+            return $this->renderHelper($this->typeMap[$type], $value);
+        }
+
+        return;
     }
 }

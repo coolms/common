@@ -203,6 +203,11 @@ return array(
     'CmsCommon\View\Helper\Nl2p'                                            => __DIR__ . '/src/View/Helper/Nl2p.php',
     'CmsCommon\View\Helper\Params'                                          => __DIR__ . '/src/View/Helper/Params.php',
     'CmsCommon\View\Helper\TranslatorTrait'                                 => __DIR__ . '/src/View/Helper/TranslatorTrait.php',
+    'CmsCommon\View\Helper\Type\AbstractHelper'                             => __DIR__ . '/src/View/Helper/Type/AbstractHelper.php',
+    'CmsCommon\View\Helper\Type\DateTime'                                   => __DIR__ . '/src/View/Helper/Type/DateTime.php',
+    'CmsCommon\View\Helper\Type\Numeric'                                    => __DIR__ . '/src/View/Helper/Type/Numeric.php',
+    'CmsCommon\View\Helper\Type\Object'                                     => __DIR__ . '/src/View/Helper/Type/Object.php',
+    'CmsCommon\View\Helper\Type\String'                                     => __DIR__ . '/src/View/Helper/Type/String.php',
     'CmsCommonTest\Framework\TestCase'                                      => __DIR__ . '/tests/Framework/TestCase.php',
     'CmsCommonTest\SampleTest'                                              => __DIR__ . '/tests/SampleTest.php',
 );

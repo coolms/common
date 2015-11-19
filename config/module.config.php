@@ -297,6 +297,10 @@ return [
             'locale' => 'CmsCommon\View\Helper\DefaultLocale',
             'map' => 'CmsCommon\View\Helper\Map',
             'nl2p' => 'CmsCommon\View\Helper\Nl2p',
+            'typeDateTime' => 'CmsCommon\View\Helper\Type\DateTime',
+            'typeNumeric' => 'CmsCommon\View\Helper\Type\Numeric',
+            'typeObject' => 'CmsCommon\View\Helper\Type\Object',
+            'typeString' => 'CmsCommon\View\Helper\Type\String',
         ],
     ],
     'view_manager' => [

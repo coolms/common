@@ -10,8 +10,8 @@
 
 namespace CmsCommon\Form\View\Helper;
 
-use Zend\Form\ElementInterface,
-    Zend\Form\Element\Csrf,
+use Zend\Form\Element\Csrf,
+    Zend\Form\ElementInterface,
     Zend\Form\FieldsetInterface,
     Zend\Form\FormInterface,
     Zend\Form\View\Helper\FormElement as ZendFormElement,
