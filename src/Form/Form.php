@@ -399,10 +399,9 @@ class Form extends ZendForm implements
         if ($argc > 1) {
             if (is_bool($argv[$argc - 1])) {
                 $applyElementGroup = array_pop($argv);
-                $group = $argv;
             }
 
-            $group = $argv;
+            $group = count($argv) === 1 ? $argv[0] : $argv;
         } else {
             $group = array_shift($argv);
         }
@@ -475,7 +474,7 @@ class Form extends ZendForm implements
                         $group = [];
 
                         foreach ($fieldsetOrElement as $key => $fieldset) {
-                            $group[$key] = isset($validationGroup[$name]) ? $validationGroup[$name] : [];
+                            $group[$key] = $validationGroup[$name];
                             $this->prepareValidationGroup(
                                 $fieldset,
                                 isset($data[$name][$key]) ? $data[$name][$key] : [],
