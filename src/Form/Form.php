@@ -397,12 +397,12 @@ class Form extends ZendForm implements
 
         $argv = func_get_args();
         if ($argc > 1) {
-            if (is_bool($argv[1])) {
-                $group = $argv[0];
-                $applyElementGroup = $argv[1];
-            } else {
+            if (is_bool($argv[$argc - 1])) {
+                $applyElementGroup = array_pop($argv);
                 $group = $argv;
             }
+
+            $group = $argv;
         } else {
             $group = array_shift($argv);
         }
