@@ -407,6 +407,8 @@ class Form extends ZendForm implements
             $group = array_shift($argv);
         }
 
+        $setValidationGroup = ($this->getValidationGroup() != $group);
+
         if ($this->has($this->getCaptchaElementName())) {
             $name = $this->getCaptchaElementName();
             if (!in_array($name, $group)) {
@@ -434,7 +436,10 @@ class Form extends ZendForm implements
         }
 
         $this->elementGroup = $group;
-        $this->setValidationGroup($group);
+
+        if ($setValidationGroup) {
+            $this->setValidationGroup($group);
+        }
 
         if ($applyElementGroup) {
             $this->prepareElementGroup($this, $group);
