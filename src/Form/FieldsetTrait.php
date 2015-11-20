@@ -14,8 +14,13 @@ use Zend\Form\Exception,
     Zend\Form\FieldsetInterface,
     Zend\Stdlib\Hydrator\HydratorInterface;
 
-trait ObjectTrait
+trait FieldsetTrait
 {
+    /**
+     * @var bool
+     */
+    protected $hasPopulatedValues = false;
+
     /**
      * Set the object used by the hydrator
      *
@@ -47,6 +52,23 @@ trait ObjectTrait
         }
 
         return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function populateValues($data)
+    {
+        parent::populateValues($data);
+        $this->hasPopulatedValues = true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPopulatedValues()
+    {
+        return $this->hasPopulatedValues;
     }
 
     /**

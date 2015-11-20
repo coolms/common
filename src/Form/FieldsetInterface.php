@@ -10,11 +10,12 @@
 
 namespace CmsCommon\Form;
 
-use Zend\Form\Fieldset as ZendFieldset;
+use Zend\Form\FieldsetInterface as ZendFieldsetInterface;
 
-class Fieldset extends ZendFieldset
+interface FieldsetInterface extends ZendFieldsetInterface
 {
-    use FactoryTrait,
-        MessagesTrait,
-        FieldsetTrait;
+    /**
+     * @return bool
+     */
+    public function hasPopulatedValues();
 }

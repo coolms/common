@@ -205,6 +205,7 @@ class FormCollection extends ZendFormCollection
             if ($elementOrFieldset instanceof FieldsetInterface &&
                 $fieldset instanceof Collection
             ) {
+                $elementOrFieldset->setAttribute('data-counter', $this->partialCounter);
             	$elementOrFieldset->setOption(
             	    'allow_remove',
             	    $this->partialCounter >= $fieldset->getOption('count')

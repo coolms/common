@@ -32,6 +32,7 @@ use Traversable,
     Zend\Stdlib\ArrayUtils,
     Zend\Stdlib\PriorityList,
     CmsCommon\Form\Element\StaticElement,
+    CmsCommon\Form\FieldsetInterface as CommonFieldsetInterface,
     CmsCommon\Form\Options\Traits\FormOptionsTrait;
 
 class Form extends ZendForm implements
@@ -42,8 +43,8 @@ class Form extends ZendForm implements
     use EventManagerAwareTrait,
         FactoryTrait,
         MessagesTrait,
-        ObjectTrait {
-            ObjectTrait::setObject as private __setObject;
+        FieldsetTrait {
+            FieldsetTrait::setObject as private __setObject;
         }
     use ServiceLocatorAwareTrait,
         FormOptionsTrait {
@@ -298,11 +299,12 @@ class Form extends ZendForm implements
             $element = $this->get($this->getCaptchaElementName());
 
             $this->captchaElementName = null;
+            $name = $element->getName();
             $newName = $this->getCaptchaElementName();
 
-            $flags['priority'] = $this->iterator->toArray(PriorityList::EXTR_PRIORITY)[$element->getName()];
+            $flags['priority'] = $this->iterator->toArray(PriorityList::EXTR_PRIORITY)[$name];
 
-            $this->remove($element->getName());
+            $this->remove($name);
             $element->setName($newName);
             $this->add($element, $flags);
         }
@@ -311,11 +313,12 @@ class Form extends ZendForm implements
             $element = $this->get($this->getCsrfElementName());
 
             $this->csrfElementName = null;
+            $name = $element->getName();
             $newName = $this->getCsrfElementName();
 
-            $flags['priority'] = $this->iterator->toArray(PriorityList::EXTR_PRIORITY)[$element->getName()];
+            $flags['priority'] = $this->iterator->toArray(PriorityList::EXTR_PRIORITY)[$name];
 
-            $this->remove($element->getName());
+            $this->remove($name);
             $element->getCsrfValidator()->setName($newName);
             $element->setName($newName);
             $this->add($element, $flags);
@@ -453,8 +456,11 @@ class Form extends ZendForm implements
     /**
      * {@inheritDoc}
      */
-    protected function prepareValidationGroup(FieldsetInterface $formOrFieldset, array $data, array &$validationGroup)
-    {
+    protected function prepareValidationGroup(
+        FieldsetInterface $formOrFieldset,
+        array $data,
+        array &$validationGroup
+    ) {
         $elements = ArrayUtils::iteratorToArray($formOrFieldset, false);
 
         if (!$validationGroup) {
@@ -463,7 +469,9 @@ class Form extends ZendForm implements
 
         foreach ($elements as $name => $fieldsetOrElement) {
             if ($fieldsetOrElement instanceof FieldsetInterface) {
-                if (!isset($validationGroup[$name]) && ($keys = array_keys($validationGroup, $name, true))) {
+                if (!isset($validationGroup[$name]) &&
+                    ($keys = array_keys($validationGroup, $name, true))
+                ) {
                     foreach ($keys as $key) {
                         unset($validationGroup[$key]);
                     }
@@ -501,30 +509,40 @@ class Form extends ZendForm implements
             }
 
             if ($source = $fieldsetOrElement->getOption('source')) {
-                if (!empty($data[$name])) {
-                    $name = $source;
+                if (!isset($data[$name])) {
+                    $validationGroup = $this->removeFromGroup($name, $validationGroup);
                 }
-            } elseif (!$fieldsetOrElement instanceof StaticElement) {
+
+                if (($fieldsetOrElement instanceof CommonFieldsetInterface &&
+                    $fieldsetOrElement->hasPopulatedValues()) ||
+                    $fieldsetOrElement->getValue()
+                ) {
+                    $validationGroup = $this->removeFromGroup($source, $validationGroup);
+                }
+
                 continue;
             }
 
-            if (isset($validationGroup[$name])) {
-                unset($validationGroup[$name]);
+            if (!$fieldsetOrElement instanceof StaticElement &&
+                $fieldsetOrElement->getOption('render_mode') !== self::RENDER_MODE_STATIC
+            ) {
+                continue;
             }
 
-            foreach (array_keys($validationGroup, $name, true) as $key) {
-                unset($validationGroup[$key]);
-            }
+            $validationGroup = $this->removeFromGroup($name, $validationGroup);
         }
     }
 
     /**
-     * @param FieldsetInterface $fieldset
+     * @param FieldsetInterface $formOrFieldset
      * @param array $data
      * @param array $elementGroup
      */
-    protected function prepareElementGroup(FieldsetInterface $formOrFieldset, array $data, array $elementGroup)
-    {
+    protected function prepareElementGroup(
+        FieldsetInterface $formOrFieldset,
+        array $data,
+        array $elementGroup
+    ) {
         $elements = ArrayUtils::iteratorToArray($formOrFieldset, false);
 
         if (empty($elementGroup)) {
@@ -542,7 +560,9 @@ class Form extends ZendForm implements
 
         foreach ($elements as $name => $fieldsetOrElement) {
             if ($fieldsetOrElement instanceof FieldsetInterface) {
-                if (!isset($elementGroup[$name]) && ($keys = array_keys($elementGroup, $name, true))) {
+                if (!isset($elementGroup[$name]) &&
+                    ($keys = array_keys($elementGroup, $name, true))
+                ) {
                     foreach ($keys as $key) {
                         unset($elementGroup[$key]);
                     }
@@ -578,13 +598,7 @@ class Form extends ZendForm implements
                     $name = $source;
                 }
 
-                if (isset($elementGroup[$name])) {
-                    unset($elementGroup[$name]);
-                }
-
-                foreach (array_keys($elementGroup, $name, true) as $key) {
-                    unset($elementGroup[$key]);
-                }
+                $elementGroup = $this->removeFromGroup($name, $elementGroup);
             }
 
             if (!isset($elementGroup[$name]) && !in_array($name, $elementGroup, true)) {
@@ -594,11 +608,32 @@ class Form extends ZendForm implements
     }
 
     /**
+     * @param string|array $name
+     * @param array $group
+     * @return $group
+     */
+    private function removeFromGroup($name, array $group)
+    {
+        $name = (array) $name;
+        foreach ($name as $keyOrValue) {
+            if (isset($group[$keyOrValue])) {
+                unset($group[$keyOrValue]);
+            }
+
+            foreach (array_keys($group, $keyOrValue, true) as $key) {
+                unset($group[$key]);
+            }
+        }
+
+        return $group;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function setData($data)
     {
-        if ($data instanceof \Traversable) {
+        if ($data instanceof Traversable) {
             $data = ArrayUtils::iteratorToArray($data);
         }
 
@@ -831,11 +866,15 @@ class Form extends ZendForm implements
     /**
      * {@inheritDoc}
      */
-    public function attachInputFilterDefaults(InputFilterInterface $inputFilter, FieldsetInterface $fieldset)
-    {
+    public function attachInputFilterDefaults(
+        InputFilterInterface $inputFilter,
+        FieldsetInterface $fieldset
+    ) {
         $inputFactory = $this->getFormFactory()->getInputFilterFactory();
 
-        if ($fieldset instanceof Collection && $fieldset->getTargetElement() instanceof FieldsetInterface) {
+        if ($fieldset instanceof Collection &&
+            $fieldset->getTargetElement() instanceof FieldsetInterface
+        ) {
             $elements = $fieldset->getTargetElement()->getElements();
         } else {
             $elements = $fieldset->getElements();
@@ -854,7 +893,10 @@ class Form extends ZendForm implements
                     continue;
                 }
 
-                if ($this->getPreferFormInputFilter() && !$this->mergeInputFilter() && $inputFilter->has($name)) {
+                if ($this->getPreferFormInputFilter() &&
+                    !$this->mergeInputFilter() &&
+                    $inputFilter->has($name)
+                ) {
                     continue;
                 }
 
@@ -869,7 +911,9 @@ class Form extends ZendForm implements
                     $spec  = $element->getInputSpecification();
                     $input = $inputFactory->createInput($spec);
 
-                    if ($inputFilter->has($name) && $inputFilter instanceof ReplaceableInputInterface) {
+                    if ($inputFilter->has($name) &&
+                        $inputFilter instanceof ReplaceableInputInterface
+                    ) {
                         $input->merge($inputFilter->get($name));
                         $inputFilter->replace($input, $name);
                         continue;
@@ -877,7 +921,9 @@ class Form extends ZendForm implements
                 }
 
                 // Add element input filter to CollectionInputFilter
-                if ($inputFilter instanceof CollectionInputFilter && !$inputFilter->getInputFilter()->has($name)) {
+                if ($inputFilter instanceof CollectionInputFilter &&
+                    !$inputFilter->getInputFilter()->has($name)
+                ) {
                     $inputFilter->getInputFilter()->add($input, $name);
                 } else {
                     $inputFilter->add($input, $name);
@@ -895,7 +941,8 @@ class Form extends ZendForm implements
         foreach ($fieldset->getFieldsets() as $name => $childFieldset) {
             if (!$childFieldset instanceof InputFilterProviderInterface) {
                 if (!$inputFilter->has($name)) {
-                    // Add a new empty input filter if it does not exist (or the fieldset's object input filter),
+                    // Add a new empty input filter if it does not exist
+                    // (or the fieldset's object input filter),
                     // so that elements of nested fieldsets can be recursively added
                     if ($childFieldset->getObject() instanceof InputFilterAwareInterface) {
                         $inputFilter->add($childFieldset->getObject()->getInputFilter(), $name);
@@ -964,7 +1011,8 @@ class Form extends ZendForm implements
             // Recursively attach sub filters
             $this->attachInputFilterDefaults($filter, $childFieldset);
 
-            // We need to copy the inputs to the collection input filter to ensure that all sub filters are added
+            // We need to copy the inputs to the collection input filter
+            // to ensure that all sub filters are added
             if ($inputFilter instanceof CollectionInputFilter) {
                 $inputFilter = $this->addInputsToCollectionInputFilter($inputFilter);
             }

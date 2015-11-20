@@ -13,23 +13,15 @@ namespace CmsCommon\Form\Element;
 use Traversable,
     Zend\Form\Element\Collection as ZendCollection,
     Zend\Form\Exception,
-    Zend\Form\FieldsetInterface,
-    CmsCommon\Form\ObjectTrait;
+    Zend\Form\FieldsetInterface as ZendFieldsetInterface,
+    CmsCommon\Form\FieldsetInterface,
+    CmsCommon\Form\FieldsetTrait;
 
-class Collection extends ZendCollection
+class Collection extends ZendCollection implements FieldsetInterface
 {
-    use ObjectTrait {
-            ObjectTrait::setObject as private __setObject;
+    use FieldsetTrait {
+            FieldsetTrait::setObject as private __setObject;
         }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setObject($object)
-    {
-        return parent::setObject($object);
-        //return $this->__setObject($object);
-    }
 
     /**
      * {@inheritDoc}
@@ -85,7 +77,7 @@ class Collection extends ZendCollection
                 }
             }
 
-            if ($elementOrFieldset instanceof FieldsetInterface) {
+            if ($elementOrFieldset instanceof ZendFieldsetInterface) {
                 $elementOrFieldset->populateValues($value);
             } else {
                 $elementOrFieldset->setAttribute('value', $value);
@@ -95,5 +87,7 @@ class Collection extends ZendCollection
         if (!$this->createNewObjects()) {
             $this->replaceTemplateObjects();
         }
+
+        $this->hasPopulatedValues = true;
     }
 }

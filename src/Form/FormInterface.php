@@ -12,8 +12,11 @@ namespace CmsCommon\Form;
 
 use Zend\Form\FormInterface as ZendFormInterface;
 
-interface FormInterface extends ZendFormInterface
+interface FormInterface extends ZendFormInterface, FieldsetInterface
 {
+    const RENDER_MODE_DYNAMIC = 'dynamic';
+    const RENDER_MODE_STATIC  = 'static';
+
     /**
      * @param int $step
      * @return self

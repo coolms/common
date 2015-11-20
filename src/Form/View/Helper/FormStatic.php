@@ -12,6 +12,7 @@ namespace CmsCommon\Form\View\Helper;
 
 use DateTime,
     Zend\Form\ElementInterface,
+    Zend\Form\FieldsetInterface,
     Zend\Form\View\Helper\FormInput;
 
 class FormStatic extends FormInput
@@ -108,7 +109,7 @@ class FormStatic extends FormInput
      */
     protected function renderInstance(ElementInterface $element)
     {
-        $value = $element->getValue();
+        $value = $this->getElementValue($element);
 
         foreach ($this->classMap as $class => $pluginName) {
             if ($value instanceof $class) {
@@ -127,7 +128,7 @@ class FormStatic extends FormInput
      */
     protected function renderType(ElementInterface $element)
     {
-        $value = $element->getValue();
+        $value = $this->getElementValue($element);
         $type = gettype($value);
 
         if (isset($this->typeMap[$type])) {
@@ -135,5 +136,16 @@ class FormStatic extends FormInput
         }
 
         return;
+    }
+
+    /**
+     * @param ElementInterface $element
+     * @return mixed
+     */
+    protected function getElementValue(ElementInterface $element)
+    {
+        return $element instanceof FieldsetInterface
+            ? $element->getObject()
+            : $element->getValue();
     }
 }
