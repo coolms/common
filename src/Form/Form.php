@@ -42,7 +42,10 @@ class Form extends ZendForm implements
     use EventManagerAwareTrait,
         FactoryTrait,
         MessagesTrait,
-        ServiceLocatorAwareTrait,
+        ObjectTrait {
+            ObjectTrait::setObject as private __setObject;
+        }
+    use ServiceLocatorAwareTrait,
         FormOptionsTrait {
             FormOptionsTrait::getUseFormLabel as private;
             FormOptionsTrait::setUseFormLabel as private;
@@ -726,7 +729,7 @@ class Form extends ZendForm implements
         $this->hasAddedInputFilterDefaults = false;
         $this->hasMergedInputFilter = false;
 
-        return parent::setObject($object);
+        return $this->__setObject($object);
     }
 
     /**

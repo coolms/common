@@ -49,6 +49,7 @@ return array(
     'CmsCommon\Form\FormProviderTrait'                                      => __DIR__ . '/src/Form/FormProviderTrait.php',
     'CmsCommon\Form\InputFilterProviderFieldset'                            => __DIR__ . '/src/Form/InputFilterProviderFieldset.php',
     'CmsCommon\Form\MessagesTrait'                                          => __DIR__ . '/src/Form/MessagesTrait.php',
+    'CmsCommon\Form\ObjectTrait'                                            => __DIR__ . '/src/Form/ObjectTrait.php',
     'CmsCommon\Form\Options\FormAnnotationBuilder'                          => __DIR__ . '/src/Form/Options/FormAnnotationBuilder.php',
     'CmsCommon\Form\Options\FormOptionsInterface'                           => __DIR__ . '/src/Form/Options/FormOptionsInterface.php',
     'CmsCommon\Form\Options\Traits\FormOptionsTrait'                        => __DIR__ . '/src/Form/Options/Traits/FormOptionsTrait.php',

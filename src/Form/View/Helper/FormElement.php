@@ -92,6 +92,10 @@ class FormElement extends ZendFormElement implements
     {
         $renderer = $this->getView();
 
+        if ($element->getOption('render_mode') === FormRow::RENDER_STATIC) {
+            return $renderer->plugin('formStatic');
+        }
+
         foreach ($this->classMap as $class => $pluginName) {
             if ($element instanceof $class) {
                 return $renderer->plugin($pluginName);
@@ -111,6 +115,10 @@ class FormElement extends ZendFormElement implements
      */
     protected function renderHelper($name, ElementInterface $element)
     {
+        if ($element->getOption('render_mode') === FormRow::RENDER_STATIC) {
+            $name = 'formStatic';
+        }
+
         $helper = $this->getView()->plugin($name);
 
         if ($helper instanceof Translator\TranslatorAwareInterface) {

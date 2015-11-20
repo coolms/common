@@ -15,5 +15,6 @@ use Zend\Form\Fieldset as ZendFieldset;
 class Fieldset extends ZendFieldset
 {
     use FactoryTrait,
-        MessagesTrait;
+        MessagesTrait,
+        ObjectTrait;
 }

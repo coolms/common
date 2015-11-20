@@ -178,7 +178,7 @@ class FormRow extends ZendFormRow
         if ($this->getRenderMode() === static::RENDER_STATIC &&
             method_exists($renderer, 'plugin')
         ) {
-            return $renderer->plugin('form_static');
+            return $renderer->plugin('formStatic');
         }
 
         return parent::getElementHelper();

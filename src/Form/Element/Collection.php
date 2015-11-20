@@ -12,11 +12,25 @@ namespace CmsCommon\Form\Element;
 
 use Traversable,
     Zend\Form\Element\Collection as ZendCollection,
+    Zend\Form\Exception,
     Zend\Form\FieldsetInterface,
-    Zend\Form\Exception;
+    CmsCommon\Form\ObjectTrait;
 
 class Collection extends ZendCollection
 {
+    use ObjectTrait {
+            ObjectTrait::setObject as private __setObject;
+        }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setObject($object)
+    {
+        return parent::setObject($object);
+        //return $this->__setObject($object);
+    }
+
     /**
      * {@inheritDoc}
      */
