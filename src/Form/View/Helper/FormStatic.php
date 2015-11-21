@@ -11,6 +11,7 @@
 namespace CmsCommon\Form\View\Helper;
 
 use DateTime,
+    Traversable,
     Zend\Form\ElementInterface,
     Zend\Form\FieldsetInterface,
     Zend\Form\View\Helper\FormInput;
@@ -24,6 +25,7 @@ class FormStatic extends FormInput
      */
     protected $classMap = [
         DateTime::class => 'typeDateTime',
+        Traversable::class => 'typeArrayOrTraversable',
     ];
 
     /**
@@ -32,6 +34,7 @@ class FormStatic extends FormInput
      * @var array
      */
     protected $typeMap = [
+        'array'     => 'typeArrayOrTraversable',
         'float'     => 'typeNumeric',
         'int'       => 'typeNumeric',
         'integer'   => 'typeNumeric',

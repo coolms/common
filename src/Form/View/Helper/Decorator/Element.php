@@ -12,6 +12,7 @@ namespace CmsCommon\Form\View\Helper\Decorator;
 
 use Zend\Form\Element as ZendElement,
     Zend\Form\ElementInterface,
+    Zend\Form\FieldsetInterface,
     Zend\Form\FormInterface,
     Zend\Form\View\Helper\FormElement,
     Zend\I18n\Translator\TranslatorAwareInterface,
@@ -70,7 +71,12 @@ class Element extends AbstractHtmlContainer implements TranslatorAwareInterface
                 $content->setAttribute('id', $idNormalizer($content->getName()));
             }
 
-            $rendered = $this->renderHelper($content, $form);
+            if ($content instanceof FieldsetInterface) {
+                $rendered = $this->renderHelper($content, false, false);
+            } else {
+                $rendered = $this->renderHelper($content, $form);
+            }
+
             $content->setOption('__rendered__', true);
 
             return $rendered;
@@ -122,12 +128,11 @@ class Element extends AbstractHtmlContainer implements TranslatorAwareInterface
 
     /**
      * @param ElementInterface $element
-     * @param FormInterface $form
      * @return string
      */
-    protected function renderHelper(ElementInterface $element, FormInterface $form = null)
+    protected function renderHelper(ElementInterface $element)
     {
         $helper = $this->getElementHelper();
-        return $helper($element, $form);
+        return call_user_func_array($helper, func_get_args());
     }
 }

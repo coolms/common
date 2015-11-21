@@ -78,7 +78,7 @@ class HtmlContainer extends AbstractHtmlElement
         }
 
         if (!$tagName) {
-            return (string) $content;
+            return $this->renderContent($content);
         }
 
         if (!$content && !$this->closeTag) {
@@ -86,7 +86,32 @@ class HtmlContainer extends AbstractHtmlElement
             return substr_replace($openTag, $this->getClosingBracket(), -1);
         }
 
-        return $this->getOpenTag($tagName, $attribs) . $content . $this->getCloseTag($tagName);
+        return $this->getOpenTag($tagName, $attribs) .
+            $this->renderContent($content) .
+            $this->getCloseTag($tagName);
+    }
+
+    /**
+     * @param mixed $content
+     * @todo Use type view helpers
+     * @return string
+     */
+    private function renderContent($content)
+    {
+        if (is_string($content)) {
+            return $content;
+        }
+
+        if (is_array($content)) {
+            $content = array_map('strval', $content);
+            return implode("\n", $content);
+        }
+
+        if (is_object($content) && method_exists($content, '__toString')) {
+            return (string) $content;
+        }
+
+        return '';
     }
 
     /**

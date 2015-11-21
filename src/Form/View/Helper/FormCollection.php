@@ -46,7 +46,7 @@ class FormCollection extends ZendFormCollection
     /**
      * @var int
      */
-    protected $partialCounter;
+    //protected $partialCounter;
 
     /**
      * @var bool|string
@@ -129,7 +129,7 @@ class FormCollection extends ZendFormCollection
                     'description'           => $this->renderDescription($element),
                     'allowAdd'              => false,
                     'allowRemove'           => false,
-                    'counter'               => null,
+                    'counter'               => $element->getAttribute('data-counter'),
                     'wrap'                  => $wrap,
                 ]);
 
@@ -199,21 +199,19 @@ class FormCollection extends ZendFormCollection
         $elementHelper = $this->getElementHelper();
 
         // reset the counter if it's called again
-        $this->partialCounter = 0;
+        //$this->partialCounter = 0;
         $elements = ArrayUtils::iteratorToArray($fieldset, false);
-        foreach ($elements as $elementOrFieldset) {
+        foreach ($elements as $key => $elementOrFieldset) {
             if ($elementOrFieldset instanceof FieldsetInterface &&
                 $fieldset instanceof Collection
             ) {
-                $elementOrFieldset->setAttribute('data-counter', $this->partialCounter);
+                $elementOrFieldset->setAttribute('data-counter', $key);
             	$elementOrFieldset->setOption(
             	    'allow_remove',
-            	    $this->partialCounter >= $fieldset->getOption('count')
+            	    $key >= $fieldset->getOption('count')
             	       ? $fieldset->allowRemove()
             	       : false
             	);
-
-                $this->partialCounter++;
             }
 
             $markup .= $elementHelper($elementOrFieldset);
@@ -246,12 +244,12 @@ class FormCollection extends ZendFormCollection
         $vars['collection'] = $collection;
 
         // reset the counter if it's called again
-        $this->partialCounter = 0;
-        foreach ($fieldsets as $fieldset) {
+        //$this->partialCounter = 0;
+        foreach ($fieldsets as $key => $fieldset) {
             if ($fieldsetKey) {
-                $fieldset->setAttribute('data-counter', $this->partialCounter);
+                $fieldset->setAttribute('data-counter', $key);
 
-                if ($this->partialCounter >= $collection->getOption('count')) {
+                if ($key >= $collection->getOption('count')) {
                 	$vars['allowRemove'] = $collection->allowRemove();
                 	$fieldset->setOption('allow_remove', $collection->allowRemove());
                 } else {
@@ -261,7 +259,7 @@ class FormCollection extends ZendFormCollection
 
                 $vars[$fieldsetKey]  = $fieldset;
                 $vars['allowAdd']    = $collection->allowAdd();
-                $vars['counter']     = $this->partialCounter;
+                $vars['counter']     = $key;
                 $vars['legend']      = $this->renderLegend($fieldset);
                 $vars['description'] = $this->renderDescription($fieldset);
 
@@ -280,15 +278,12 @@ class FormCollection extends ZendFormCollection
             } else {
                 $markup .= $fieldsetMarkup;
             }
-
-            $this->partialCounter++;
         }
 
         if ($fieldsetKey && $collection->shouldCreateTemplate()) {
             $templatePlaceholder = $collection->getTemplatePlaceholder();
 
             $fieldset = $collection->getTemplateElement();
-            //echo "{$this->getTranslatorTextDomain()} {$fieldset->getOption('text_domain')}";
             $fieldset->setOption('allow_remove', $collection->allowRemove());
             $fieldset->setAttribute('data-counter', $templatePlaceholder);
 

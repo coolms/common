@@ -54,6 +54,18 @@ class FormRow extends ZendFormRow
             $this->setRenderMode($renderMode);
         }
 
+        if (null === $labelPosition) {
+            $labelPosition = $this->getLabelPosition();
+        }
+
+        if ($renderErrors !== null) {
+            $this->setRenderErrors($renderErrors);
+        }
+
+        if (is_string($partial)) {
+            $this->setPartial($partial);
+        }
+
         if ($element->getOption('__rendered__') ||
             ($element->getAttribute('type') === 'static' &&
                 ($this->getRenderMode() === static::RENDER_DYNAMIC ||
@@ -62,13 +74,13 @@ class FormRow extends ZendFormRow
             return '';
         }
 
-        return parent::__invoke($element, $labelPosition, $renderErrors, $partial);
+        return $this->render($element, $labelPosition, $partial);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function render(ElementInterface $element, $labelPositionOrWrap = null)
+    public function render(ElementInterface $element, $labelPositionOrWrap = null, $partial = null)
     {
         static $priority = 10;
 
@@ -81,6 +93,14 @@ class FormRow extends ZendFormRow
 
             if (!isset($args[1])) {
                 $args[1] = false;
+            }
+
+            if (null === $partial) {
+                $partial = true;
+            }
+
+            if (!isset($args[2])) {
+                $args[2] = is_string($partial) ? $partial : (bool) $partial;
             }
 
             if (!$element->getOption('translation_priority')) {
