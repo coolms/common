@@ -10,7 +10,8 @@
 
 namespace CmsCommon\Form\View\Helper;
 
-use Traversable,
+use ReflectionClass,
+    Traversable,
     Zend\Form\Element\Collection,
     Zend\Form\ElementInterface,
     Zend\Form\FieldsetInterface,
@@ -42,11 +43,6 @@ class FormCollection extends ZendFormCollection
      * @var string
      */
     protected $fieldsetKey = 'fieldset';
-
-    /**
-     * @var int
-     */
-    //protected $partialCounter;
 
     /**
      * @var bool|string
@@ -114,11 +110,7 @@ class FormCollection extends ZendFormCollection
         $markup = '';
         $templateMarkup = '';
 
-        if (($partial = $this->getPartial()) === true) {
-            $partial = $element->getOption('partial');
-        }
-
-        if ($partial) {
+        if ($partial = $this->getPartial($element)) {
             if ($element instanceof Collection) {
                 $markup = $this->renderCollection($element, false, $partial);
             } else {
@@ -198,8 +190,6 @@ class FormCollection extends ZendFormCollection
         $markup = '';
         $elementHelper = $this->getElementHelper();
 
-        // reset the counter if it's called again
-        //$this->partialCounter = 0;
         $elements = ArrayUtils::iteratorToArray($fieldset, false);
         foreach ($elements as $key => $elementOrFieldset) {
             if ($elementOrFieldset instanceof FieldsetInterface &&
@@ -240,11 +230,9 @@ class FormCollection extends ZendFormCollection
         $markup      = $this->renderHiddenElement($collection);
         $fieldsetKey = $this->getFieldsetKey();
 
-        $vars['form'] = $this->getForm();
+        $vars['form']       = $this->getForm();
         $vars['collection'] = $collection;
 
-        // reset the counter if it's called again
-        //$this->partialCounter = 0;
         foreach ($fieldsets as $key => $fieldset) {
             if ($fieldsetKey) {
                 $fieldset->setAttribute('data-counter', $key);
@@ -339,8 +327,8 @@ class FormCollection extends ZendFormCollection
             $label = $translator->translate($label, $this->getTranslatorTextDomain());
         }
 
-        if (!$element instanceof LabelAwareInterface
-            || !$element->getLabelOption('disable_html_escape')
+        if (!$element instanceof LabelAwareInterface ||
+            !$element->getLabelOption('disable_html_escape')
         ) {
             $escapeHtmlHelper = $this->getEscapeHtmlHelper();
             $label = $escapeHtmlHelper($label);
@@ -365,8 +353,8 @@ class FormCollection extends ZendFormCollection
             $description = $translator->translate($description, $this->getTranslatorTextDomain());
         }
  
-        if (!$element instanceof LabelAwareInterface
-            || !$element->getLabelOption('disable_html_escape')
+        if (!$element instanceof LabelAwareInterface ||
+            !$element->getLabelOption('disable_html_escape')
         ) {
             $escapeHtmlHelper = $this->getEscapeHtmlHelper();
             $description = $escapeHtmlHelper($description);
@@ -485,11 +473,42 @@ class FormCollection extends ZendFormCollection
     }
 
     /**
-     * @return bool|string
+     * @return null|string
      */
-    public function getPartial()
+    public function getPartial(FieldsetInterface $element = null)
     {
-        return $this->partial;
+        $renderer = $this->getView();
+
+        if ($element &&
+            true === $this->partial &&
+            method_exists($renderer, 'resolver') &&
+            ($partial = $element->getOption('partial'))
+        ) {
+            $class = new ReflectionClass($renderer);
+            if ($class->hasMethod('getTemplate')) {
+                $template = $renderer->getTemplate();
+            } elseif ($class->hasProperty('__template')) {
+                $property = $class->getProperty('__template');
+                $property->setAccessible(true);
+                $template = $property->getValue($renderer);
+            } else {
+                return;
+            }
+
+            if (is_string($partial) &&
+                is_string($template) &&
+                realpath($renderer->resolver($partial)) ===
+                    realpath($renderer->resolver($template))
+            ) {
+                return;
+            }
+
+            return $partial;
+        }
+
+        if (is_string($this->partial)) {
+            return $this->partial;
+        }
     }
 
     /**

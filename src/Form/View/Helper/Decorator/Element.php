@@ -72,7 +72,7 @@ class Element extends AbstractHtmlContainer implements TranslatorAwareInterface
             }
 
             if ($content instanceof FieldsetInterface) {
-                $rendered = $this->renderHelper($content, false, false);
+                $rendered = $this->renderHelper($content, false, true);
             } else {
                 $rendered = $this->renderHelper($content, $form);
             }
