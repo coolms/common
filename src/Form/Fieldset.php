@@ -12,7 +12,7 @@ namespace CmsCommon\Form;
 
 use Zend\Form\Fieldset as ZendFieldset;
 
-class Fieldset extends ZendFieldset
+class Fieldset extends ZendFieldset implements FieldsetInterface
 {
     use FactoryTrait,
         MessagesTrait,
