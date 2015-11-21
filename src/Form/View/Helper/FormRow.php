@@ -15,7 +15,8 @@ use Zend\Form\ElementInterface,
     Zend\Form\FormInterface,
     Zend\Form\LabelAwareInterface,
     Zend\Form\View\Helper\FormRow as ZendFormRow,
-    Zend\I18n\Translator;
+    Zend\I18n\Translator,
+    Zend\View\Helper\AbstractHelper;
 
 class FormRow extends ZendFormRow
 {
@@ -126,24 +127,7 @@ class FormRow extends ZendFormRow
             );
         }
 
-        if ($helper instanceof Translator\TranslatorAwareInterface) {
-            $helperRollbackTextDomain = $helper->getTranslatorTextDomain();
-            $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
-        }
-
-        $elementHelper = $this->getElementHelper();
-        if ($elementHelper instanceof Translator\TranslatorAwareInterface) {
-            $elementRollbackTextDomain = $elementHelper->getTranslatorTextDomain();
-            $elementHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
-        }
-
-        $labelHelper = $this->getLabelHelper();
-        if ($labelHelper instanceof Translator\TranslatorAwareInterface) {
-            $labelRollbackTextDomain = $labelHelper->getTranslatorTextDomain();
-            $labelHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
-        }
-
-        $markup = call_user_func_array($helper, $args);
+        $markup = $this->renderHelper($helper, $args);
 
         if (null !== $translator && isset($callbackHandler)) {
             $translator->getEventManager()->detach($callbackHandler);
@@ -152,19 +136,38 @@ class FormRow extends ZendFormRow
             }
         }
 
+        $this->setTranslatorTextDomain($rollbackTextDomain);
+
+        return $markup;
+    }
+
+    /**
+     * @param AbstractHelper $helper
+     * @param array $argv
+     * @return string
+     */
+    protected function renderHelper(AbstractHelper $helper, array $argv)
+    {
+        if ($helper instanceof Translator\TranslatorAwareInterface) {
+            $helperRollbackTextDomain = $helper->getTranslatorTextDomain();
+            $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+        }
+
+        $labelHelper = $this->getLabelHelper();
+        if ($labelHelper instanceof Translator\TranslatorAwareInterface) {
+            $labelRollbackTextDomain = $labelHelper->getTranslatorTextDomain();
+            $labelHelper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+        }
+
+        $markup = call_user_func_array($helper, $argv);
+
         if (isset($helperRollbackTextDomain)) {
             $helper->setTranslatorTextDomain($helperRollbackTextDomain);
         }
 
-        if (isset($elementRollbackTextDomain)) {
-            $elementHelper->setTranslatorTextDomain($elementRollbackTextDomain);
-        }
-
         if (isset($labelRollbackTextDomain)) {
-            $elementHelper->setTranslatorTextDomain($labelRollbackTextDomain);
+            $labelHelper->setTranslatorTextDomain($labelRollbackTextDomain);
         }
-
-        $this->setTranslatorTextDomain($rollbackTextDomain);
 
         return $markup;
     }

@@ -99,7 +99,7 @@ class Form extends ZendForm implements
         'name' => 'submit',
         'type' => 'Submit',
         'attributes' => [
-            'type' => 'submit',
+            'type'  => 'submit',
             'value' => 'Submit',
         ],
         'options' => [
