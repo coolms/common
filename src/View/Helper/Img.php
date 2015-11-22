@@ -30,4 +30,16 @@ class Img extends HtmlContainer
         'width' => 0,
         'height' => 0,
     ];
+
+    /**
+     * {@inheritDoc}
+     */
+    public function render($content, array $attribs = [])
+    {
+        if (is_string($content) && !array_key_exists('src', $attribs)) {
+            $attribs['src'] = $content;
+        }
+
+        return parent::render(null, $attribs);
+    }
 }
