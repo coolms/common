@@ -269,6 +269,7 @@ return [
         'invokables' => [
             'area' => 'CmsCommon\View\Helper\Area',
             'assetPath' => 'CmsCommon\View\Helper\AssetPath',
+            'cmsCopyright' => 'CmsCommon\View\Helper\Copyright',
             'cmsMessages' => 'CmsCommon\View\Helper\Messages',
             'dataList' => 'CmsCommon\View\Helper\DataList',
             'dateTime' => 'CmsCommon\View\Helper\DateTime',
