@@ -17,6 +17,7 @@ use Zend\Form\Element as ZendElement,
     Zend\Form\View\Helper\FormElement,
     Zend\I18n\Translator\TranslatorAwareInterface,
     Zend\I18n\Translator\TranslatorAwareTrait,
+    CmsCommon\Form\View\Helper\FormRow,
     CmsCommon\View\Helper\IdNormalizer;
 
 class Element extends AbstractHtmlContainer implements TranslatorAwareInterface
@@ -77,7 +78,7 @@ class Element extends AbstractHtmlContainer implements TranslatorAwareInterface
                 $rendered = $this->renderHelper($content, $form);
             }
 
-            $content->setOption('__rendered__', true);
+            $content->setOption(FormRow::RENDERED, true);
 
             return $rendered;
         }

@@ -425,15 +425,15 @@ class FormCollection extends ZendFormCollection
                 if ($elementOrFieldset instanceof FieldsetInterface) {
                     $this->reset($elementOrFieldset);
                 } else {
-                    if ($elementOrFieldset->getOption('__rendered__')) {
-                        $elementOrFieldset->setOption('__rendered__', null);
+                    if ($elementOrFieldset->getOption(FormRow::RENDERED)) {
+                        $elementOrFieldset->setOption(FormRow::RENDERED, null);
                     }
                 }
             }
         }
 
-        if ($element->getOption('__rendered__')) {
-            $element->setOption('__rendered__', null);
+        if ($element->getOption(FormRow::RENDERED)) {
+            $element->setOption(FormRow::RENDERED, null);
         }
     }
 

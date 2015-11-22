@@ -29,6 +29,8 @@ class FormRow extends ZendFormRow
     const RENDER_STATIC         = 'static';
     const RENDER_DYNAMIC        = 'dynamic';
 
+    const RENDERED              = '__rendered__';
+
     /**
      * @var FormStatic
      */
@@ -76,9 +78,9 @@ class FormRow extends ZendFormRow
             $this->setPartial($partial);
         }
 
-        if ($element->getOption('__rendered__') ||
-            ($element->getAttribute('type') === 'static' &&
-                ($this->getRenderMode() === static::RENDER_DYNAMIC ||
+        if ($element->getOption(self::RENDERED) ||
+            ($element->getAttribute('type') === self::RENDER_STATIC &&
+                ($this->getRenderMode() === self::RENDER_DYNAMIC ||
                     null === $element->getValue()))
         ) {
             return '';
