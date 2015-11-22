@@ -14,7 +14,8 @@ use DateTime,
     Traversable,
     Zend\Form\ElementInterface,
     Zend\Form\FieldsetInterface,
-    Zend\Form\View\Helper\FormInput;
+    Zend\Form\View\Helper\FormInput,
+    CmsCommon\View\Helper\HtmlContainer;
 
 class FormStatic extends FormInput
 {
@@ -44,6 +45,11 @@ class FormStatic extends FormInput
     ];
 
     /**
+     * @var bool
+     */
+    private $shouldWrap = true;
+
+    /**
      * {@inheritDoc}
      */
     public function render(ElementInterface $element)
@@ -57,8 +63,12 @@ class FormStatic extends FormInput
             $value = $this->renderType($element);
         }
 
-        $attributes = $this->createAttributesString($element->getAttributes());
-        return sprintf('<p %s>%s</p>', $attributes, $value);
+        if ($this->shouldWrap) {
+            $attributes = $this->createAttributesString($element->getAttributes());
+            return sprintf('<p %s>%s</p>', $attributes, $value);
+        }
+
+        return $value;
     }
 
     /**
@@ -96,11 +106,18 @@ class FormStatic extends FormInput
      *
      * @param string $name
      * @param mixed $value
+     * @param ElementInterface $element
      * @return string
      */
-    protected function renderHelper($name, $value)
+    protected function renderHelper($name, $value, ElementInterface $element)
     {
         $helper = $this->getView()->plugin($name);
+        if ($helper instanceof HtmlContainer) {
+            $this->shouldWrap = false;
+            return $helper($value, $element->getAttributes());
+        }
+
+        $this->shouldWrap = true;
         return $helper($value);
     }
 
@@ -116,7 +133,7 @@ class FormStatic extends FormInput
 
         foreach ($this->classMap as $class => $pluginName) {
             if ($value instanceof $class) {
-                return $this->renderHelper($pluginName, $value);
+                return $this->renderHelper($pluginName, $value, $element);
             }
         }
 
@@ -132,10 +149,10 @@ class FormStatic extends FormInput
     protected function renderType(ElementInterface $element)
     {
         $value = $this->getElementValue($element);
-        $type = gettype($value);
+        $type  = gettype($value);
 
         if (isset($this->typeMap[$type])) {
-            return $this->renderHelper($this->typeMap[$type], $value);
+            return $this->renderHelper($this->typeMap[$type], $value, $element);
         }
 
         return;

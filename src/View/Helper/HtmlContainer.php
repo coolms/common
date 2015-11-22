@@ -104,7 +104,7 @@ class HtmlContainer extends AbstractHtmlElement
 
         if (is_array($content)) {
             $content = array_map('strval', $content);
-            return implode("\n", $content);
+            return implode(PHP_EOL, $content);
         }
 
         if (is_object($content) && method_exists($content, '__toString')) {
