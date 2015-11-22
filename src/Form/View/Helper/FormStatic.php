@@ -25,8 +25,8 @@ class FormStatic extends FormInput
      * @var array
      */
     protected $classMap = [
-        DateTime::class => 'typeDateTime',
-        Traversable::class => 'typeArrayOrTraversable',
+        DateTime::class     => 'typeDateTime',
+        Traversable::class  => 'typeArrayOrTraversable',
     ];
 
     /**
