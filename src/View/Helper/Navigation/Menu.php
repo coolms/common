@@ -13,15 +13,42 @@ namespace CmsCommon\View\Helper\Navigation;
 use RecursiveIteratorIterator,
     Zend\Navigation\AbstractContainer,
     Zend\Navigation\Page\AbstractPage,
-    Zend\View\Helper\Navigation\Menu as ZendMenu,
+    Zend\View\Helper\Navigation\Menu as MenuHelper,
     CmsCommon\View\Helper\Decorator\Decorator;
 
-class Menu extends ZendMenu
+class Menu extends MenuHelper
 {
     /**
      * @var string
      */
     protected $decoratorNamespace = Decorator::OPTION_KEY;
+
+    /**
+     * @var bool
+     */
+    protected $inheritUlClass = false;
+
+    /**
+     * @var string
+     */
+    protected $id;
+
+    /**
+     * @var string
+     */
+    protected $liContainerClass = 'hasChild';
+
+    /**
+     * {@inheritDoc}
+     */
+    public function renderMenu($container = null, array $options = [])
+    {
+        if (!empty($options['id'])) {
+            $this->id = (string) $options['id'];
+        }
+
+        return parent::renderMenu($container, $options);
+    }
 
     /**
      * {@inheritDoc}
@@ -98,8 +125,26 @@ class Menu extends ZendMenu
             $myIndent = $indent . str_repeat('        ', $depth);
 
             if ($depth > $prevDepth) {
+                if (!$this->inheritUlClass()) {
+                    $commonUlClass = null;
+                }
+
                 // start new ul tag
-                $ulClass = $ulClass ? ' class="' . $escaper($ulClass) . '"' : '';
+                if ($ulClass && $depth == 0) {
+                    $commonUlClass = $ulClass;
+                    $ulClass = ' class="' . $escaper($ulClass) . '"';
+                    if ($this->id) {
+                        $ulClass .= ' id="' . $escaper($this->id) . '"';
+                        $this->id = null;
+                    }
+                } else {
+                    if ($commonUlClass) {
+                        $ulClass = $commonUlClass . ' ' . $ulClass;
+                    }
+
+                    $ulClass = $ulClass ? ' class="' . $escaper($ulClass) . '"' : '';
+                }
+
                 $html .= $myIndent . '<ul' . $ulClass . '>' . PHP_EOL;
             } elseif ($prevDepth > $depth) {
                 // close li/ul tags until we're at current depth
@@ -126,6 +171,10 @@ class Menu extends ZendMenu
             // Add CSS class from page to <li>
             if ($addClassToListItem && $page->getClass()) {
                 $liClasses[] = $page->getClass();
+            }
+
+            if ((!$maxDepth || $depth < $maxDepth) && $page->hasPages() && $this->liContainerClass) {
+                $liClasses[] = $this->liContainerClass;
             }
 
             $liClass = empty($liClasses) ? '' : ' class="' . $escaper(implode(' ', $liClasses)) . '"';
@@ -220,6 +269,50 @@ class Menu extends ZendMenu
         $html = '<' . $element . $this->htmlAttribs($attribs) . '>' . $html . '</' . $element . '>';
 
         return $html;
+    }
+
+    /**
+     * @param bool $flag
+     * @return self
+     */
+    public function setInheritUlClass($flag = true)
+    {
+        $this->inheritUlClass = (bool) $flag;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function inheritUlClass()
+    {
+        return $this->inheritUlClass;
+    }
+
+    /**
+     * Sets CSS class to use for 'li' element which has children
+     *
+     * @param  string $class CSS class to set
+     * @return self
+     */
+    public function setLiContainerClass($class)
+    {
+        if (is_string($class)) {
+            $this->liContainerClass = $class;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns CSS class to use for 'li' element which has children
+     *
+     * @return string
+     */
+    public function getLiContainerClass()
+    {
+        return $this->liContainerClass;
     }
 
     /**
