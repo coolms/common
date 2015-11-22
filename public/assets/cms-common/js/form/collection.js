@@ -13,7 +13,6 @@ CmsCommon.Form = {};
 				elements = fieldset.find(">[data-counter]"),
 				minMax = this.minMaxCounter(elements);
 
-			console.log(minMax);
 			template = template.replace(/__index__|--index--/g, minMax.max === null ? 0 : minMax.max + 1);
 			if (!placement || placement === "append") {
 				fieldset.append(template);
@@ -30,12 +29,14 @@ CmsCommon.Form = {};
 				}
 			}
 
-			$(".selectpicker").selectpicker("refresh");
+			$(fieldset).trigger("addFieldset", [template]);
 
 	        return false;
 		},
 
 		removeFieldset: function(button) {
+			var fieldset = $(button).closest("fieldset");
+			$(fieldset).trigger("removeFieldset");
 			$(button).closest("[data-counter]").remove();
 		},
 
