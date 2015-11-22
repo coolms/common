@@ -30,6 +30,14 @@ class Copyright extends AbstractHelper implements Translator\TranslatorAwareInte
      */
     public function __invoke()
     {
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function render()
+    {
         $vendor = self::APP_VENDOR;
         if (null !== ($translator = $this->getTranslator())) {
             $vendor = $translator->translate($vendor, $this->getTranslatorTextDomain());
@@ -41,5 +49,29 @@ class Copyright extends AbstractHelper implements Translator\TranslatorAwareInte
             (new \DateTime('now'))->format('Y'),
             $vendor
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return self::APP_NAME;
+    }
+
+    /**
+     * @return string
+     */
+    public function getVendor()
+    {
+        return self::APP_VENDOR;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->render();
     }
 }
