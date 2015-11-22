@@ -24,6 +24,7 @@ class FormRow extends ZendFormRow
         DecoratorTrait;
 
     const DEFAULT_TEXT_DOMAIN   = 'default';
+    const TEXT_DOMAIN           = 'text_domain';
 
     const RENDER_ALL            = 'all';
     const RENDER_STATIC         = 'static';
@@ -115,9 +116,9 @@ class FormRow extends ZendFormRow
                 $args[2] = is_string($partial) ? $partial : (bool) $partial;
             }
 
-            if (!$element->getOption('translation_priority')) {
+            if (!$element->getOption('__translation_priority__')) {
                 $priority += 10;
-                $element->setOption('translation_priority', $priority);
+                $element->setOption('__translation_priority__', $priority);
             }
         } else {
             $helper = [__CLASS__, 'parent::' . __FUNCTION__];
@@ -125,9 +126,9 @@ class FormRow extends ZendFormRow
         }
 
         $rollbackTextDomain = $this->getTranslatorTextDomain();
-        $textDomain = $element->getOption('text_domain');
+        $textDomain = $element->getOption(self::TEXT_DOMAIN);
 
-        if ($textDomain && $rollbackTextDomain === static::DEFAULT_TEXT_DOMAIN) {
+        if ($textDomain && $rollbackTextDomain === self::DEFAULT_TEXT_DOMAIN) {
             $this->setTranslatorTextDomain($textDomain);
         }
 
@@ -142,7 +143,7 @@ class FormRow extends ZendFormRow
                     $textDomain = $textDomain ?: $rollbackTextDomain;
                     if ($textDomain !== $rollbackTextDomain) {
                         $message = $e->getParam('message');
-                        if ($e->getParam('text_domain') !== $textDomain) {
+                        if ($e->getParam(self::TEXT_DOMAIN) !== $textDomain) {
                             $translated = $translator->translate(
                                 $message,
                                 $textDomain,
@@ -155,7 +156,7 @@ class FormRow extends ZendFormRow
                         return (string) $message;
                     }
                 },
-                $element->getOption('translation_priority')
+                $element->getOption('__translation_priority__')
             );
         }
 
@@ -209,7 +210,7 @@ class FormRow extends ZendFormRow
      */
     protected function getElementHelper()
     {
-        if ($this->getRenderMode() === static::RENDER_STATIC) {
+        if ($this->getRenderMode() === self::RENDER_STATIC) {
             return $this->getStaticElementHelper();
         }
 
