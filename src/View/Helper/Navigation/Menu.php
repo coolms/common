@@ -139,7 +139,7 @@ class Menu extends MenuHelper
                     }
                 } else {
                     if ($commonUlClass) {
-                        $ulClass = $commonUlClass . ' ' . $ulClass;
+                        $ulClass .= " $commonUlClass";
                     }
 
                     $ulClass = trim($ulClass);
