@@ -30,6 +30,16 @@ class FormRow extends ZendFormRow
     const RENDER_DYNAMIC        = 'dynamic';
 
     /**
+     * @var FormStatic
+     */
+    protected $staticElementHelper;
+
+    /**
+     * @var string
+     */
+    protected $defaultStaticElementHelper = 'formStatic';
+
+    /**
      * @var string
      */
     protected $renderMode = self::RENDER_ALL;
@@ -197,11 +207,8 @@ class FormRow extends ZendFormRow
      */
     protected function getElementHelper()
     {
-        $renderer = $this->getView();
-        if ($this->getRenderMode() === static::RENDER_STATIC &&
-            method_exists($renderer, 'plugin')
-        ) {
-            return $renderer->plugin('formStatic');
+        if ($this->getRenderMode() === static::RENDER_STATIC) {
+            return $this->getStaticElementHelper();
         }
 
         return parent::getElementHelper();
@@ -223,5 +230,29 @@ class FormRow extends ZendFormRow
     public function getRenderMode()
     {
         return $this->renderMode;
+    }
+
+    /**
+     * Retrieve the FormStatic helper
+     *
+     * @return FormStatic
+     */
+    protected function getStaticElementHelper()
+    {
+        if ($this->staticElementHelper) {
+            return $this->staticElementHelper;
+        }
+
+        $renderer = $this->getView();
+        if (method_exists($this->view, 'plugin')) {
+            $this->staticElementHelper = $renderer->plugin($this->defaultStaticElementHelper);
+        }
+
+        if (!$this->staticElementHelper instanceof FormStatic) {
+            $this->staticElementHelper = new FormStatic();
+            $this->staticElementHelper->setView($renderer);
+        }
+
+        return $this->staticElementHelper;
     }
 }

@@ -133,6 +133,17 @@ class Element extends AbstractHtmlContainer implements TranslatorAwareInterface
     protected function renderHelper(ElementInterface $element)
     {
         $helper = $this->getElementHelper();
-        return call_user_func_array($helper, func_get_args());
+        if ($helper instanceof TranslatorAwareInterface) {
+            $helperRollbackTextDomain = $helper->getTranslatorTextDomain();
+            $helper->setTranslatorTextDomain($this->getTranslatorTextDomain());
+        }
+
+        $markup = call_user_func_array($helper, func_get_args());
+
+        if (isset($helperRollbackTextDomain)) {
+            $helper->setTranslatorTextDomain($helperRollbackTextDomain);
+        }
+
+        return $markup;
     }
 }
