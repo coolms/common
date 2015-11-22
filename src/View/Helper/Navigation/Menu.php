@@ -36,7 +36,7 @@ class Menu extends MenuHelper
     /**
      * @var string
      */
-    protected $liContainerClass = 'hasChild';
+    protected $liContainerClass;
 
     /**
      * {@inheritDoc}
@@ -142,6 +142,7 @@ class Menu extends MenuHelper
                         $ulClass = $commonUlClass . ' ' . $ulClass;
                     }
 
+                    $ulClass = trim($ulClass);
                     $ulClass = $ulClass ? ' class="' . $escaper($ulClass) . '"' : '';
                 }
 
