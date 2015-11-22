@@ -112,7 +112,7 @@ class FormStatic extends FormInput
     protected function renderHelper($name, $value, ElementInterface $element)
     {
         $helper = $this->getView()->plugin($name);
-        if ($helper instanceof HtmlContainer) {
+        if ($helper instanceof HtmlContainer && $helper->getTagName()) {
             $this->shouldWrap = false;
             return $helper($value, $element->getAttributes());
         }
