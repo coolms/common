@@ -24,10 +24,9 @@ use RuntimeException,
     CmsCommon\Mvc\Controller\Options\CrudControllerOptionsInterface,
     CmsCommon\Stdlib\OptionsProviderInterface,
     CmsCommon\Stdlib\OptionsProviderTrait,
+    CmsDatagrid\Column\Action,
+    CmsDatagrid\Column\Action\Button,
     CmsDatagrid\Column\Select;
-use CmsDatagrid\Column\Formatter\GenerateLink;
-use CmsDatagrid\Column\Action;
-use CmsDatagrid\Column\Action\Button;
 
 /**
  * @author Dmitry Popov <d.popov@altgraphic.com>
@@ -148,7 +147,7 @@ class CrudController extends AbstractCrudController implements
         }
 
         /* @var $datagrid \CmsDatagrid\Datagrid */
-        $datagrid   = $this->getServiceLocator()->get('CmsDatagrid');
+        $datagrid = $this->getServiceLocator()->get('CmsDatagrid');
         $datagrid->setDataSource($service->getMapper());
 
         $col = new Select('id');
@@ -157,37 +156,42 @@ class CrudController extends AbstractCrudController implements
 
         $col = new Select('name');
         $col->setLabel('Name');
-        $col->setWidth(85);
+        $col->setWidth(80);
         $datagrid->addColumn($col);
 
         $updateAction = new Button();
-        $updateAction->setLabel('Update');
+        $updateAction->setLabel('<i class="fa fa-edit"></i>');
         $updateAction->addClass('btn-primary');
         $rowId = $updateAction->getRowIdPlaceholder();
         $updateAction->setLink($this->url()->fromRoute(
             $this->getBaseRoute(),
             [
                 'controller' => $this->getController(),
-                'action'    => 'update',
-                'id'        => $updateAction->getRowIdPlaceholder(),
+                'action' => self::ACTION_UPDATE,
+                'id' => $updateAction->getRowIdPlaceholder(),
+            ]
+        ));
+
+        $removeAction = new Button();
+        $removeAction->setLabel('<i class="fa fa-remove"></i>');
+        $removeAction->addClass('btn-danger');
+        $rowId = $removeAction->getRowIdPlaceholder();
+        $removeAction->setLink($this->url()->fromRoute(
+            $this->getBaseRoute(),
+            [
+                'controller' => $this->getController(),
+                'action' => self::ACTION_DELETE,
+                'id' => $removeAction->getRowIdPlaceholder(),
             ]
         ));
 
         $col = new Action();
         $col->setLabel('');
-        $col->setWidth(15);
+        $col->setWidth(20);
         $col->addAction($updateAction);
+        $col->addAction($removeAction);
 
         $datagrid->addColumn($col);
-
-        /*$col->addFormatter(new GenerateLink(
-            $this->getServiceLocator(),
-            $this->getEvent()->getRouteMatch()->getMatchedRouteName(),
-            'id',
-            ['controller' => 'hunting-farm', 'action' => 'update']
-        ));*/
-
-        
 
         $datagrid->render();
 

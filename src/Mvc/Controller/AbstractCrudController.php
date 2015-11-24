@@ -122,7 +122,7 @@ abstract class AbstractCrudController extends AbstractActionController
     protected function redirectToBaseRoute($params = [])
     {
         $params['controller'] = $this->getController();
-        return $this->redirect()->toRoute($this->getBaseRoute(), $params);
+        return $this->redirect()->toRoute($this->getBaseRoute(), $params, true);
     }
 
     /**
