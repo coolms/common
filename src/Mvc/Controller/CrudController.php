@@ -164,13 +164,20 @@ class CrudController extends AbstractCrudController implements
         $updateAction->setLabel('Update');
         $updateAction->addClass('btn-primary');
         $rowId = $updateAction->getRowIdPlaceholder();
-        $updateAction->setLink('update/' . $rowId);
+        $updateAction->setLink($this->url()->fromRoute(
+            $this->getBaseRoute(),
+            [
+                'controller' => $this->getController(),
+                'action'    => 'update',
+                'id'        => $updateAction->getRowIdPlaceholder(),
+            ]
+        ));
 
         $col = new Action();
         $col->setLabel('');
         $col->setWidth(15);
         $col->addAction($updateAction);
-        
+
         $datagrid->addColumn($col);
 
         /*$col->addFormatter(new GenerateLink(
