@@ -39,6 +39,11 @@ class Menu extends MenuHelper
     protected $liContainerClass;
 
     /**
+     * @var bool
+     */
+    protected $terminate = false;
+
+    /**
      * {@inheritDoc}
      */
     public function renderMenu($container = null, array $options = [])
@@ -48,6 +53,115 @@ class Menu extends MenuHelper
         }
 
         return parent::renderMenu($container, $options);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function renderDeepestMenu(
+        AbstractContainer $container,
+        $ulClass,
+        $indent,
+        $minDepth,
+        $maxDepth,
+        $escapeLabels,
+        $addClassToListItem,
+        $liActiveClass
+    ) {
+        if ($this->terminate()) {
+            // create iterator
+            $iterator = new RecursiveIteratorIterator(
+                $container,
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+
+            if (is_int($maxDepth)) {
+                $iterator->setMaxDepth($maxDepth);
+            }
+
+            foreach ($iterator as $page) {
+                $depth = $iterator->getDepth();
+                if ((is_int($minDepth) && $minDepth) || (is_int($maxDepth) && $maxDepth)) {
+                    echo "{$page->getLabel()} <br>";
+                }
+
+                if ($depth < $minDepth || !$this->accept($page) || !$page->isActive(true)) {
+                    // page is below minDepth or not accepted by acl/visibility
+                    continue;
+                }
+
+                if ($page->get('may_terminate')) {
+                    $active = compact('page', 'depth');
+                    break;
+                }
+            }
+
+        } else {
+            $active = $this->findActive($container, $minDepth - 1, $maxDepth);
+        }
+
+        if (!isset($active)) {
+            return '';
+        }
+
+        // special case if active page is one below minDepth
+        if ($active['depth'] < $minDepth) {
+            if (!$active['page']->hasPages(!$this->renderInvisible)) {
+                return '';
+            }
+        } elseif (!$active['page']->hasPages(!$this->renderInvisible)) {
+            // found pages has no children; render siblings
+            $active['page'] = $active['page']->getParent();
+        } elseif (is_int($maxDepth) && $active['depth'] + 1 > $maxDepth) {
+            // children are below max depth; render siblings
+            $active['page'] = $active['page']->getParent();
+        }
+
+        if ($this->terminate()) {
+            return $this->renderNormalMenu(
+                    $active['page'],
+                    $ulClass,
+                    $indent,
+                    null,
+                    $maxDepth,
+                    false,
+                    $escapeLabels,
+                    $addClassToListItem,
+                    $liActiveClass
+                );
+        }
+
+        /* @var $escaper \Zend\View\Helper\EscapeHtmlAttr */
+        $escaper = $this->view->plugin('escapeHtmlAttr');
+        $ulClass = $ulClass ? ' class="' . $escaper($ulClass) . '"' : '';
+        $html = $indent . '<ul' . $ulClass . '>' . PHP_EOL;
+
+        foreach ($active['page'] as $subPage) {
+            if (!$this->accept($subPage)) {
+                continue;
+            }
+
+            // render li tag and page
+            $liClasses = [];
+            // Is page active?
+            if ($subPage->isActive(true)) {
+                $liClasses[] = $liActiveClass;
+            }
+            // Add CSS class from page to <li>
+            if ($addClassToListItem && $subPage->getClass()) {
+                $liClasses[] = $subPage->getClass();
+            }
+
+            $liClass = empty($liClasses) ? '' : ' class="' . $escaper(implode(' ', $liClasses)) . '"';
+
+            $html .= $indent . '    <li' . $liClass . '>' . PHP_EOL;
+            $html .= $indent . '        ' . $this->htmlify($subPage, $escapeLabels, $addClassToListItem) . PHP_EOL;
+            $html .= $indent . '    </li>' . PHP_EOL;
+        }
+
+        $html .= $indent . '</ul>';
+
+        return $html;
     }
 
     /**
@@ -90,10 +204,22 @@ class Menu extends MenuHelper
 
         // iterate container
         $prevDepth = -1;
+        $terminate = false;
         foreach ($iterator as $page) {
             $depth = $iterator->getDepth();
             $isActive = $page->isActive(true);
-            if ($depth < $minDepth || !$this->accept($page)) {
+
+            if ($depth > 0) {
+                if ($prevDepth >= $depth) {
+                    $terminate = false;
+                } elseif (null !== $page->getParent()->get('may_terminate')) {
+                    $terminate = (bool) $page->getParent()->get('may_terminate');
+                }
+            } else {
+                $terminate = (bool) $page->get('may_terminate');
+            }
+
+            if ($depth < $minDepth || !$this->accept($page) || ($this->terminate() && $terminate && $depth > 0)) {
                 // page is below minDepth or not accepted by acl/visibility
                 continue;
             } elseif ($onlyActive && !$isActive) {
@@ -125,7 +251,7 @@ class Menu extends MenuHelper
             $myIndent = $indent . str_repeat('        ', $depth);
 
             if ($depth > $prevDepth) {
-                if (!$this->inheritUlClass()) {
+                if (!$this->getInheritUlClass()) {
                     $commonUlClass = null;
                 }
 
@@ -192,9 +318,9 @@ class Menu extends MenuHelper
         if ($html) {
             // done iterating container; close open ul/li tags
             for ($i = $prevDepth+1; $i > 0; $i--) {
-                $myIndent = $indent . str_repeat('        ', $i-1);
+                $myIndent = $indent . str_repeat('        ', $i - 1);
                 $html .= $myIndent . '    </li>' . PHP_EOL
-                . $myIndent . '</ul>' . PHP_EOL;
+                    . $myIndent . '</ul>' . PHP_EOL;
             }
 
             $html = rtrim($html, PHP_EOL);
@@ -286,7 +412,7 @@ class Menu extends MenuHelper
     /**
      * @return bool
      */
-    public function inheritUlClass()
+    public function getInheritUlClass()
     {
         return $this->inheritUlClass;
     }
@@ -314,6 +440,25 @@ class Menu extends MenuHelper
     public function getLiContainerClass()
     {
         return $this->liContainerClass;
+    }
+
+    /**
+     * @param bool $flag
+     * @return self
+     */
+    public function setTerminate($flag = true)
+    {
+        $this->terminate = (bool) $flag;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function terminate()
+    {
+        return $this->terminate;
     }
 
     /**
