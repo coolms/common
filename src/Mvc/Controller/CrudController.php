@@ -129,6 +129,14 @@ class CrudController extends AbstractCrudController implements
     /**
      * {@inheritDoc}
      */
+    public function indexAction()
+    {
+        return $this->redirectToBaseRoute(['action' => static::ACTION_LIST]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function listAction($data)
     {
         $form       = $this->getForm();
