@@ -267,8 +267,10 @@ return [
             'CmsCommon\View\Helper\Params' => 'CmsCommon\Factory\View\Helper\ParamsFactory',
         ],
         'invokables' => [
+            'a' => 'CmsCommon\View\Helper\A',
             'area' => 'CmsCommon\View\Helper\Area',
             'assetPath' => 'CmsCommon\View\Helper\AssetPath',
+            'button' => 'CmsCommon\View\Helper\Button',
             'cmsCopyright' => 'CmsCommon\View\Helper\Copyright',
             'cmsMessages' => 'CmsCommon\View\Helper\Messages',
             'dataList' => 'CmsCommon\View\Helper\DataList',

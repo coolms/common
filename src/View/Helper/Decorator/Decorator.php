@@ -10,7 +10,8 @@
 
 namespace CmsCommon\View\Helper\Decorator;
 
-use Zend\View\Helper\AbstractHelper,
+use RuntimeException,
+    Zend\View\Helper\AbstractHelper,
     Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerAwareTrait,
     Zend\I18n\Translator\TranslatorAwareInterface,
@@ -28,6 +29,11 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface, Tr
     const PLACEMENT_PREPEND = 'prepend';
 
     const OPTION_KEY = 'decorators';
+
+    /**
+     * @var string
+     */
+    protected $defaultDecorator = 'htmlContainer';
 
     /**
      * @var int
@@ -192,20 +198,24 @@ class Decorator extends AbstractHelper implements EventManagerAwareInterface, Tr
 
     /**
      * @param string $name
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @return null|HtmlContainer
      */
     protected function getDecoratorHelper($name)
     {
+        if (!is_string($name)) {
+            $name = $this->defaultDecorator;
+        }
+
         try {
             $plugin = $this->getView()->plugin($name);
         } catch (ServiceNotFoundException $e) {
-            return;
+            $plugin = $this->getView()->plugin($this->defaultDecorator);
         }
 
         if (!$plugin instanceof HtmlContainer) {
-            throw new \RuntimeException(sprintf(
-                'Decorator plugin must be of type %s; %s given',
+            throw new RuntimeException(sprintf(
+                'Decorator plugin must be an instance of %s; %s received',
                 HtmlContainer::class,
                 is_object($plugin) ? get_class($plugin) : gettype($plugin)
             ));

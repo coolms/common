@@ -27,6 +27,7 @@ use RuntimeException,
     CmsDatagrid\Column\Action,
     CmsDatagrid\Column\Action\Button,
     CmsDatagrid\Column\Select;
+use CmsDatagrid\Column\Action\Navigation;
 
 /**
  * @author Dmitry Popov <d.popov@altgraphic.com>
@@ -159,9 +160,8 @@ class CrudController extends AbstractCrudController implements
         $col->setWidth(80);
         $datagrid->addColumn($col);
 
-        $updateAction = new Button();
-        $updateAction->setLabel('<i class="fa fa-edit"></i>');
-        $updateAction->addClass('btn-primary');
+        /*$updateAction = new Button('<i class="fa fa-edit"></i>');
+        $updateAction->addClass('btn btn-primary');
         $rowId = $updateAction->getRowIdPlaceholder();
         $updateAction->setLink($this->url()->fromRoute(
             $this->getBaseRoute(),
@@ -172,9 +172,8 @@ class CrudController extends AbstractCrudController implements
             ]
         ));
 
-        $removeAction = new Button();
-        $removeAction->setLabel('<i class="fa fa-remove"></i>');
-        $removeAction->addClass('btn-danger');
+        $removeAction = new Button('<i class="fa fa-remove"></i>');
+        $removeAction->addClass('btn btn-danger');
         $rowId = $removeAction->getRowIdPlaceholder();
         $removeAction->setLink($this->url()->fromRoute(
             $this->getBaseRoute(),
@@ -183,13 +182,15 @@ class CrudController extends AbstractCrudController implements
                 'action' => self::ACTION_DELETE,
                 'id' => $removeAction->getRowIdPlaceholder(),
             ]
-        ));
+        ));*/
+
+        $navigation = new Navigation();
 
         $col = new Action();
         $col->setLabel('');
         $col->setWidth(20);
-        $col->addAction($updateAction);
-        $col->addAction($removeAction);
+        $col->addAction($navigation);
+        //$col->addAction($removeAction);
 
         $datagrid->addColumn($col);
 
