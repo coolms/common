@@ -157,7 +157,7 @@ class CrudController extends AbstractCrudController implements
 
         $col = new Select('name');
         $col->setLabel('Name');
-        $col->setWidth(80);
+        $col->setWidth(85);
         $datagrid->addColumn($col);
 
         /*$updateAction = new Button('<i class="fa fa-edit"></i>');
@@ -184,11 +184,11 @@ class CrudController extends AbstractCrudController implements
             ]
         ));*/
 
-        $navigation = new Navigation();
+        $navigation = new Navigation('cmsAdminModules');
 
         $col = new Action();
         $col->setLabel('');
-        $col->setWidth(20);
+        $col->setWidth(15);
         $col->addAction($navigation);
         //$col->addAction($removeAction);
 

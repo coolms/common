@@ -24,6 +24,11 @@ class Menu extends MenuHelper
     protected $decoratorNamespace = Decorator::OPTION_KEY;
 
     /**
+     * @var array
+     */
+    protected $linkPlaceholders = [];
+
+    /**
      * @var bool
      */
     protected $inheritUlClass = false;
@@ -384,9 +389,21 @@ class Menu extends MenuHelper
             }
         }
 
-        // does page have a href?
-        $href = $page->getHref();
-        if ($href) {
+        if (($params = $page->get('params')) &&
+            ($placeholders = $this->getLinkPlaceholders())
+        ) {
+            $replacedParams = $params;
+            foreach ($replacedParams as $name => $value) {
+                if (isset($placeholders[$value])) {
+                    $replacedParams[$name] = $placeholders[$value];
+                }
+            }
+
+            $page->set('params', $replacedParams);
+        }
+
+        // does page have a href
+        if ($href = $page->getHref()) {
             $element = 'a';
             $attribs['href'] = $page->get('uri') ?: $href;
             $attribs['target'] = $page->getTarget();
@@ -394,13 +411,34 @@ class Menu extends MenuHelper
             $element = 'span';
         }
 
-        if ($page->{$this->decoratorNamespace}) {
-            $html = $renderer->decorator($html, $page->{$this->decoratorNamespace});
+        $page->set('params', $params);
+
+        if ($ns = $page->get($this->decoratorNamespace)) {
+            $html = $renderer->decorator($html, $ns);
         }
 
         $html = '<' . $element . $this->htmlAttribs($attribs) . '>' . $html . '</' . $element . '>';
 
         return $html;
+    }
+
+    /**
+     * @param array $placeholders
+     * @return self
+     */
+    public function setLinkPlaceholders(array $placeholders)
+    {
+        $this->linkPlaceholders = $placeholders;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getLinkPlaceholders()
+    {
+        return $this->linkPlaceholders;
     }
 
     /**
