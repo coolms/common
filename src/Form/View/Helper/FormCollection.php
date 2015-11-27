@@ -246,7 +246,7 @@ class FormCollection extends ZendFormCollection
                 }
 
                 $vars[$fieldsetKey]  = $fieldset;
-                $vars['allowAdd']    = $collection->allowAdd();
+                $vars['allowAdd']    = $collection->allowAdd() && $collection->shouldCreateTemplate();
                 $vars['counter']     = $key;
                 $vars['legend']      = $this->renderLegend($fieldset);
                 $vars['description'] = $this->renderDescription($fieldset);
@@ -371,7 +371,7 @@ class FormCollection extends ZendFormCollection
     {
         $control = '';
 
-        if ($element instanceof Collection && $element->allowAdd()) {
+        if ($element instanceof Collection && $element->allowAdd() && $element->shouldCreateTemplate()) {
             $control = ' <button type="button" class="btn btn-add-fieldset" '
                      . 'onclick="return CmsCommon.Form.Collection.addFieldset(this, \'prepend\');">'
                      . '+</button>';
