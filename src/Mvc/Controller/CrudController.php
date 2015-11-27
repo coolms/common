@@ -25,9 +25,8 @@ use RuntimeException,
     CmsCommon\Stdlib\OptionsProviderInterface,
     CmsCommon\Stdlib\OptionsProviderTrait,
     CmsDatagrid\Column\Action,
-    CmsDatagrid\Column\Action\Button,
+    CmsDatagrid\Column\Action\Navigation,
     CmsDatagrid\Column\Select;
-use CmsDatagrid\Column\Action\Navigation;
 
 /**
  * @author Dmitry Popov <d.popov@altgraphic.com>
@@ -160,37 +159,13 @@ class CrudController extends AbstractCrudController implements
         $col->setWidth(85);
         $datagrid->addColumn($col);
 
-        /*$updateAction = new Button('<i class="fa fa-edit"></i>');
-        $updateAction->addClass('btn btn-primary');
-        $rowId = $updateAction->getRowIdPlaceholder();
-        $updateAction->setLink($this->url()->fromRoute(
-            $this->getBaseRoute(),
-            [
-                'controller' => $this->getController(),
-                'action' => self::ACTION_UPDATE,
-                'id' => $updateAction->getRowIdPlaceholder(),
-            ]
-        ));
-
-        $removeAction = new Button('<i class="fa fa-remove"></i>');
-        $removeAction->addClass('btn btn-danger');
-        $rowId = $removeAction->getRowIdPlaceholder();
-        $removeAction->setLink($this->url()->fromRoute(
-            $this->getBaseRoute(),
-            [
-                'controller' => $this->getController(),
-                'action' => self::ACTION_DELETE,
-                'id' => $removeAction->getRowIdPlaceholder(),
-            ]
-        ));*/
-
-        $navigation = new Navigation('cmsAdminModules');
+        $params = $this->params()->fromRoute();
+        $datagrid->getDataSource()->addFilterSpec($params);
 
         $col = new Action();
         $col->setLabel('');
         $col->setWidth(15);
-        $col->addAction($navigation);
-        //$col->addAction($removeAction);
+        $col->addAction(new Navigation('cmsAdminModules'));
 
         $datagrid->addColumn($col);
 

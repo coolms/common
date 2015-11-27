@@ -80,37 +80,35 @@ class Menu extends MenuHelper
                 RecursiveIteratorIterator::SELF_FIRST
             );
 
-            $terminateDepth = -1;
+            $actives = [];
+            $terminateDepth = 0;
             foreach ($iterator as $page) {
                 if (!$page->isActive(true)) {
                     continue;
                 }
 
                 if ($page->get('may_terminate')) {
-                    $terminateDepth++;
-                    if ($terminateDepth < $minDepth) {
-                        continue;
-                    }
+                    $depth      = $iterator->getDepth();
+                    $actives[]  = compact('page', 'depth');
 
                     if ($terminateDepth == $minDepth) {
-                        $depth = $iterator->getDepth();
-                        if ($depth > 0) {
-                            if ($page->get('ul_class')) {
-                                $ulClass = $page->get('ul_class');
-                            }
-                        }
-
-                        $active = compact('page', 'depth');
                         break;
                     }
+
+                    $terminateDepth++;
                 }
+            }
+
+            $active = current(array_slice($actives, $minDepth, 1));
+            if ($active && $active['depth'] > 0 && ($class = $page->get('ul_class'))) {
+                $ulClass = $class;
             }
 
         } else {
             $active = $this->findActive($container, $minDepth - 1, $maxDepth);
         }
 
-        if (!isset($active)) {
+        if (empty($active)) {
             return '';
         }
 
@@ -229,7 +227,11 @@ class Menu extends MenuHelper
                 $terminate = (bool) $page->get('may_terminate');
             }
 
-            if ($depth < $minDepth || !$this->accept($page) || ($this->terminate() && $terminate && $depth > 0)) {
+            if ($depth < $minDepth ||
+                !$this->accept($page) ||
+                ($this->terminate() && $terminate && $depth > 0) ||
+                (!$page->getHref() && !$page->hasPages(!$this->renderInvisible))
+            ) {
                 // page is below minDepth or not accepted by acl/visibility
                 continue;
             } elseif ($onlyActive && !$isActive) {
@@ -389,18 +391,24 @@ class Menu extends MenuHelper
             }
         }
 
-        if (($params = $page->get('params')) &&
-            ($placeholders = $this->getLinkPlaceholders())
-        ) {
-            $replacedParams = $params;
+        $params = $replacedParams = $page->get('params');
+        if ($placeholders = $page->get('link_placeholders')) {
+            foreach ($placeholders as $name => $value) {
+                if (!isset($replacedParams[$name])) {
+                    $replacedParams[$name] = $value;
+                }
+            }
+        }
+
+        if ($replacedParams && ($placeholders = $this->getLinkPlaceholders())) {
             foreach ($replacedParams as $name => $value) {
                 if (isset($placeholders[$value])) {
                     $replacedParams[$name] = $placeholders[$value];
                 }
             }
-
-            $page->set('params', $replacedParams);
         }
+
+        $page->set('params', $replacedParams);
 
         // does page have a href
         if ($href = $page->getHref()) {
@@ -411,7 +419,9 @@ class Menu extends MenuHelper
             $element = 'span';
         }
 
-        $page->set('params', $params);
+        if (isset($params)) {
+            $page->set('params', $params);
+        }
 
         if ($ns = $page->get($this->decoratorNamespace)) {
             $html = $renderer->decorator($html, $ns);
@@ -420,6 +430,19 @@ class Menu extends MenuHelper
         $html = '<' . $element . $this->htmlAttribs($attribs) . '>' . $html . '</' . $element . '>';
 
         return $html;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function normalizeOptions(array $options = [])
+    {
+        $normalizedOptions = parent::normalizeOptions($options);
+        if ($this->terminate() && !empty($options['minDepth'])) {
+            $normalizedOptions['minDepth'] = $options['minDepth'];
+        }
+
+        return $normalizedOptions;
     }
 
     /**

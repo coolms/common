@@ -81,6 +81,11 @@ interface MapperInterface extends EventManagerAwareInterface, ServiceLocatorAwar
     public function findOneOrCreate(array $criteria = null);
 
     /**
+     * @return bool
+     */
+    public function hasField($name);
+
+    /**
      * @param array $args
      * @return object
      */
