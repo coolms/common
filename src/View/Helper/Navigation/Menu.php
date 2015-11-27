@@ -230,7 +230,7 @@ class Menu extends MenuHelper
             if ($depth < $minDepth ||
                 !$this->accept($page) ||
                 ($this->terminate() && $terminate && $depth > 0) ||
-                (!$page->getHref() && !$page->hasPages(!$this->renderInvisible))
+                (!$page->getHref() && !$page->hasPages(!$this->renderInvisible) && $page->getLabel())
             ) {
                 // page is below minDepth or not accepted by acl/visibility
                 continue;
