@@ -135,7 +135,8 @@ abstract class AbstractHtmlContainer extends HtmlContainer
 
         if ($fieldset instanceof Element\Collection && (
             ($elements = $this->getFieldsetElements($element, $fieldset->getTargetElement())) ||
-            ($elements = $this->getFieldsetElements($element, $fieldset->getTemplateElement()))
+            (($template = $fieldset->getTemplateElement()) &&
+                ($elements = $this->getFieldsetElements($element, $template)))
         )) {
             return $elements;
         }
