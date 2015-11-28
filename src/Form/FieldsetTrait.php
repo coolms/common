@@ -34,7 +34,7 @@ trait FieldsetTrait
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an object argument; received "%s"',
                 __METHOD__,
-                $object
+                gettype($object)
             ));
         }
 
