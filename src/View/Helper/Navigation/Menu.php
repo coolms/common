@@ -142,7 +142,7 @@ class Menu extends MenuHelper
         /* @var $escaper \Zend\View\Helper\EscapeHtmlAttr */
         $escaper = $this->view->plugin('escapeHtmlAttr');
         $ulClass = $ulClass ? ' class="' . $escaper($ulClass) . '"' : '';
-        $html = $indent . '<ul' . $ulClass . '>' . PHP_EOL;
+        $html = "$indent<ul$ulClass>" . PHP_EOL;
 
         foreach ($active['page'] as $subPage) {
             if (!$this->accept($subPage)) {
@@ -162,12 +162,12 @@ class Menu extends MenuHelper
 
             $liClass = empty($liClasses) ? '' : ' class="' . $escaper(implode(' ', $liClasses)) . '"';
 
-            $html .= $indent . '    <li' . $liClass . '>' . PHP_EOL;
-            $html .= $indent . '        ' . $this->htmlify($subPage, $escapeLabels, $addClassToListItem) . PHP_EOL;
+            $html .= $indent . "    <li$liClass>" . PHP_EOL;
+            $html .= $indent . "        {$this->htmlify($subPage, $escapeLabels, $addClassToListItem)}" . PHP_EOL;
             $html .= $indent . '    </li>' . PHP_EOL;
         }
 
-        $html .= $indent . '</ul>';
+        $html .= "$indent</ul>";
 
         return $html;
     }
@@ -197,7 +197,7 @@ class Menu extends MenuHelper
             $foundPage  = $found['page'];
             $foundDepth = $found['depth'];
         } else {
-            $foundPage = null;
+            $foundPage  = null;
         }
 
         // create iterator
@@ -284,20 +284,20 @@ class Menu extends MenuHelper
                     $ulClass = $ulClass ? ' class="' . $escaper($ulClass) . '"' : '';
                 }
 
-                $html .= $myIndent . '<ul' . $ulClass . '>' . PHP_EOL;
+                $html .= "$myIndent<ul$ulClass>" . PHP_EOL;
             } elseif ($prevDepth > $depth) {
                 // close li/ul tags until we're at current depth
                 for ($i = $prevDepth; $i > $depth; $i--) {
-                    $ind = $indent . str_repeat('        ', $i);
-                    $html .= $ind . '    </li>' . PHP_EOL;
-                    $html .= $ind . '</ul>' . PHP_EOL;
+                    $ind   = $indent . str_repeat('        ', $i);
+                    $html .= "$ind    </li>" . PHP_EOL;
+                    $html .= "$ind</ul>" . PHP_EOL;
                 }
 
                 // close previous li tag
-                $html .= $myIndent . '    </li>' . PHP_EOL;
+                $html .= "$myIndent    </li>" . PHP_EOL;
             } else {
                 // close previous li tag
-                $html .= $myIndent . '    </li>' . PHP_EOL;
+                $html .= "$myIndent    </li>" . PHP_EOL;
             }
 
             // render li tag and page
@@ -318,8 +318,8 @@ class Menu extends MenuHelper
 
             $liClass = empty($liClasses) ? '' : ' class="' . $escaper(implode(' ', $liClasses)) . '"';
 
-            $html .= $myIndent . '    <li' . $liClass . '>' . PHP_EOL
-                . $myIndent . '        ' . $this->htmlify($page, $escapeLabels, $addClassToListItem) . PHP_EOL;
+            $html .= "$myIndent    <li$liClass>" . PHP_EOL
+                . "$myIndent        {$this->htmlify($page, $escapeLabels, $addClassToListItem)}" . PHP_EOL;
 
             $ulClass = $page->get('ul_class');
 
@@ -331,8 +331,8 @@ class Menu extends MenuHelper
             // done iterating container; close open ul/li tags
             for ($i = $prevDepth+1; $i > 0; $i--) {
                 $myIndent = $indent . str_repeat('        ', $i - 1);
-                $html .= $myIndent . '    </li>' . PHP_EOL
-                    . $myIndent . '</ul>' . PHP_EOL;
+                $html .= "$myIndent    </li>" . PHP_EOL
+                    . "$myIndent</ul>" . PHP_EOL;
             }
 
             $html = rtrim($html, PHP_EOL);
@@ -364,9 +364,9 @@ class Menu extends MenuHelper
 
         if ($addClassToListItem === false) {
             if (!empty($attribs['class'])) {
-                $attribs['class'] .= ' ' . $page->getClass();
+                $attribs['class'] .= " {$page->getClass()}";
             } else {
-                $attribs['class'] = $page->getClass();
+                $attribs['class']  = $page->getClass();
             }
         }
 
@@ -413,21 +413,19 @@ class Menu extends MenuHelper
         // does page have a href
         if ($href = $page->getHref()) {
             $element = 'a';
-            $attribs['href'] = $page->get('uri') ?: $href;
-            $attribs['target'] = $page->getTarget();
+            $attribs['href']    = $page->get('uri') ?: $href;
+            $attribs['target']  = $page->getTarget();
         } else {
             $element = 'span';
         }
 
-        if (isset($params)) {
-            $page->set('params', $params);
-        }
+        $page->set('params', $params);
 
         if ($ns = $page->get($this->decoratorNamespace)) {
             $html = $renderer->decorator($html, $ns);
         }
 
-        $html = '<' . $element . $this->htmlAttribs($attribs) . '>' . $html . '</' . $element . '>';
+        $html = "<$element{$this->htmlAttribs($attribs)}>$html</$element>";
 
         return $html;
     }
