@@ -11,13 +11,13 @@
 namespace CmsCommon\Form\Element;
 
 use Traversable,
-    Zend\Form\Element\Collection as ZendCollection,
+    Zend\Form\Element\Collection as CollectionElement,
     Zend\Form\Exception,
     Zend\Form\FieldsetInterface as ZendFieldsetInterface,
     CmsCommon\Form\FieldsetInterface,
     CmsCommon\Form\FieldsetTrait;
 
-class Collection extends ZendCollection implements FieldsetInterface
+class Collection extends CollectionElement implements FieldsetInterface
 {
     use FieldsetTrait;
 
@@ -26,7 +26,7 @@ class Collection extends ZendCollection implements FieldsetInterface
      */
     public function setObject($object)
     {
-        return ZendCollection::setObject($object);
+        return CollectionElement::setObject($object);
     }
 
     /**
