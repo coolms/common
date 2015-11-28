@@ -19,9 +19,15 @@ use Traversable,
 
 class Collection extends ZendCollection implements FieldsetInterface
 {
-    use FieldsetTrait {
-            FieldsetTrait::setObject as private __setObject;
-        }
+    use FieldsetTrait;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setObject($object)
+    {
+        return ZendCollection::setObject($object);
+    }
 
     /**
      * {@inheritDoc}
