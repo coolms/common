@@ -10,12 +10,12 @@
 
 namespace CmsCommon\Form\Element;
 
-use Zend\Form\Element\MonthSelect as ZendMonthSelect,
+use Zend\Form\Element\MonthSelect as MonthSelectElement,
     Zend\Validator\Date as DateValidator;
 
-class MonthSelect extends ZendMonthSelect
+class MonthSelect extends MonthSelectElement
 {
-    use MonthSelectYearTrait;
+    use MonthSelectTrait;
 
     /**
      * {@inheritDoc}

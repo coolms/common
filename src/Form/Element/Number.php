@@ -44,7 +44,7 @@ class Number extends BaseNumber
      */
     public function setMax($max)
     {
-        $this->setAttribute('max', (float) $max);
+        $this->setAttribute('max', (string) $max);
         return $this;
     }
 
@@ -62,7 +62,7 @@ class Number extends BaseNumber
      */
     public function setMin($min)
     {
-        $this->setAttribute('min', (float) $min);
+        $this->setAttribute('min', (string) $min);
         return $this;
     }
 
@@ -80,7 +80,7 @@ class Number extends BaseNumber
      */
     public function setStep($step)
     {
-        $this->setAttribute('step', (float) $step);
+        $this->setAttribute('step', (string) $step);
         return $this;
     }
 

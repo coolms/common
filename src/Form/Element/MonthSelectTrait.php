@@ -10,8 +10,58 @@
 
 namespace CmsCommon\Form\Element;
 
-trait MonthSelectYearTrait
+use DateTime;
+
+trait MonthSelectTrait
 {
+    use DateTimeTrait;
+
+    /**
+     * @var DateTime
+     */
+    protected $minDate;
+
+    /**
+     * @var DateTime
+     */
+    protected $maxDate;
+
+    /**
+     * @param string|int|DateTime $date
+     * @return self
+     */
+    public function setMinDate($date)
+    {
+        $this->minDate = $this->normalizeDateTime($date);
+        return $this;
+    }
+
+    /**
+     * @return DateTime|null
+     */
+    public function getMinDate()
+    {
+        return $this->minDate;
+    }
+
+    /**
+     * @param string|int|DateTime $date
+     * @return self
+     */
+    public function setMaxDate($date)
+    {
+        $this->maxDate = $this->normalizeDateTime($date);
+        return $this;
+    }
+
+    /**
+     * @return DateTime|null
+     */
+    public function getMaxDate()
+    {
+        return $this->maxDate;
+    }
+
     /**
      * @param  int $minYear
      * @return self
@@ -42,6 +92,6 @@ trait MonthSelectYearTrait
             return $year;
         }
 
-        return (int) (new \DateTime($year))->format('Y');
+        return (int) (new DateTime($year))->format('Y');
     }
 }

@@ -11,8 +11,6 @@
 namespace CmsCommon\Form\Element;
 
 use DateTime,
-    IntlDateFormatter,
-    Locale,
     Zend\Filter\DateSelect as DateSelectFilter,
     Zend\Filter\StaticFilter,
     Zend\Validator\Between,
@@ -25,6 +23,8 @@ use DateTime,
 
 class DateSelectRange extends InputFilterProviderFieldset
 {
+    use DateTimeTrait;
+
     /**
      * @var DateTime
      */
@@ -46,11 +46,6 @@ class DateSelectRange extends InputFilterProviderFieldset
     protected $maxEndDate;
 
     /**
-     * @var string|Locale
-     */
-    protected $locale;
-
-    /**
      * Default options
      *
      * @var array
@@ -60,11 +55,6 @@ class DateSelectRange extends InputFilterProviderFieldset
         'text_domain' => 'default',
         'partial' => 'cms-common/date-select-range-fieldset',
     ];
-
-    /**
-     * @var IntlDateFormatter
-     */
-    protected $dateFormatter;
 
     /**
      * The class or interface of objects that can be bound to this fieldset.
@@ -340,28 +330,6 @@ class DateSelectRange extends InputFilterProviderFieldset
     }
 
     /**
-     * @param string|Locale $locale
-     * @return self
-     */
-    public function setLocale($locale)
-    {
-        $this->locale = Locale::canonicalize($locale);
-        return $this;
-    }
-
-    /**
-     * @return string|Locale
-     */
-    public function getLocale()
-    {
-        if (null === $this->locale) {
-            return Locale::getDefault();
-        }
-
-        return $this->locale;
-    }
-
-    /**
      * @param string|int|DateTime $date
      * @return self
      */
@@ -447,52 +415,5 @@ class DateSelectRange extends InputFilterProviderFieldset
         }
 
         return $this->maxEndDate;
-    }
-
-    /**
-     * @param DateTime $date
-     * @return string
-     */
-    protected function format(DateTime $date)
-    {
-        return $this->getDateFormatter()->format($date);
-    }
-
-    /**
-     * Normalize the provided value to a DateTime object
-     *
-     * @param  string|int|DateTime $value
-     * @return DateTime
-     */
-    protected function normalizeDateTime($value)
-    {
-        try {
-            if (is_int($value)) {
-                //timestamp
-                $value = new DateTime("@$value");
-            } elseif (!$value instanceof DateTime) {
-                $value = new DateTime($value);
-            }
-        } catch (\Exception $e) {
-            throw new \InvalidArgumentException('Invalid date string provided', $e->getCode(), $e);
-        }
-
-        return $value;
-    }
-
-    /**
-     * @return IntlDateFormatter
-     */
-    protected function getDateFormatter()
-    {
-        if (null === $this->dateFormatter) {
-            $this->dateFormatter = new IntlDateFormatter(
-                $this->getLocale(),
-                IntlDateFormatter::LONG,
-                IntlDateFormatter::NONE
-            );
-        }
-
-        return $this->dateFormatter;
     }
 }
