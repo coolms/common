@@ -16,7 +16,7 @@ use ReflectionClass,
     Zend\Form\ElementInterface,
     Zend\Form\FieldsetInterface,
     Zend\Form\LabelAwareInterface,
-    Zend\Form\View\Helper\FormCollection as ZendFormCollection,
+    Zend\Form\View\Helper\FormCollection as FormCollectionHelper,
     Zend\I18n\Translator\TranslatorAwareInterface,
     Zend\Stdlib\ArrayUtils;
 
@@ -25,7 +25,7 @@ use ReflectionClass,
  *
  * @author Dmitry Popov <d.popov@altgraphic.com>
  */
-class FormCollection extends ZendFormCollection
+class FormCollection extends FormCollectionHelper
 {
     use FormProviderTrait;
 

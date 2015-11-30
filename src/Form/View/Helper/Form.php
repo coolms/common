@@ -12,14 +12,14 @@ namespace CmsCommon\Form\View\Helper;
 
 use Zend\Filter\Word\CamelCaseToDash,
     Zend\Form\FormInterface,
-    Zend\Form\View\Helper\Form as ZendForm,
+    Zend\Form\View\Helper\Form as FormHelper,
     Zend\View\Helper\AbstractHelper,
     CmsCommon\View\Exception\InvalidHelperException;
 
 /**
  * View helper for rendering Form objects
  */
-class Form extends ZendForm
+class Form extends FormHelper
 {
     /**
      * @var string default form class
