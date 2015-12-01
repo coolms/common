@@ -265,7 +265,7 @@ class CrudController extends AbstractCrudController implements
 
             try {
                 $this->getEventManager()->trigger(static::ACTION_UPDATE, $this, $params);
-                $this->getDomainService()->getMapper()->add($object)->save($object);
+                $this->getDomainService()->getMapper()->update($object)->save($object);
                 $form->bind($object);
             } catch (\Exception $e) {
                 $fm->setNamespace($form->getName() . '-' . $fm::NAMESPACE_ERROR)
