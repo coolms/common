@@ -312,7 +312,7 @@ class CrudController extends AbstractCrudController implements
             $this->getEventManager()->trigger(static::ACTION_DELETE, $this, $params);
             $service->getMapper()->remove($object)->save($object);
         } catch(\Exception $e) {
-            $fm->addErrorMessage($e->getMessage() . "\n" . $e->getTraceAsString());
+            $fm->addErrorMessage($e->getMessage());
             return $this->redirectToBaseRoute([
                 'action' => static::ACTION_LIST,
                 $options->getIdentifierKey() => null
