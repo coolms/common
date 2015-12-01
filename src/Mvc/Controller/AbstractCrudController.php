@@ -49,6 +49,7 @@ abstract class AbstractCrudController extends AbstractActionController
     /**
      * Retrieves list of persistence objects
      *
+     * @param array $data
      * @return ViewModel
      */
     public function listAction($data)
@@ -76,10 +77,11 @@ abstract class AbstractCrudController extends AbstractActionController
     /**
      * Retrieves persistence object
      *
+     * @param array $data
      * @param object $object
      * @return ResponseInterface|ViewModel
      */
-    public function readAction($object)
+    public function readAction($data, $object)
     {
         return $this->forward()->dispatch(
             $this->getEvent()->getRouteMatch()->getParam('controller'),
@@ -105,10 +107,11 @@ abstract class AbstractCrudController extends AbstractActionController
     /**
      * Removes persitence object
      *
+     * @param array $data
      * @param object $object
      * @return ResponseInterface
      */
-    public function deleteAction($object)
+    public function deleteAction($data, $object)
     {
         return $this->forward()->dispatch(
             $this->getEvent()->getRouteMatch()->getParam('controller'),

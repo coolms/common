@@ -112,7 +112,7 @@ class CrudController extends AbstractCrudController implements
             switch ($action) {
                 case static::ACTION_READ:
                 case static::ACTION_DELETE:
-                    $actionResponse = $this->$method($object);
+                    $actionResponse = $this->$method($data, $object);
                     break;
                 case static::ACTION_UPDATE:
                     $actionResponse = $this->$method($data, $object);
@@ -232,7 +232,7 @@ class CrudController extends AbstractCrudController implements
     /**
      * {@inheritDoc}
      */
-    public function readAction($object)
+    public function readAction($data, $object)
     {
         $options = $this->getOptions();
         $form    = $this->getForm();
@@ -284,13 +284,13 @@ class CrudController extends AbstractCrudController implements
     /**
      * {@inheritDoc}
      */
-    public function deleteAction($object)
+    public function deleteAction($data, $object)
     {
         $options = $this->getOptions();
         $viewModel = new ViewModel(compact('object', 'options'));
 
         if ($options->getUseDeleteConfirmation() &&
-            !$this->params()->fromPost($options->getDeleteConfirmKey())
+            empty($data[$options->getDeleteConfirmKey()])
         ) {
             $viewModel->setTemplate($options->getDeleteTemplate());
             return $viewModel;
