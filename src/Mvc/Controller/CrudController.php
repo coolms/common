@@ -289,11 +289,18 @@ class CrudController extends AbstractCrudController implements
         $options = $this->getOptions();
         $viewModel = new ViewModel(compact('object', 'options'));
 
-        if ($options->getUseDeleteConfirmation() &&
-            empty($data[$options->getDeleteConfirmKey()])
-        ) {
-            $viewModel->setTemplate($options->getDeleteTemplate());
-            return $viewModel;
+        if ($options->getUseDeleteConfirmation()) {
+            if (!isset($data[$options->getDeleteConfirmKey()])) {
+                $viewModel->setTemplate($options->getDeleteTemplate());
+                return $viewModel;
+            }
+
+            if (!$data[$options->getDeleteConfirmKey()]) {
+                return $this->redirectToBaseRoute([
+                    'action' => static::ACTION_LIST,
+                    $options->getIdentifierKey() => null
+                ]);
+            }
         }
 
         $service = $this->getDomainService();
@@ -306,11 +313,17 @@ class CrudController extends AbstractCrudController implements
             $service->getMapper()->remove($object)->save($object);
         } catch(\Exception $e) {
             $fm->addErrorMessage($e->getMessage());
-            return $this->redirectToBaseRoute();
+            return $this->redirectToBaseRoute([
+                'action' => static::ACTION_LIST,
+                $options->getIdentifierKey() => null
+            ]);
         }
 
         $fm->addSuccessMessage($this->translate('An object has been successfully removed'));
-        return $this->redirectToBaseRoute();
+        return $this->redirectToBaseRoute([
+            'action' => static::ACTION_LIST,
+            $options->getIdentifierKey() => null
+        ]);
     }
 
     /**
