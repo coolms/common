@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CmsBase\n"
+"Project-Id-Version: CmsCommon\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: Dmitry Popov <d.popov@altgraphic.com>\n"
