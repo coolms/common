@@ -289,7 +289,9 @@ class CrudController extends AbstractCrudController implements
         $options = $this->getOptions();
         $viewModel = new ViewModel(compact('object', 'options'));
 
-        if ($options->getUseDeleteConfirmation() && !$this->params()->fromRoute($options->getDeleteConfirmKey())) {
+        if ($options->getUseDeleteConfirmation() &&
+            !$this->params()->fromPost($options->getDeleteConfirmKey())
+        ) {
             $viewModel->setTemplate($options->getDeleteTemplate());
             return $viewModel;
         }

@@ -71,6 +71,12 @@ msgstr "Дата обновления"
 msgid "Verify you are human"
 msgstr "Подтвердите, что Вы человек"
 
+msgid "Remove confirmation"
+msgstr "Подтверждение удаления"
+
+msgid "Are you sure you want to remove \"%s\"?"
+msgstr "Вы действительно хотите удалить \"%s\"?"
+
 msgid "Since"
 msgstr "С"
 
