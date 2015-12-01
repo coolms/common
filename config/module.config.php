@@ -121,8 +121,8 @@ return [
     ],
     'form_elements' => [
         'abstract_factories' => [
-            'CmsCommon\Form\Annotation\FormAbstractServiceFactory'
-                => 'CmsCommon\Form\Annotation\FormAbstractServiceFactory',
+            'CmsCommon\Form\Annotation\FormAbstractServiceFactory' =>
+                'CmsCommon\Form\Annotation\FormAbstractServiceFactory',
         ],
         'aliases' => [
             'Collection' => 'CmsCommon\Form\Element\Collection',
@@ -171,9 +171,11 @@ return [
     ],
     'navigation_helpers' => [
         'aliases' => [
+            'breadcrumbs' => 'CmsCommon\View\Helper\Navigation\Breadcrumbs',
             'menu' => 'CmsCommon\View\Helper\Navigation\Menu',
         ],
         'invokables' => [
+            'CmsCommon\View\Helper\Navigation\Breadcrumbs' => 'CmsCommon\View\Helper\Navigation\Breadcrumbs',
             'CmsCommon\View\Helper\Navigation\Menu' => 'CmsCommon\View\Helper\Navigation\Menu',
         ],
     ],
@@ -197,8 +199,8 @@ return [
     ],
     'service_manager' => [
         'abstract_factories' => [
-            'Zend\Cache\Service\StorageCacheAbstractServiceFactory'
-                => 'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
+            'Zend\Cache\Service\StorageCacheAbstractServiceFactory' =>
+                'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
         ],
         'aliases' => [
             'ViewAcceptStrategy' => 'CmsCommon\View\AcceptStrategy',
@@ -257,13 +259,13 @@ return [
             'params' => 'CmsCommon\View\Helper\Params',
         ],
         'factories' => [
-            'Zend\Form\View\Helper\FormElementErrors'
-                => 'CmsCommon\Factory\Form\View\Helper\FormElementErrorsFactory',
-            'CmsCommon\Form\View\Helper\FormMessages'
-                => 'CmsCommon\Factory\Form\View\Helper\FormMessagesFactory',
+            'Zend\Form\View\Helper\FormElementErrors' =>
+                'CmsCommon\Factory\Form\View\Helper\FormElementErrorsFactory',
+            'CmsCommon\Form\View\Helper\FormMessages' =>
+                'CmsCommon\Factory\Form\View\Helper\FormMessagesFactory',
             'CmsCommon\View\Helper\Cookie' => 'CmsCommon\Factory\View\Helper\CookieFactory',
-            'CmsCommon\View\Helper\FlashMessenger'
-                => 'CmsCommon\Factory\View\Helper\FlashMessengerFactory',
+            'CmsCommon\View\Helper\FlashMessenger' =>
+                'CmsCommon\Factory\View\Helper\FlashMessengerFactory',
             'CmsCommon\View\Helper\Params' => 'CmsCommon\Factory\View\Helper\ParamsFactory',
         ],
         'invokables' => [

@@ -205,6 +205,7 @@ return array(
     'CmsCommon\View\Helper\JsonExpr'                                        => __DIR__ . '/src/View/Helper/JsonExpr.php',
     'CmsCommon\View\Helper\Map'                                             => __DIR__ . '/src/View/Helper/Map.php',
     'CmsCommon\View\Helper\Messages'                                        => __DIR__ . '/src/View/Helper/Messages.php',
+    'CmsCommon\View\Helper\Navigation\Breadcrumbs'                          => __DIR__ . '/src/View/Helper/Navigation/Breadcrumbs.php',
     'CmsCommon\View\Helper\Navigation\Menu'                                 => __DIR__ . '/src/View/Helper/Navigation/Menu.php',
     'CmsCommon\View\Helper\Nl2p'                                            => __DIR__ . '/src/View/Helper/Nl2p.php',
     'CmsCommon\View\Helper\Params'                                          => __DIR__ . '/src/View/Helper/Params.php',
