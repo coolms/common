@@ -17,6 +17,8 @@
     "zendframework/zendpdf" : ">=2.0.2",
     "coolms/jquery" : "dev-master@dev",
     "ocramius/ocra-cached-view-resolver" : ">=3.0.0",
+    "prooph/event-store-bus-bridge" : "~2.0",
+    "prooph/event-sourcing" : "~4.0",
     "stroker/cache" : ">=0.2.3"
   },
   "autoload" : {
