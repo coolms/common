@@ -11,10 +11,13 @@
 namespace CmsCommon\View\Helper\Navigation;
 
 use Zend\Navigation\Page\AbstractPage,
-    Zend\View\Helper\Navigation\Breadcrumbs as BreadcrumbsHelper;
+    Zend\View\Helper\Navigation\Breadcrumbs as BreadcrumbsHelper,
+    CmsCommon\View\Helper\TranslatorTrait;
 
 class Breadcrumbs extends BreadcrumbsHelper
 {
+    use TranslatorTrait;
+
     /**
      * @var string
      */
@@ -38,7 +41,7 @@ class Breadcrumbs extends BreadcrumbsHelper
     /**
      * @var string
      */
-    protected $liContainerClass;
+    protected $containerClass;
 
     /**
      * {@inheritDoc}
@@ -78,14 +81,14 @@ class Breadcrumbs extends BreadcrumbsHelper
             /* @var $escaper \Zend\View\Helper\EscapeHtml */
             $escaper = $this->view->plugin('escapeHtml');
             $html = $escaper(
-                $this->translate($active->getLabel(), $active->getTextDomain())
+                $this->translate($active->getTitle() ?: $active->getLabel(), $active->getTextDomain())
             );
         }
 
         if ($this->getRenderAsList()) {
             $attribs = [];
-            if ($this->liContainerClass) {
-                $attribs['class'] = $this->liContainerClass;
+            if ($class = $this->getContainerClass()) {
+                $attribs['class'] = $class;
             }
 
             $attribString = $this->htmlAttribs($attribs);
@@ -136,34 +139,28 @@ class Breadcrumbs extends BreadcrumbsHelper
     /**
      * {@inheritDoc}
      */
-    public function htmlify(AbstractPage $page, $escapeLabel = true, $addClassToListItem = false)
+    public function htmlify(AbstractPage $page, $escapeLabel = true)
     {
         $renderer = $this->getView();
         if ($partial = $page->get('partial')) {
-            return $renderer->partial($partial, compact('page', 'escapeLabel', 'addClassToListItem'));
+            return $renderer->partial($partial, compact('page', 'escapeLabel'));
         }
 
         // get attribs for element
         $attribs = ['id' => $page->getId()];
 
+        if (!$this->getRenderAsList() && ($class = $this->getContainerClass())) {
+            $attribs['class'] = $class;
+        }
+
         if ($title = $page->getTitle()) {
             $attribs['title'] = $title = $this->translate($title, $page->getTextDomain());
         }
 
-        if ($addClassToListItem === false) {
-            if (!empty($attribs['class'])) {
-                $attribs['class'] .= " {$page->getClass()}";
-            } else {
-                $attribs['class']  = $page->getClass();
-            }
-        }
-
+        $html = '';
         if ($label = $page->getLabel()) {
             $label = $this->translate($label, $page->getTextDomain());
-        }
 
-        $html = '';
-        if ($label) {
             if ($escapeLabel === true) {
                 /* @var $escaper \Zend\View\Helper\EscapeHtml */
                 $escaper = $this->view->plugin('escapeHtml');
@@ -276,28 +273,28 @@ class Breadcrumbs extends BreadcrumbsHelper
     }
 
     /**
-     * Sets CSS class to use for 'li' element which has children
+     * Sets CSS class to use for 'li' or 'a' element
      *
      * @param  string $class CSS class to set
      * @return self
      */
-    public function setLiContainerClass($class)
+    public function setContainerClass($class)
     {
         if (is_string($class)) {
-            $this->liContainerClass = $class;
+            $this->containerClass = $class;
         }
 
         return $this;
     }
 
     /**
-     * Returns CSS class to use for 'li' element which has children
+     * Returns CSS class to use for 'li' or 'a' element
      *
      * @return string
      */
-    public function getLiContainerClass()
+    public function getContainerClass()
     {
-        return $this->liContainerClass;
+        return $this->containerClass;
     }
 
     /**

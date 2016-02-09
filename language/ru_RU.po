@@ -89,6 +89,27 @@ msgstr "По"
 msgid "to"
 msgstr "по"
 
+msgid "List"
+msgstr "Список"
+
+msgid "Create"
+msgstr "Создать"
+
+msgid "Update"
+msgstr "Обновить"
+
+msgid "Action"
+msgstr "Действие"
+
+msgid "Actions"
+msgstr "Действия"
+
+msgid "Remove"
+msgstr "Удалить"
+
+msgid "Delete"
+msgstr "Удалить"
+
 msgid "Submit"
 msgstr "Отправить"
 

@@ -17,11 +17,12 @@ trait TranslatorTrait
 {
     /**
      * @param string $message
-     * @param string $fallbackTextDomain
+     * @param string $textDomain
      * @param string $locale
+     * @param string $fallbackTextDomain
      * @return string
      */
-    protected function translate($message, $fallbackTextDomain = 'default', $locale = null)
+    protected function translate($message, $textDomain = null, $locale = null, $fallbackTextDomain = 'default')
     {
         if (!($this->isTranslatorEnabled() && null !== ($translator = $this->getTranslator()))) {
             return $message;
@@ -32,22 +33,21 @@ trait TranslatorTrait
         }
 
         $translatorEventManager = $translator->getEventManager();
-        $translatorTextDomain = $this->getTranslatorTextDomain();
 
-        if (null === $fallbackTextDomain) {
-            $fallbackTextDomain = 'default';
+        if (null === $textDomain) {
+            $textDomain = $this->getTranslatorTextDomain();
         }
 
-        if ($fallbackTextDomain && $fallbackTextDomain !== $translatorTextDomain) {
+        if ($fallbackTextDomain !== $textDomain) {
             $callbackHandler = $translatorEventManager->attach(
                 Translator::EVENT_MISSING_TRANSLATION,
                 function($e) use ($translator, $fallbackTextDomain) {
                     if ($e->getParam('text_domain') !== $fallbackTextDomain) {
                         return $translator->translate(
-                                $e->getParam('message'),
-                                $fallbackTextDomain,
-                                $e->getParam('locale')
-                            );
+                            $e->getParam('message'),
+                            $fallbackTextDomain,
+                            $e->getParam('locale')
+                        );
                     }
 
                     return $e->getParam('message');
@@ -55,7 +55,7 @@ trait TranslatorTrait
             );
         }
 
-        $message = $translator->translate($message, $translatorTextDomain, $locale);
+        $message = $translator->translate($message, $textDomain, $locale);
 
         if (isset($callbackHandler)) {
             $translatorEventManager->detach($callbackHandler);

@@ -14,10 +14,13 @@ use RecursiveIteratorIterator,
     Zend\Navigation\AbstractContainer,
     Zend\Navigation\Page\AbstractPage,
     Zend\View\Helper\Navigation\Menu as MenuHelper,
-    CmsCommon\View\Helper\Decorator\Decorator;
+    CmsCommon\View\Helper\Decorator\Decorator,
+    CmsCommon\View\Helper\TranslatorTrait;
 
 class Menu extends MenuHelper
 {
+    use TranslatorTrait;
+
     /**
      * @var string
      */
